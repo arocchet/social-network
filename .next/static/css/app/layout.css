@@ -544,6 +544,9 @@
   .h-12 {
     height: calc(var(--spacing) * 12);
   }
+  .h-\[1\.2rem\] {
+    height: 1.2rem;
+  }
   .h-\[1\.15rem\] {
     height: 1.15rem;
   }
@@ -633,6 +636,9 @@
   }
   .w-72 {
     width: calc(var(--spacing) * 72);
+  }
+  .w-\[1\.2rem\] {
+    width: 1.2rem;
   }
   .w-\[100px\] {
     width: 100px;
@@ -758,6 +764,21 @@
   .translate-y-\[calc\(-50\%_-_2px\)\] {
     --tw-translate-y: calc(-50% - 2px);
     translate: var(--tw-translate-x) var(--tw-translate-y);
+  }
+  .scale-0 {
+    --tw-scale-x: 0%;
+    --tw-scale-y: 0%;
+    --tw-scale-z: 0%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
+  .scale-100 {
+    --tw-scale-x: 100%;
+    --tw-scale-y: 100%;
+    --tw-scale-z: 100%;
+    scale: var(--tw-scale-x) var(--tw-scale-y);
+  }
+  .rotate-0 {
+    rotate: 0deg;
   }
   .rotate-45 {
     rotate: 45deg;
@@ -3340,6 +3361,32 @@
       }
     }
   }
+  .dark\:scale-0 {
+    &:is(.dark *) {
+      --tw-scale-x: 0%;
+      --tw-scale-y: 0%;
+      --tw-scale-z: 0%;
+      scale: var(--tw-scale-x) var(--tw-scale-y);
+    }
+  }
+  .dark\:scale-100 {
+    &:is(.dark *) {
+      --tw-scale-x: 100%;
+      --tw-scale-y: 100%;
+      --tw-scale-z: 100%;
+      scale: var(--tw-scale-x) var(--tw-scale-y);
+    }
+  }
+  .dark\:-rotate-90 {
+    &:is(.dark *) {
+      rotate: calc(90deg * -1);
+    }
+  }
+  .dark\:rotate-0 {
+    &:is(.dark *) {
+      rotate: 0deg;
+    }
+  }
   .dark\:border-input {
     &:is(.dark *) {
       border-color: var(--input);
@@ -4088,6 +4135,21 @@
   inherits: false;
   initial-value: 0;
 }
+@property --tw-scale-x {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+@property --tw-scale-y {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
+@property --tw-scale-z {
+  syntax: "*";
+  inherits: false;
+  initial-value: 1;
+}
 @property --tw-rotate-x {
   syntax: "*";
   inherits: false;
@@ -4333,6 +4395,9 @@
       --tw-translate-x: 0;
       --tw-translate-y: 0;
       --tw-translate-z: 0;
+      --tw-scale-x: 1;
+      --tw-scale-y: 1;
+      --tw-scale-z: 1;
       --tw-rotate-x: initial;
       --tw-rotate-y: initial;
       --tw-rotate-z: initial;
