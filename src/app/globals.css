@@ -1,6 +1,164 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+:root {
+  --white0: #FFFFFF;
+  --white5: #F7F7F7;
+  --white10: #EDEDED;
+  --white15: #E3E3E3;
+  --black70: #534E57;
+  --black75: #333036;
+  --black80: #272529;
+  --black85: #222024;
+  --black90: #1A191C;
+  --grey10: #E8E1F0;
+  --grey15: #D9D9D9;
+  --grey25: #BDBDBD;
+  --grey30: #B2ACB8;
+  --grey50: #807F7F;
+  --grey60: #6B6A6A;
+  --grey65: #595959;
+  --grey80: #333333;
+  --grey90: #1A1A1A;
+  --red25: #EA8A98;
+  --red35: #E66A7D;
+  --red45: #E63E61;
+  --red60: #C90054;
+  --teal45: #5AC2A9;
+  --teal60: #00D4A1;
+  --teal65: #00AB81;
+  --teal75: #007864;
+  --purple10: #D7C2FF;
+  --purple15: #CAADFF;
+  --purple20: #B795FF;
+  --purple30: #9969FF;
+  --purple40: #7538FF;
+  --purple45: #601AFF;
+  --blue50: #00CBF5;
+  --blue60: #00A3C7;
+  --blue75: #00748A;
+  --orange25: #FFA482;
+  --orange40: #E6714C;
+  --orange55: #BA4020;
+  --yellow55: #F0BB00;
+  --yellow65: #BD9300;
+  --yellow75: #8A6400;
+  --green55: #00ED4F;
+  --green65: #00AD39;
+  --green75: #007A22;
+  --pink20: #F699FF;
+  --pink35: #E657FF;
+  --pink60: #AD00C9;
+  --white: var(--white0);
+  --black: var(--grey90);
+  --redFill: var(--red45);
+  --redFillAlt: var(--red35);
+  --tealAlt: var(--teal45);
+  --tealFill: var(--teal65);
+  --tealFillAlt: var(--teal45);
+  --purpleFill: var(--purple30);
+  --purpleFillAlt: var(--purple20);
+  --blueFill: var(--blue60);
+  --orangeFill: var(--orange40);
+  --yellowFill: var(--yellow65);
+  --greenFill: var(--green65);
+  --pinkFill: var(--pink35);
+  --greyFill: var(--grey50);
+  --bgLevel5: var(--black70);
+
+  /* measures */
+  --px1: 5px;
+  --px2: 10px;
+  --px3: 15px;
+  --px4: 20px;
+  --px5: 25px;
+  --px6: 30px;
+  --px7: 35px;
+  --px8: 40px;
+  --px9: 50px;
+  --px10: 60px;
+  --px11: 75px;
+  --px12: 100px;
+  --px13: 125px;
+  --px14: 150px;
+  --px15: 175px;
+  --px16: 200px;
+  --px17: 225px;
+  --px18: 250px;
+  --px19: 275px;
+  --px20: 300px;
+  --rem1: 0.5rem;
+  --rem2: 0.75rem;
+  --rem3: 1rem;
+  --rem4: 2rem;
+  --rem5: 4rem;
+  --rem6: 8rem;
+  --rem7: 16rem;
+}
+
+.dark-theme,
+.light-theme .alt-theme {
+  --neutral: var(--grey10);
+  --neutralAlt: var(--white);
+  --neutralFill: var(--grey15);
+  --neutralFillAlt: var(--white);
+  --neutralOnFill: var(--grey90);
+  --red: var(--red35);
+  --redAlt: var(--red25);
+  --teal: var(--teal60);
+  --purple: var(--purple15);
+  --purpleAlt: var(--purple10);
+  --blue: var(--blue50);
+  --orange: var(--orange25);
+  --yellow: var(--yellow55);
+  --green: var(--green55);
+  --pink: var(--pink20);
+  --grey: var(--grey25);
+  --greyHighlighted: var(--grey10);
+  --greyHighlightedAlt: var(--white);
+  --bgLevel1: var(--black90);
+  --bgLevel2: var(--black85);
+  --bgLevel3: var(--black80);
+  --bgLevel4: var(--black75);
+  --textNeutral: var(--white);
+  --textNeutralAlt: var(--grey10);
+  --textMinimal: var(--grey25);
+  --detailNeutral: var(--white);
+  --detailNeutralAlt: var(--grey10);
+  --detailMinimal: var(--grey50);
+}
+
+.light-theme,
+.dark-theme .alt-theme {
+  --neutral: var(--grey90);
+  --neutralAlt: var(--grey60);
+  --neutralFill: var(--grey80);
+  --neutralFillAlt: var(--grey65);
+  --neutralOnFill: var(--white);
+  --red: var(--red60);
+  --redAlt: var(--red35);
+  --teal: var(--teal75);
+  --purple: var(--purple40);
+  --purpleAlt: var(--purple45);
+  --blue: var(--blue75);
+  --orange: var(--orange55);
+  --yellow: var(--yellow75);
+  --green: var(--green75);
+  --pink: var(--pink60);
+  --grey: var(--grey60);
+  --greyHighlighted: var(--grey65);
+  --greyHighlightedAlt: var(--grey50);
+  --bgLevel1: var(--white5);
+  --bgLevel2: var(--white10);
+  --bgLevel3: var(--white15);
+  --textNeutral: var(--grey90);
+  --textNeutralAlt: var(--black85);
+  --textMinimal: var(--grey80);
+  --detailNeutral: var(--grey90);
+  --detailNeutralAlt: var(--grey80);
+  --detailMinimal: var(--grey65);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -116,6 +274,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }
