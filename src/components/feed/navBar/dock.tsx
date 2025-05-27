@@ -56,7 +56,7 @@ const Dock = React.forwardRef<HTMLDivElement, DockProps>(
     ({ items, className }, ref) => {
         return (
             <div ref={ref} className={cn("w-full flex items-center justify-center p-2", className)}>
-                <div className=" max-w-4xl gap-4 h-14 px-10 rounded-2xl flex items-center justify-center relative bg-secondary">
+                <div className=" max-w-4xl gap-4 h-14 px-10 rounded-2xl flex items-center justify-center relative bg-[var(--bgLevel1)] border-1 border-[var(--detailMinimal)]">
                     {items.map((item) => (
                         <DockIconButton key={item.label} {...item} />
                     ))}

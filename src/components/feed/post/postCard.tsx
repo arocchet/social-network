@@ -29,7 +29,7 @@ const PostCard = () => {
         <div key={index}>
           <Card
             key={user.userId}
-            className="rounded-xl bg-secondary shadow-none w-full h-96 border-none"
+            className="rounded-xl shadow-none w-full h-96 bg-[var(--bgLevel2)] border-[var(--detailMinimal)] "
           >
             <CardHeader className="flex">
               <Avatar className="w-10 h-10">
@@ -42,12 +42,12 @@ const PostCard = () => {
               </Avatar>
               <div className="flex-col">
                 <div className="text-lg font-semibold">{user.username}</div>
-                <div className="text-sm text-neutral-300">{user.email}</div>
+                <div className="text-sm text-[var(--textNeutral)]">{user.email}</div>
               </div>
             </CardHeader>
             <CardContent>
               <div>
-                <div className="text-xs text-neutral-400 mt-1">
+                <div className="text-xs text-[var(--textMinimal)] mt-1">
                   Registered: {new Date(user.registeredAt).toLocaleDateString()}
                 </div>
               </div>

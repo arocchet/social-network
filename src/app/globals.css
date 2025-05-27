@@ -176,6 +176,8 @@
   --grey: var(--grey25);
   --lavender: var(--lavender20);
 
+  --input: #2c2a2d;
+
   --greyHighlighted: var(--grey10);
   --greyHighlightedAlt: var(--white);
 
@@ -188,7 +190,7 @@
   --textMinimal: var(--grey25);
   --detailNeutral: var(--white);
   --detailNeutralAlt: var(--grey10);
-  --detailMinimal: var(--grey50);
+  --detailMinimal: var(--grey80);
 }
 
 .light {
@@ -209,6 +211,8 @@
   --grey: var(--grey60);
   --lavender: var(--lavender40);
 
+  --input: #ededed;
+
   --greyHighlighted: var(--grey65);
   --greyHighlightedAlt: var(--grey50);
   --bgLevel1: var(--white5);
@@ -220,7 +224,7 @@
   --textMinimal: var(--grey80);
   --detailNeutral: var(--grey90);
   --detailNeutralAlt: var(--grey80);
-  --detailMinimal: var(--grey30);
+  --detailMinimal: var(--grey15);
 }
 
 @custom-variant dark (&:is(.dark *));

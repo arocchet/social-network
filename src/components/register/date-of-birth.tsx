@@ -52,10 +52,8 @@ export function DateOfBirth() {
                                 <PopoverTrigger asChild>
                                     <FormControl>
                                         <Button
-                                            className={cn(
-                                                "pl-3 text-left font-normal text-white bg-[var(--bgLevel2)] border-1 border-[var(--detailMinimal)] ",
-                                                !field.value && "text-muted-foreground"
-                                            )}
+                                        variant={"ghost"}
+                                           className="pl-3 text-left font-normal border-1 border-[var(--detailMinimal)]"
                                         >
                                             {field.value ? (
                                                 format(field.value, "PPP")

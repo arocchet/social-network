@@ -44,10 +44,10 @@ const ProfilDemoRender = () => {
           <img
             src={currentCoverImage}
             alt="Cover"
-            className="w-full bg-muted h-40 object-cover border-y-1 border-[var(--detailMinimal)]"
+            className="w-full bg-[var(--bgLevel2)] h-40 object-cover border-y-1 border-[var(--detailMinimal)]"
           />
         ) : (
-          <div className="w-full bg-muted h-40 justify-center flex items-center border-y-1 border-[var(--detailMinimal)]">
+          <div className="w-full bg-[var(--bgLevel2)] h-40 justify-center flex items-center border-y-1 border-[var(--detailMinimal)]">
             <FaImage className="text-neutral-300" size={60} />
           </div>
         )}
@@ -57,10 +57,10 @@ const ProfilDemoRender = () => {
             <img
               src={currentAvatarImage}
               alt="Avatar"
-              className="w-20 h-20 object-cover rounded-full border-4 border-[var(--detailMinimal)] shadow-md bg-muted"
+              className="w-20 h-20 object-cover rounded-full border-4 border-[var(--detailMinimal)] shadow-md bg-[var(--bgLevel2)]"
             />
           ) : (
-            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-muted border-4 border-[var(--detailMinimal)]shadow-md">
+            <div className="w-20 h-20 flex items-center justify-center rounded-full bg-[var(--bgLevel2)] border-4 border-[var(--detailMinimal)]shadow-md">
               <FaImage className="text-neutral-300" size={40} />
             </div>
           )}
@@ -68,14 +68,14 @@ const ProfilDemoRender = () => {
       </div>
 
       <div className="h-12 bg-[var(--bgLevel1)]" />
-      <div className="px-6 pb-6 pt-2 bg-[var(--bgLevel1)]">
+      <div className="px-6 pb-6 pt-2 bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-b-1 ">
         <form className="space-y-4">
           <div className="text-blue-500 text-sm font-semibold flex gap-2 items-center">
             <FaBirthdayCake />
 
             {dateOfBirth ? formatDate(dateOfBirth) : ""}
           </div>
-          <div className="flex flex-col gap-4 sm:flex-row">
+          <div className="flex flex-col gap-4 sm:flex-row ">
             <div className="flex-1 space-y-2">
               <Label>Prénom</Label>
               <Input
@@ -126,21 +126,21 @@ const ProfilDemoRender = () => {
       <Card className="shadow-none border-none rounded-none bg-[var(--bgLevel2)]">
         <CardHeader>
           <div className="flex items-center space-x-4">
-            <Skeleton className="h-12 w-12 rounded-full" />
+            <Skeleton className="h-12 w-12 rounded-full bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
             <div className="space-y-2">
-              <Skeleton className="h-4 w-[250px]" />
-              <Skeleton className="h-4 w-[200px]" />
+              <Skeleton className="h-4 w-[250px] bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
+              <Skeleton className="h-4 w-[200px] bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
             </div>
           </div>
-          <Skeleton className="h-4 w-4/5" />
-          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-4 w-4/5 bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
+          <Skeleton className="h-4 w-2/3 bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
         </CardHeader>
         <CardContent>
-          <Skeleton className="h-72 w-full rounded" />
+          <Skeleton className="h-72 w-full rounded-lg bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
         </CardContent>
         <CardFooter className="gap-2">
-          <Skeleton className="h-8 w-20" />
-          <Skeleton className="h-8 w-20" />
+          <Skeleton className="h-8 w-20 bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
+          <Skeleton className="h-8 w-20 bg-[var(--bgLevel1)] border-[var(--detailMinimal)] border-1" />
         </CardFooter>
       </Card>
     </div>

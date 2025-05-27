@@ -11,9 +11,9 @@ const Sidebar = () => {
     return (
         <div className="flex h-screen">
             {/* Desktop Sidebar */}
-            <div className="hidden md:flex flex-col fixed top-0 left-0 h-full w-64 bg-white text-black shadow">
+            <div className="hidden md:flex flex-col fixed top-0 left-0 h-full w-64 bg-[var(--bgLevel2)] text-black shadow border-r-1 border-[var(--detailMinimal)]">
                 {/* Profile Section */}
-                <div className="p-4 border-b border-gray-200">
+                <div className="p-5 border-b-1 border-[var(--detailMinimal)] bg-[var(--bgLevel1)]">
                     <div className="flex items-center space-x-3">
                         <img
                             src={"/konekt-logo-full.png"}
@@ -22,30 +22,31 @@ const Sidebar = () => {
                     </div>
                 </div>
                 {/* Navigation Section */}
-                <nav className="flex-1 p-4 overflow-y-auto">
+                
+                <nav className="flex-1 py-4 px-2 overflow-y-auto">
+                    {/* <ModeToggle/> */}
                     <ul>
-                        <ModeToggle />
                         <li className="mb-2">
-                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-[var(--bgLevel1)] text-[var(--textNeutral)]">
                                 <Home className="h-5 w-5" />
                                 Home
                             </button>
                         </li>
                         <li className="mb-2">
-                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-[var(--bgLevel1)] text-[var(--textNeutral)]">
                                 <Search className="h-5 w-5" />
                                 Rechercher
                             </button>
                         </li>
                         <li className="mb-2">
-                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
+                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-[var(--bgLevel1)] text-[var(--textNeutral)]">
                                 <Heart className="h-5 w-5" />
                                 Notifications
                             </button>
                         </li>
                         <li className="">
-                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
-                                <Avatar className="h-5 w-5 bg-secondary" />
+                            <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-[var(--bgLevel1)] text-[var(--textNeutral)]">
+                                <Avatar className="h-5 w-5 bg-secondary border-2 border-[var(--textNeutral)]" />
                                 Profil
                             </button>
                         </li>

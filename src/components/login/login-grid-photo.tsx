@@ -25,7 +25,6 @@ export function LoginGridPhoto() {
                 <GridMotion
                     items={items}
                     gradientColor="hsl(var(--brand-foreground))"
-                    className="opacity-75"
                 />
             </div>
         </div>
