@@ -1,16 +1,16 @@
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { siteConfig } from "../../../config/site"
-import Link from "next/link"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { siteConfig } from "../../../config/site";
+import Link from "next/link";
 
 export function LoginForm({
   className,
@@ -18,7 +18,7 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card className="border-none shadow-none text-center">
+      <Card className="border-none shadow-none text-center border-1 border-[var(--detailMinimal)] bg-[var(--bgLevel3)]">
         <CardHeader>
           <CardTitle className="text-2xl">Se connecter</CardTitle>
           <CardDescription>
@@ -63,5 +63,5 @@ export function LoginForm({
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

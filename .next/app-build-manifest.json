@@ -16,15 +16,20 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(feed)/page.js"
     ],
-    "/(feed)/[postId]/page": [
+    "/(auth)/layout": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/(feed)/[postId]/page.js"
+      "static/chunks/app/(auth)/layout.js"
     ],
-    "/_not-found/page": [
+    "/(auth)/login/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/_not-found/page.js"
+      "static/chunks/app/(auth)/login/page.js"
+    ],
+    "/(auth)/register/page": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/(auth)/register/page.js"
     ]
   }
 }
