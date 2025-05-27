@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "../../config/site";
 import { geistMono, geistSans } from "../../config/font";
+import { ModeToggle } from "@/components/toggle-theme";
 
 export const metadata: Metadata = {
   title: {
@@ -11,14 +12,13 @@ export const metadata: Metadata = {
   },
   description: "Social network",
   icons: "/favicon.ico",
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -35,6 +35,5 @@ export default function RootLayout({
         </ThemeProvider>
       </body>
     </html>
-  )
+  );
 }
-

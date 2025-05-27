@@ -16,7 +16,7 @@ function NavBarMobile() {
         { icon: Heart, label: "Favorites" },
         { icon: User, label: "Profile" },
     ]
-    return <Dock className=" fixed bottom-0 z-50" items={items} />
+    return <Dock className="fixed bottom-0 z-50" items={items} />
 }
 
 export { NavBarMobile } 

@@ -11,7 +11,7 @@ export function ProfileBg() {
 
     return (
         <div className="h-32">
-            <div className="relative rounded-2xl flex h-full w-full items-center justify-center overflow-hidden bg-muted cursor-pointer" onClick={() => handleThumbnailClick("cover")}>
+            <div className="relative border-[var(--detailMinimal)] border-1 rounded-2xl flex h-full w-full items-center justify-center overflow-hidden bg-[var(--bgLevel2)] cursor-pointer" onClick={() => handleThumbnailClick("cover")}>
                 {currentImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -23,7 +23,7 @@ export function ProfileBg() {
                         height={96}
                     />
                 ) : (
-                    <div className="w-full bg-muted h-40 justify-center flex items-center">
+                    <div className="w-full bg-[var(--bgLevel1)] h-40 justify-center flex items-center">
                         <FaImage className="text-neutral-300" size={30} />
                     </div>
                 )}

@@ -9,7 +9,7 @@ export function Avatar() {
 
     return (
         <div className=" px-6">
-            <div className="relative flex size-20 items-center justify-center cursor-pointer overflow-hidden rounded-full border-4 border-background bg-muted shadow-sm shadow-black/10" onClick={() => handleThumbnailClick("avatar")}>
+            <div className="relative flex size-20  border-4 items-center justify-center cursor-pointer overflow-hidden rounded-full bg-muted shadow-sm shadow-black/10" onClick={() => handleThumbnailClick("avatar")}>
                 {currentImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
