@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { siteConfig } from "../../../config/site"
+import Link from "next/link"
 
 export function LoginForm({
   className,
@@ -16,11 +18,11 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+      <Card className="border-none shadow-none text-center">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl">Se connecter</CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Entrez vos informations pour continuer sur {siteConfig.name}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -42,23 +44,20 @@ export function LoginForm({
                     href="#"
                     className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                   >
-                    Forgot your password?
+                    Mot de passe oublié ?
                   </a>
                 </div>
                 <Input id="password" type="password" required />
               </div>
               <Button type="submit" className="w-full">
-                Login
-              </Button>
-              <Button variant="outline" className="w-full">
-                Login with Google
+                Se connecter
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Sign up
-              </a>
+              Vous n&apos;avez pas de compte?{" "}
+              <Link href="/register" className="underline underline-offset-4">
+                Créer un compte
+              </Link>
             </div>
           </form>
         </CardContent>
