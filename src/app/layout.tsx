@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "../../config/site";
 import { geistMono, geistSans } from "../../config/font";
+import { ModeToggle } from "@/components/toggle-theme";
 
 export const metadata: Metadata = {
   title: {

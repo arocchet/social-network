@@ -10,7 +10,7 @@ import Link from "next/link";
 
 export default function LoginPage() {
   return (
-    <div className="grid min-h-screen lg:grid-cols-2 w-full bg-[var(--bgLevel2)]">
+    <div className="grid min-h-screen lg:grid-cols-2 w-full bg-[var(--bgLevel3)]">
       <div className="flex flex-col gap-4 p-8 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <Link href="/" className="flex items-center gap-2 font-medium">
@@ -24,7 +24,7 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-1 mt-25 justify-center">
           <div className="">
-            <h1 className="flex items-center justify-center text-3xl text-center font-bold p-15 ">
+            <h1 className="flex items-center justify-center text-3xl text-center font-bold p-15 text-[var(--textNeutral)] ">
               Bon retour sur {siteConfig.name.toLocaleUpperCase()}
             </h1>
             <LoginForm />

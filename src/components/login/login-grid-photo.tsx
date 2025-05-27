@@ -21,7 +21,7 @@ export function LoginGridPhoto() {
 
     return (
         <div className="space-y-8">
-            <div className="h-screen w-full bg-black">
+            <div className="h-screen w-full bg-[var(--bgLevel2)] ">
                 <GridMotion
                     items={items}
                     gradientColor="hsl(var(--brand-foreground))"

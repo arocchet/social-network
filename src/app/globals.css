@@ -214,12 +214,13 @@
   --bgLevel1: var(--white5);
   --bgLevel2: var(--white10);
   --bgLevel3: var(--white15);
-  --textNeutral: var(--grey90);
+  --bgLevel4: var(--grey25);
+  --textNeutral: var(--grey80);
   --textNeutralAlt: var(--black85);
   --textMinimal: var(--grey80);
   --detailNeutral: var(--grey90);
   --detailNeutralAlt: var(--grey80);
-  --detailMinimal: var(--grey65);
+  --detailMinimal: var(--grey30);
 }
 
 @custom-variant dark (&:is(.dark *));
