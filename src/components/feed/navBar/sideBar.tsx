@@ -2,6 +2,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import { ModeToggle } from "@/components/toggle-theme";
 import { Avatar } from "@/components/ui/avatar";
 import { Home, Search, Heart } from "lucide-react";
 
@@ -23,6 +24,7 @@ const Sidebar = () => {
                 {/* Navigation Section */}
                 <nav className="flex-1 p-4 overflow-y-auto">
                     <ul>
+                        <ModeToggle />
                         <li className="mb-2">
                             <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-gray-100">
                                 <Home className="h-5 w-5" />

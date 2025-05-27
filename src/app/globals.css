@@ -1,6 +1,227 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+:root {
+  --white0: #ffffff;
+  --white5: #f7f7f7;
+  --white10: #ededed;
+  --white15: #e3e3e3;
+  --black70: #534e57;
+  --black75: #333036;
+  --black80: #272529;
+  --black85: #222024;
+  --black90: #1a191c;
+
+  --grey10: #e8e1f0;
+  --grey15: #d9d9d9;
+  --grey25: #bdbdbd;
+  --grey30: #b2acb8;
+  --grey50: #807f7f;
+  --grey60: #6b6a6a;
+  --grey65: #595959;
+  --grey80: #333333;
+  --grey90: #1a1a1a;
+
+  --red10: #641220;
+  --red20: #6e1423;
+  --red30: #85182a;
+  --red40: #a11d33;
+  --red50: #a71e34;
+  --red60: #b21e35;
+  --red70: #bd1f36;
+  --red80: #c71f37;
+  --red90: #da1e37;
+  --red100: #e01e37;
+
+  --teal10: #99e2b4;
+  --teal20: #88d4ab;
+  --teal30: #78c6a3;
+  --teal40: #67b99a;
+  --teal50: #56ab91;
+  --teal60: #469d89;
+  --teal70: #358f80;
+  --teal80: #248277;
+  --teal90: #14746f;
+  --teal100: #036666;
+
+  --purple10: #310055;
+  --purple20: #3c0663;
+  --purple30: #4a0a77;
+  --purple40: #5a108f;
+  --purple50: #6818a5;
+  --purple60: #8b2fc9;
+  --purple70: #ab51e3;
+  --purple80: #bd68ee;
+  --purple90: #d283ff;
+  --purple100: #dc97ff;
+
+  --lavender10: #757bc8;
+  --lavender20: #8187dc;
+  --lavender30: #8e94f2;
+  --lavender40: #9fa0ff;
+  --lavender50: #ada7ff;
+  --lavender60: #bbadff;
+  --lavender70: #cbb2fe;
+  --lavender80: #dab6fc;
+  --lavender90: #ddbdfc;
+  --lavender100: #e0c3fc;
+
+  --blue10: #e3f2fd;
+  --blue20: #bbdefb;
+  --blue30: #90caf9;
+  --blue40: #64b5f6;
+  --blue50: #42a5f5;
+  --blue60: #2196f3;
+  --blue70: #1e88e5;
+  --blue80: #1976d2;
+  --blue90: #1565c0;
+  --blue100: #0d47a1;
+
+  --sunsetOrange10: #e62314;
+  --sunsetOrange20: #e83715;
+  --sunsetOrange30: #ea4c15;
+  --sunsetOrange40: #ec6116;
+  --sunsetOrange50: #ed7517;
+  --sunsetOrange60: #ef8a17;
+  --sunsetOrange70: #f19e18;
+
+  --orange10: #ff4800;
+  --orange20: #ff5400;
+  --orange30: #ff6000;
+  --orange40: #ff6d00;
+  --orange50: #ff7900;
+  --orange60: #ff8500;
+  --orange70: #ff9100;
+  --orange80: #ff9e00;
+  --orange90: #ffaa00;
+  --orange100: #ffb600;
+
+  --yellow10: #fff75e;
+  --yellow20: #fff056;
+  --yellow30: #ffe94e;
+  --yellow40: #ffe246;
+  --yellow50: #ffda3d;
+  --yellow60: #ffd53e;
+  --yellow70: #fecf3e;
+  --yellow80: #fdc43f;
+  --yellow90: #fdbe39;
+  --yellow100: #fdb833;
+
+  --green10: #10451d;
+  --green20: #155d27;
+  --green30: #1a7431;
+  --green40: #208b3a;
+  --green50: #25a244;
+  --green60: #2dc653;
+  --green70: #4ad66d;
+  --green80: #6ede8a;
+  --green90: #92e6a7;
+  --green100: #b7efc5;
+
+  --pink10: #ff0a54;
+  --pink20: #ff477e;
+  --pink30: #ff5c8a;
+  --pink40: #ff7096;
+  --pink50: #ff85a1;
+  --pink60: #ff99ac;
+  --pink70: #fbb1bd;
+  --pink80: #f9bec7;
+  --pink90: #f7cad0;
+  --pink100: #fae0e4;
+
+  --white: var(--white0);
+  --black: var(--grey90);
+
+  --redFill: var(--red50);
+  --redFillAlt: var(--red90);
+
+  --tealAlt: var(--teal40);
+  --tealFill: var(--teal50);
+  --tealFillAlt: var(--teal70);
+
+  --purpleAlt: var(--purple50);
+  --purpleFill: var(--purple80);
+  --purpleFillAlt: var(--purple100);
+
+  --blueFill: var(--blue60);
+
+  --orangeFill: var(--sunsetOrange60);
+
+  --yellowFill: var(--yellow100);
+
+  --greenFill: var(--green50);
+
+  --pinkFill: var(--pink40);
+
+  --greyFill: var(--grey50);
+
+  --bgLevel5: var(--black70);
+}
+
+.dark {
+  --neutral: var(--grey10);
+  --neutralAlt: var(--white);
+  --neutralFill: var(--grey15);
+  --neutralFillAlt: var(--white);
+  --neutralOnFill: var(--grey90);
+
+  --red: var(--red100);
+  --teal: var(--teal20);
+  --purple: var(--purple90);
+  --blue: var(--blue40);
+  --orange: var(--orange80);
+  --yellow: var(--yellow70);
+  --green: var(--green60);
+  --pink: var(--pink60);
+  --grey: var(--grey25);
+  --lavender: var(--lavender20);
+
+  --greyHighlighted: var(--grey10);
+  --greyHighlightedAlt: var(--white);
+
+  --bgLevel1: var(--black90);
+  --bgLevel2: var(--black85);
+  --bgLevel3: var(--black80);
+  --bgLevel4: var(--black75);
+  --textNeutral: var(--white);
+  --textNeutralAlt: var(--grey10);
+  --textMinimal: var(--grey25);
+  --detailNeutral: var(--white);
+  --detailNeutralAlt: var(--grey10);
+  --detailMinimal: var(--grey50);
+}
+
+.light {
+  --neutral: var(--grey90);
+  --neutralAlt: var(--grey60);
+  --neutralFill: var(--grey80);
+  --neutralFillAlt: var(--grey65);
+  --neutralOnFill: var(--white);
+
+  --red: var(--red80);
+  --teal: var(--teal30);
+  --purple: var(--purple70);
+  --blue: var(--blue90);
+  --orange: var(--orange90);
+  --yellow: var(--yellow70);
+  --green: var(--green50);
+  --pink: var(--pink20);
+  --grey: var(--grey60);
+  --lavender: var(--lavender40);
+
+  --greyHighlighted: var(--grey65);
+  --greyHighlightedAlt: var(--grey50);
+  --bgLevel1: var(--white5);
+  --bgLevel2: var(--white10);
+  --bgLevel3: var(--white15);
+  --textNeutral: var(--grey90);
+  --textNeutralAlt: var(--black85);
+  --textMinimal: var(--grey80);
+  --detailNeutral: var(--grey90);
+  --detailNeutralAlt: var(--grey80);
+  --detailMinimal: var(--grey65);
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -116,6 +337,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

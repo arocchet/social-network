@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
 import "./globals.css";
+import type { Metadata } from "next";
+import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "../../config/site";
 import { geistMono, geistSans } from "../../config/font";
 
@@ -19,16 +20,19 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <div>
-          <div>
-            {children}
-          </div>
-        </div>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

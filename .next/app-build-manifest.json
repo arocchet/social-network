@@ -16,21 +16,6 @@
       "static/chunks/main-app.js",
       "static/chunks/app/(feed)/page.js"
     ],
-    "/(auth)/layout": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth)/layout.js"
-    ],
-    "/(auth)/register/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth)/register/page.js"
-    ],
-    "/(auth)/login/page": [
-      "static/chunks/webpack.js",
-      "static/chunks/main-app.js",
-      "static/chunks/app/(auth)/login/page.js"
-    ],
     "/(feed)/[postId]/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",

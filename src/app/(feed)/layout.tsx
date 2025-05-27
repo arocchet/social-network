@@ -12,7 +12,7 @@ export default function FeedLayout({ children }: { children: React.ReactNode }) 
                         <Sidebar />
                     </div>
                     {/* NavBarMobile visible uniquement en-dessous de md (<768px) */}
-                    <div className="block md:hidden fixed bottom-0 left-0 right-0 z-50">
+                    <div className="block md:hidden  fixed bottom-0 left-0 right-0 z-50">
                         <NavBarMobile />
                     </div>
                     <div className="flex min-h-screen w-screen">
