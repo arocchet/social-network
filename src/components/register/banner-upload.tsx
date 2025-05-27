@@ -11,7 +11,7 @@ export function ProfileBg() {
 
     return (
         <div className="h-32">
-            <div className="relative rounded-2xl flex h-full w-full items-center justify-center overflow-hidden bg-muted cursor-pointer" onClick={() => handleThumbnailClick("cover")}>
+            <div className="relative border-[var(--detailMinimal)] border-1 rounded-2xl flex h-full w-full items-center justify-center overflow-hidden bg-muted cursor-pointer" onClick={() => handleThumbnailClick("cover")}>
                 {currentImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img

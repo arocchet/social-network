@@ -52,9 +52,8 @@ export function DateOfBirth() {
                                 <PopoverTrigger asChild>
                                     <FormControl>
                                         <Button
-                                            variant={"outline"}
                                             className={cn(
-                                                "pl-3 text-left font-normal",
+                                                "pl-3 text-left font-normal text-white bg-[var(--bgLevel2)] border-1 border-[var(--detailMinimal)] ",
                                                 !field.value && "text-muted-foreground"
                                             )}
                                         >

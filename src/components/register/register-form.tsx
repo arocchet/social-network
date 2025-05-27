@@ -28,10 +28,10 @@ export function RegisterForm({
 
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
-      <div className="flex flex-col items-center gap-2 text-center">
+      <div className="flex flex-col items-center gap-2 text-center ">
         <h1 className="text-2xl font-bold">Rejoindre {siteConfig.name}</h1>
       </div>
-      <div className="grid gap-6 ">
+      <div className="grid gap-6 border-1 border-[var(--detailMinimal)] bg-[var(--bgLevel2)] p-6 rounded-xl">
         <div className="grid gap-2 justify-center ">
           <Avatar />
         </div>
@@ -40,12 +40,15 @@ export function RegisterForm({
         </div>
         <div className="flex gap-4">
           <div className="grid gap-2">
-            <Label htmlFor="firstname">Prénom</Label>
+            <Label className="border-[var(--detailMinimal)]"
+              htmlFor="firstname">Prénom</Label>
             <Input
               id="firstname"
               placeholder="dupont"
               required
               value={firstname}
+              className="border-[var(--detailMinimal)]"
+
               onChange={(e) => setFirstname(e.target.value)}
             />
           </div>
@@ -56,6 +59,8 @@ export function RegisterForm({
               placeholder="Martin"
               required
               value={lasttname}
+              className="border-[var(--detailMinimal)]"
+
               onChange={(e) => setLasttname(e.target.value)}
             />
           </div>
@@ -68,6 +73,8 @@ export function RegisterForm({
               placeholder="Martin"
               required
               value={username}
+              className="border-[var(--detailMinimal)]"
+
               onChange={(e) => setUsername(e.target.value)}
             />
           </div>
@@ -82,12 +89,16 @@ export function RegisterForm({
             placeholder="Dev full stack ..."
             required
             value={biography}
+            className="border-[var(--detailMinimal)]"
+
             onChange={(e) => setBiography(e.target.value)}
           />
         </div>
         <div className="grid gap-2">
-          <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Label className="border-[var(--detailMinimal)]"
+            htmlFor="email">Email</Label>
+          <Input className="border-[var(--detailMinimal)]"
+            id="email" type="email" placeholder="m@example.com" required />
         </div>
         <div className="grid gap-2">
           <div className="flex items-center">
@@ -98,9 +109,11 @@ export function RegisterForm({
             type="password"
             placeholder="**********"
             required
+            className="border-[var(--detailMinimal)]"
+
           />
         </div>
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full bg-[var(--pink20)] text-[var(--white)] hover:bg-[var(--pink40)]">
           Créer un compte
         </Button>
       </div>
