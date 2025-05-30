@@ -5,6 +5,7 @@
 import { ModeToggle } from "@/components/toggle-theme";
 import { Avatar } from "@/components/ui/avatar";
 import { Home, Search, Heart } from "lucide-react";
+import CreatePost from "../post/createPost";
 
 const Sidebar = () => {
 
@@ -22,9 +23,9 @@ const Sidebar = () => {
                     </div>
                 </div>
                 {/* Navigation Section */}
-                
+
                 <nav className="flex-1 py-4 px-2 overflow-y-auto">
-                    {/* <ModeToggle/> */}
+                    <ModeToggle />
                     <ul>
                         <li className="mb-2">
                             <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-[var(--bgLevel1)] text-[var(--textNeutral)]">
@@ -37,6 +38,9 @@ const Sidebar = () => {
                                 <Search className="h-5 w-5" />
                                 Rechercher
                             </button>
+                        </li>
+                        <li className="mb-2">
+                            <CreatePost />
                         </li>
                         <li className="mb-2">
                             <button className="flex gap-2 font-medium text-sm items-center w-full py-2 px-4 rounded-xl hover:bg-[var(--bgLevel1)] text-[var(--textNeutral)]">

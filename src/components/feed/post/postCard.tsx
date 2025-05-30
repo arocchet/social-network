@@ -1,12 +1,16 @@
+/* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { createRandomUser } from "./fakeUser";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { PostDetails } from "./postDetails";
+import InputComment from "../../comments/InputComment";
 
-interface User {
+
+export interface User {
   userId: string;
   username: string;
   email: string;
@@ -29,10 +33,10 @@ const PostCard = () => {
         <div key={index}>
           <Card
             key={user.userId}
-            className="rounded-xl shadow-none w-full h-96 bg-[var(--bgLevel2)] border-[var(--detailMinimal)] "
+            className="rounded-xl shadow-none w-full  bg-[var(--bgLevel2)] border-[var(--detailMinimal)] "
           >
-            <CardHeader className="flex">
-              <Avatar className="w-10 h-10">
+            <CardHeader className="flex items-center gap-2">
+              <Avatar className="w-8 h-8">
                 <AvatarImage
                   src={user.avatar}
                   alt={user.username}
@@ -41,17 +45,22 @@ const PostCard = () => {
                 <AvatarFallback>{user.username[0]}</AvatarFallback>
               </Avatar>
               <div className="flex-col">
-                <div className="text-lg font-semibold">{user.username}</div>
-                <div className="text-sm text-[var(--textNeutral)]">{user.email}</div>
+                <div className="text-base font-semibold">{user.username}</div>
+              </div>
+              <div className="flex-col">
+                {/* add var dateTime created post */}
+                <div className="text-base text-[var(--greyFill)]">il y a </div>
               </div>
             </CardHeader>
-            <CardContent>
-              <div>
-                <div className="text-xs text-[var(--textMinimal)] mt-1">
-                  Registered: {new Date(user.registeredAt).toLocaleDateString()}
-                </div>
+            <CardContent className="h-full flex-col">
+              <div >
+                <img className="h-full" src={user.avatar}></img>
               </div>
             </CardContent>
+            <CardFooter className="gap-2 flex-col items-start">
+              <PostDetails />
+              <InputComment />
+            </CardFooter>
           </Card>
         </div>
       ))}

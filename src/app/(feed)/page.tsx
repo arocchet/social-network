@@ -3,6 +3,7 @@
 'use client'
 
 import PostCard from "@/components/feed/post/postCard"
+import Stories from "@/components/stories/stories"
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
         </div>
 
         <ul className="max-w-2xl w-full mx-auto space-y-4 p-4">
+          <Stories />
           <PostCard />
         </ul>
       </main>
