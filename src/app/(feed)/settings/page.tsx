@@ -4,7 +4,7 @@ import Settings from "@/components/settings/SettingsMain";
 
 export default function settingsPage(){
   return(
-    <div className="mx-auto md:ml-64">
+    <div className="h-screen bg-[var(--bgLevel1)] flex flex-col md:w-fit">
        <Settings />
     </div>
   );

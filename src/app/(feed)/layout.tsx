@@ -17,7 +17,7 @@ export default function FeedLayout({ children }: { children: React.ReactNode }) 
                     </div>
                     <div className="flex min-h-screen w-screen">
                         {/* Contenu principal centré avec compensation pour la sidebar */}
-                        <div className="w-full max-w-3xl">
+                        <div className="w-full">
                             {children}
                         </div>
                     </div>
