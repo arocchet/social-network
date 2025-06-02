@@ -16,6 +16,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import InputComment from "../../comments/InputComment";
 import PostReaction from "./postReaction";
 import CommentPage from "@/components/comments/Comment";
+import { MessageCircle } from "lucide-react";
 
 function PostDetails() {
     const [hasReadToBottom, setHasReadToBottom] = useState(false);
@@ -41,7 +42,9 @@ function PostDetails() {
         <Dialog>
             <DialogTrigger asChild>
                 {/* Add comments.length number of comments for this post */}
-                <Button className="p-0" variant="ghost">Afficher les commentaires</Button>
+                <Button variant="ghost" size="icon" className="p-0">
+                    <MessageCircle className="w-6 h-6" />
+                </Button>
             </DialogTrigger>
             <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(840px,90vh)] sm:max-w-5xl [&>button:last-child]:top-3.5">
                 <DialogHeader className="contents space-y-0 text-left">

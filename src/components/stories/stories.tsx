@@ -39,8 +39,8 @@ const Stories = () => {
                     <div key={index} className="flex flex-col items-center text-sm text-center">
                         <Dialog>
                             <DialogTrigger asChild>
-                                <button className="relative w-16 h-16 rounded-full p-[2px]">
-                                    <Avatar className="w-full h-full border-2 border-white shadow-sm">
+                                <button className="relative w-13 h-13 rounded-full p-[2px]">
+                                    <Avatar className="w-full h-full border-2 border-[var(--pink)] shadow-sm">
                                         <AvatarImage
                                             src={user.avatar}
                                             alt={user.username}
@@ -61,7 +61,7 @@ const Stories = () => {
                                 </DialogHeader>
                             </DialogContent>
                         </Dialog>
-                        <span className="mt-1 truncate max-w-[60px]">{user.username}</span>
+                        <span className="mt-1 text-sm text-[var(--neutral)] truncate max-w-[60px]">{user.username}</span>
                     </div>
                 ))}
             </div>
