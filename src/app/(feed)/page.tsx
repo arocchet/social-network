@@ -3,13 +3,13 @@
 'use client'
 
 import PostCard from "@/components/feed/post/postCard"
-import Stories from "@/components/stories/stories"
 import { Button } from "@/components/ui/button"
 import { MessageCircle, Play, PlusSquare, Search, Send, Home, Settings2, SettingsIcon } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import Image from "next/image"
 import { ModeToggle } from "@/components/toggle-theme"
 import Settings from "@/components/settings/SettingsMain"
+import { Stories } from "@/components/stories/stories"
 
 
 export default function HomePage() {
@@ -49,7 +49,7 @@ export default function HomePage() {
         <PostCard />
       </div>
 
-      <nav className="fixed bottom-4 left-1 right-1 z-50 max-w-3xl mx-auto">
+      <nav className="fixed bottom-4 left-1 right-1 z-40 max-w-3xl mx-auto">
         <div className="backdrop-blur-lg border border-[var(--detailMinimal)] bg-[var(--bgLevel1)] rounded-2xl max-w-xs sm:max-w-md md:max-w-lg mx-auto shadow-lg shadow-black/10 px-5 py-1">
           <div className="flex items-center justify-between">
             <Button variant="ghost" size="icon" className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl">
