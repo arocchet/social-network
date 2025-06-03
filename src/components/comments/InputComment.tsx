@@ -18,13 +18,16 @@ const InputComment = () => {
   };
   return (
     <div className="w-full flex items-center gap-2">
-      <Input type="text" placeholder="Ajouter un commentaire..."></Input>
+      <Input className="border-[var(--detailMinimal)]" type="text" placeholder="Ajouter un commentaire..."></Input>
       <Popover onOpenChange={setIsOpen} open={isOpen}>
         <PopoverTrigger asChild>
-          <Button variant={"ghost"} className="p-0">
-            {" "}
-            <FaRegFaceSmileBeam size={30} />
+          <Button
+            variant="ghost"
+            className="border-1 border-[var(--detailMinimal)] p-0 flex items-center justify-center"
+          >
+            <FaRegFaceSmileBeam className="w-full h-full" />
           </Button>
+
         </PopoverTrigger>
         <PopoverContent className="w-fit p-0">
           <EmojiPicker

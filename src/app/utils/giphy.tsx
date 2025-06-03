@@ -2,7 +2,8 @@
 import React, { useState } from "react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import { IGif } from "@giphy/js-types";
-import { MdOutlineGifBox } from "react-icons/md";
+import { MdGif, MdOutlineGifBox } from "react-icons/md";
+import { Button } from "@/components/ui/button";
 
 type GifPopoverProps = {
   onSelect: (gif: IGif) => void;
@@ -33,7 +34,13 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
 
   return (
     <div className="relative  ">
-      <MdOutlineGifBox onClick={() => setIsOpen(!isOpen)} size={37} />
+      <Button
+        variant="ghost"
+        className="border-1 border-[var(--detailMinimal)] p-2 flex items-center justify-center"
+         onClick={() => setIsOpen(!isOpen)}
+      >
+        GIF
+      </Button>
       {isOpen && (
         <div className="absolute bottom-full right-0 mb-2 z-[9999] w-80 bg-white border shadow-lg rounded-lg p-4">
           <input
