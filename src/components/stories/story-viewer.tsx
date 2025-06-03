@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,36 +106,95 @@ export function StoryViewer({
   const [message, setMessage] = useState("");
   const [dominantColor, setDominantColor] = useState<string>("#000000");
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isPaused, setIsPaused] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const imageRef = useRef<HTMLImageElement>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const progressRef = useRef(0); // Référence pour éviter les closures obsolètes
 
-  const currentUser = users[currentUserIndex];
-  const currentStoryContent = currentUser.stories[currentStoryIndex];
-  const totalStoriesForUser = currentUser.stories.length;
+  // Vérifications de sécurité pour éviter les erreurs undefined
+  const isValidUserIndex =
+    currentUserIndex >= 0 && currentUserIndex < users.length;
+  const currentUser = isValidUserIndex ? users[currentUserIndex] : null;
+  const isValidStoryIndex =
+    currentUser &&
+    currentStoryIndex >= 0 &&
+    currentStoryIndex < currentUser.stories.length;
+  const currentStoryContent =
+    isValidStoryIndex && currentUser
+      ? currentUser.stories[currentStoryIndex]
+      : null;
 
-  // Reset couleur et état de chargement quand l'image change
+  // Fonction pour nettoyer le timer
+  const clearTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, []);
+
+  // Fonction pour démarrer le timer
+  const startTimer = useCallback(() => {
+    clearTimer(); // S'assurer qu'aucun timer n'est déjà en cours
+
+    timerRef.current = setInterval(() => {
+      progressRef.current += 1; // Incrémenter la référence
+      setProgress(progressRef.current);
+
+      // Si on atteint 100%, passer à la suivante
+      if (progressRef.current >= 100) {
+        clearTimer();
+        setTimeout(() => {
+          onNext();
+        }, 100);
+      }
+    }, 50); // 10 secondes par story (0.5% toutes les 50ms)
+  }, [clearTimer, onNext]);
+
+  // Si les indices sont invalides, fermer le viewer
   useEffect(() => {
+    if (!isValidUserIndex || !isValidStoryIndex) {
+      console.error("Indices invalides:", {
+        currentUserIndex,
+        usersLength: users.length,
+        currentStoryIndex,
+        storiesLength: currentUser?.stories.length,
+      });
+      setError("Données de story invalides");
+      setTimeout(() => {
+        onClose();
+      }, 500);
+    } else {
+      setError(null);
+    }
+  }, [
+    currentUserIndex,
+    currentStoryIndex,
+    users,
+    currentUser,
+    isValidUserIndex,
+    isValidStoryIndex,
+    onClose,
+  ]);
+
+  // Reset complet lors du changement d'image
+  useEffect(() => {
+    if (!currentStoryContent) return;
+
+    // ARRÊTER IMMÉDIATEMENT le timer
+    clearTimer();
+
+    // Reset de tous les états
     setImageLoaded(false);
     setDominantColor("#000000");
-  }, [currentStoryContent.image]);
-
-  // Gestion du timer de progression automatique (optionnel)
-  useEffect(() => {
     setProgress(0);
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          setTimeout(() => {
-            onNext();
-          }, 0);
-          return 100;
-        }
-        return prev + 1; // Plus lent pour une meilleure UX
-      });
-    }, 50); // 5 secondes par story
+    progressRef.current = 0; // Reset de la référence aussi
+    setIsPaused(true);
 
-    return () => clearInterval(timer);
-  }, [currentStoryIndex, onNext]);
+    console.log("Reset pour nouvelle story:", currentStoryIndex);
+  }, [currentUserIndex, currentStoryIndex, currentStoryContent, clearTimer]);
 
+  // Gestion du chargement de l'image
   const handleImageLoad = async () => {
     if (imageRef.current) {
       try {
@@ -144,12 +203,22 @@ export function StoryViewer({
             const color = await extractDominantColor(imageRef.current);
             setDominantColor(color);
             setImageLoaded(true);
+
+            // Attendre un délai avant de démarrer le timer
+            setTimeout(() => {
+              setIsPaused(false);
+              startTimer(); // Démarrer le timer seulement maintenant
+            }, 500); // Délai plus long pour s'assurer que tout est chargé
           }
         }, 100);
       } catch (error) {
         console.error("Erreur lors de l'extraction de la couleur:", error);
         setDominantColor("#000000");
         setImageLoaded(true);
+        setTimeout(() => {
+          setIsPaused(false);
+          startTimer();
+        }, 500);
       }
     }
   };
@@ -157,9 +226,17 @@ export function StoryViewer({
   const handleImageError = () => {
     setDominantColor("#000000");
     setImageLoaded(true);
+    setTimeout(() => {
+      setIsPaused(false);
+      startTimer();
+    });
   };
 
   const handleTap = (e: React.MouseEvent) => {
+    // Arrêter le timer pendant la navigation manuelle
+    clearTimer();
+    setIsPaused(true);
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const width = rect.width;
@@ -171,13 +248,35 @@ export function StoryViewer({
     }
   };
 
+  // Nettoyer le timer au démontage du composant
+  useEffect(() => {
+    return () => {
+      clearTimer();
+    };
+  }, [clearTimer]);
+
+  // Si on a une erreur ou pas de contenu valide, afficher un message d'erreur
+  if (error || !currentUser || !currentStoryContent) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col bg-black">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-white text-center p-4">
+            <p className="mb-4">
+              {error || "Impossible de charger cette story"}
+            </p>
+            <Button onClick={onClose} variant="outline">
+              Fermer
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col">
       {/* Arrière-plan avec couleur dominante */}
-      {/* Arrière-plan noir par défaut */}
       <div className="absolute inset-0 bg-black" />
-
-      {/* Arrière-plan avec couleur dominante par-dessus */}
       <div
         className="absolute inset-0 transition-all duration-700 ease-in-out"
         style={{
@@ -185,8 +284,6 @@ export function StoryViewer({
           opacity: imageLoaded ? 0.8 : 0,
         }}
       />
-
-      {/* Gradient overlay pour améliorer la lisibilité */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/20" />
 
       {/* Contenu par-dessus */}
@@ -257,8 +354,8 @@ export function StoryViewer({
                 className="max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300 rounded-lg"
                 style={{
                   opacity: imageLoaded ? 1 : 0.7,
-                  maxHeight: "calc(100vh - 200px)", // Laisser de l'espace pour header et footer
-                  maxWidth: "calc(100vw - 32px)", // Laisser de l'espace pour le padding
+                  maxHeight: "calc(100vh - 200px)",
+                  maxWidth: "calc(100vw - 32px)",
                 }}
                 onLoad={handleImageLoad}
                 onError={handleImageError}
@@ -274,7 +371,7 @@ export function StoryViewer({
             </div>
           </div>
 
-          {/* Tap areas indicators (only visible on hover) */}
+          {/* Tap areas indicators */}
           <div className="absolute inset-0 flex">
             <div className="flex-1 hover:bg-white/5 transition-colors rounded-l-lg" />
             <div className="flex-1 hover:bg-white/5 transition-colors rounded-r-lg" />
@@ -282,13 +379,23 @@ export function StoryViewer({
         </div>
 
         {/* Bottom input */}
-        {/* <div className="p-4 flex items-center gap-3">
+        <div className="p-4 flex items-center gap-3">
           <div className="flex-1 relative">
             <Input
               placeholder="Répondre à cette story..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               className="bg-white/10 backdrop-blur-sm border-white/30 text-white placeholder:text-white/70 pr-20 rounded-full"
+              onFocus={() => {
+                clearTimer();
+                setIsPaused(true);
+              }}
+              onBlur={() => {
+                if (imageLoaded) {
+                  setIsPaused(false);
+                  startTimer();
+                }
+              }}
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
               <Button
@@ -307,11 +414,13 @@ export function StoryViewer({
               </Button>
             </div>
           </div>
-        </div> */}
+        </div>
 
-        {/* Debug info (à retirer en production) */}
+        {/* Debug info */}
         <div className="absolute bottom-20 left-4 text-white/50 text-xs bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
-          Couleur: {dominantColor}
+          {isPaused ? "⏸️ Pause" : "▶️ Lecture"} | Progress:{" "}
+          {Math.round(progress)}% | Story: {currentStoryIndex + 1}/
+          {currentUser.stories.length}
         </div>
       </div>
     </div>

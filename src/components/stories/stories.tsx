@@ -88,8 +88,20 @@ export function Stories() {
   const [viewingStory, setViewingStory] = useState<number | null>(null);
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
+  const [viewableStories, setViewableStories] = useState(
+    stories.filter((story) => !story.isOwn)
+  );
 
-  const viewableStories = stories.filter((story) => !story.isOwn);
+  // Vérifier que les indices sont valides avant de rendre le StoryViewer
+  const isValidUserIndex =
+    currentUserIndex >= 0 && currentUserIndex < viewableStories.length;
+  const currentUser = isValidUserIndex
+    ? viewableStories[currentUserIndex]
+    : null;
+  const isValidStoryIndex =
+    currentUser &&
+    currentStoryIndex >= 0 &&
+    currentStoryIndex < currentUser.stories.length;
 
   const handleStoryClick = (storyIndex: number) => {
     if (stories[storyIndex].isOwn) return;
@@ -97,13 +109,33 @@ export function Stories() {
     const viewableIndex = viewableStories.findIndex(
       (s) => s.id === stories[storyIndex].id
     );
-    setCurrentUserIndex(viewableIndex);
-    setCurrentStoryIndex(0);
-    setViewingStory(stories[storyIndex].id);
+
+    // Vérifier que l'index est valide
+    if (viewableIndex !== -1) {
+      setCurrentUserIndex(viewableIndex);
+      setCurrentStoryIndex(0);
+      setViewingStory(stories[storyIndex].id);
+    }
   };
 
   const handleNext = () => {
+    // Vérifier que l'index utilisateur est valide
+    if (!isValidUserIndex) {
+      setViewingStory(null);
+      return;
+    }
+
     const currentUser = viewableStories[currentUserIndex];
+
+    // Vérifier que l'utilisateur a des stories
+    if (
+      !currentUser ||
+      !currentUser.stories ||
+      currentUser.stories.length === 0
+    ) {
+      setViewingStory(null);
+      return;
+    }
 
     if (currentStoryIndex < currentUser.stories.length - 1) {
       // Passer à la story suivante du même utilisateur
@@ -119,6 +151,11 @@ export function Stories() {
   };
 
   const handlePrevious = () => {
+    // Vérifier que l'index utilisateur est valide
+    if (!isValidUserIndex) {
+      return;
+    }
+
     if (currentStoryIndex > 0) {
       // Revenir à la story précédente du même utilisateur
       setCurrentStoryIndex((prevIndex) => prevIndex - 1);
@@ -126,9 +163,22 @@ export function Stories() {
       // Revenir à l'utilisateur précédent
       setCurrentUserIndex((prevIndex) => {
         const newIndex = prevIndex - 1;
+
+        // Vérifier que le nouvel index est valide
+        if (newIndex < 0 || newIndex >= viewableStories.length) {
+          return prevIndex;
+        }
+
         // Utiliser le nouvel index pour obtenir l'utilisateur précédent
         const prevUser = viewableStories[newIndex];
-        setCurrentStoryIndex(prevUser.stories.length - 1);
+
+        // Vérifier que prevUser existe et a des stories
+        if (prevUser && prevUser.stories && prevUser.stories.length > 0) {
+          setCurrentStoryIndex(prevUser.stories.length - 1);
+        } else {
+          setCurrentStoryIndex(0);
+        }
+
         return newIndex;
       });
     }
@@ -178,7 +228,8 @@ export function Stories() {
         ))}
       </div>
 
-      {viewingStory && (
+      {/* Ne rendre le StoryViewer que si toutes les conditions sont remplies */}
+      {viewingStory && isValidUserIndex && isValidStoryIndex && (
         <StoryViewer
           users={viewableStories}
           currentUserIndex={currentUserIndex}
