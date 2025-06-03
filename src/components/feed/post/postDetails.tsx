@@ -15,7 +15,6 @@ import { useEffect, useRef, useState } from "react";
 import type { User } from "./postCard";
 import { createRandomUser } from "./fakeUser";
 import InputComment from "../../comments/InputComment";
-import PostReaction from "./postReaction";
 import CommentPage from "@/components/comments/Comment";
 
 interface PostDetailsProps {
@@ -71,13 +70,9 @@ function PostDetails({
       <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(840px,90vh)] sm:max-w-3xl [&>button:last-child]:top-3.5 [&>button:last-child]:z-50">
         <DialogHeader className="contents space-y-0 text-left">
           <DialogDescription asChild>
-            <div className="flex flex-col sm:flex-row h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
-              {/* Section des commentaires */}
-              <div
-                ref={contentRef}
-                onScroll={handleScroll}
-                className="relative flex flex-col w-full overflow-y-auto bg-[var(--bgLevel1)] "
-              >
+            <div className="flex flex-col h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
+              {/* Section des commentaires avec layout flex */}
+              <div className="flex flex-col h-full bg-[var(--bgLevel1)]">
                 {/* Header sticky avec info du post */}
                 <PostHeader
                   username={username}
@@ -85,10 +80,16 @@ function PostDetails({
                   description={description}
                 />
 
-                {/* Liste des commentaires */}
-                <CommentsSection users={users} />
+                {/* Liste des commentaires scrollable */}
+                <div
+                  ref={contentRef}
+                  onScroll={handleScroll}
+                  className="flex-1 overflow-y-auto"
+                >
+                  <CommentsSection users={users} />
+                </div>
 
-                {/* Footer sticky avec actions */}
+                {/* Footer fixe */}
                 <PostFooter />
               </div>
             </div>
@@ -110,7 +111,7 @@ function PostHeader({
   description: string;
 }) {
   return (
-    <div className="sticky top-0 z-10 bg-[var(--bgLevel2)] border-b border-[var(--detailMinimal)]">
+    <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-b border-[var(--detailMinimal)]">
       <div className="p-4 space-y-3">
         {/* Info utilisateur */}
         <div className="flex items-center gap-3">
@@ -123,14 +124,15 @@ function PostHeader({
             <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div className="font-semibold text-foreground">{username}</div>
-
         </div>
 
         {/* Description du post */}
         {description && (
           <div className="text-sm text-muted-foreground leading-relaxed">
             {description}
-            <div className="text-xs text-muted-foreground">il y a 12 heures</div>
+            <div className="text-xs text-muted-foreground">
+              il y a 12 heures
+            </div>
           </div>
         )}
       </div>
@@ -141,18 +143,26 @@ function PostHeader({
 // Composant pour la section des commentaires
 function CommentsSection({ users }: { users: User[] }) {
   return (
-    <div className="flex-1 space-y-4">
+    <div className="space-y-4">
       {users.map((user, index) => (
-        <CommentItem key={`${user.userId}-${index}`} user={user} />
+        <CommentItem
+          key={`${user.userId}-${index}`}
+          user={user}
+          isLast={index === users.length - 1}
+        />
       ))}
     </div>
   );
 }
 
 // Composant pour un commentaire individuel
-function CommentItem({ user }: { user: User }) {
+function CommentItem({ user, isLast }: { user: User; isLast?: boolean }) {
   return (
-    <div className="border-b border-[var(--detailMinimal)] pb-6 flex flex-col gap-0">
+    <div
+      className={`flex flex-col gap-0 ${
+        !isLast ? "border-b border-[var(--detailMinimal)] pb-6" : "pb-5"
+      }`}
+    >
       {/* Header du commentaire */}
       <div className="flex items-center gap-3 px-4">
         <Avatar className="w-8 h-8">
@@ -166,18 +176,12 @@ function CommentItem({ user }: { user: User }) {
           </AvatarFallback>
         </Avatar>
         <span className="font-medium text-sm">{user.username}</span>
-
       </div>
 
       {/* Contenu du commentaire */}
       <div className="self-center">
         <CommentPage />
       </div>
-
-      {/* Réactions du commentaire */}
-      {/* <div className="ml-11">
-        <PostReaction />
-      </div> */}
     </div>
   );
 }
@@ -185,10 +189,10 @@ function CommentItem({ user }: { user: User }) {
 // Composant pour le footer avec actions
 function PostFooter() {
   return (
-    <div className="sticky -bottom-0.5 z-10 bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)] flex">
-        <div className="p-2 w-full">
-          <InputComment />
-        </div>
+    <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)] -mt-px">
+      <div className="p-2 w-full">
+        <InputComment />
+      </div>
     </div>
   );
 }
