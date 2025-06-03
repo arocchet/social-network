@@ -1,41 +1,39 @@
 /* eslint-disable @next/next/no-img-element */
-import React, { useState } from "react"
-import { GiphyFetch } from "@giphy/js-fetch-api"
-import { IGif } from "@giphy/js-types"
+import React, { useState } from "react";
+import { GiphyFetch } from "@giphy/js-fetch-api";
+import { IGif } from "@giphy/js-types";
 import { MdOutlineGifBox } from "react-icons/md";
 
 type GifPopoverProps = {
-  onSelect: (gif: IGif) => void
-  apiKey: string
-}
+  onSelect: (gif: IGif) => void;
+  apiKey: string;
+};
 
 export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
-  const [isOpen, setIsOpen] = useState(false)
-  const [query, setQuery] = useState("")
-  const [results, setResults] = useState<IGif[]>([])
-  const [loading, setLoading] = useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [results, setResults] = useState<IGif[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const gf = new GiphyFetch(apiKey)
+  const gf = new GiphyFetch(apiKey);
 
   const searchGifs = async (q: string) => {
-    setLoading(true)
-    const { data } = await gf.search(q, { limit: 9 })
-    setResults(data)
-    setLoading(false)
-  }
+    setLoading(true);
+    const { data } = await gf.search(q, { limit: 9 });
+    setResults(data);
+    setLoading(false);
+  };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value
-    setQuery(val)
-    if (val.trim().length > 0) searchGifs(val)
-    else setResults([])
-  }
+    const val = e.target.value;
+    setQuery(val);
+    if (val.trim().length > 0) searchGifs(val);
+    else setResults([]);
+  };
 
   return (
     <div className="relative  ">
-
-      <MdOutlineGifBox
-        onClick={() => setIsOpen(!isOpen)} size={37} />
+      <MdOutlineGifBox onClick={() => setIsOpen(!isOpen)} size={37} />
       {isOpen && (
         <div className="absolute bottom-full right-0 mb-2 z-[9999] w-80 bg-white border shadow-lg rounded-lg p-4">
           <input
@@ -56,10 +54,10 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
                   alt={gif.title}
                   className="cursor-pointer rounded-md hover:opacity-75"
                   onClick={() => {
-                    onSelect(gif)
-                    setIsOpen(false)
-                    setQuery("")
-                    setResults([])
+                    onSelect(gif);
+                    setIsOpen(false);
+                    setQuery("");
+                    setResults([]);
                   }}
                 />
               ))}
@@ -67,7 +65,6 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
           )}
         </div>
       )}
-
     </div>
-  )
-}
+  );
+};
