@@ -379,7 +379,7 @@ export function StoryViewer({
         </div>
 
         {/* Bottom input */}
-        <div className="p-4 flex items-center gap-3">
+        {/* <div className="p-4 flex items-center gap-3">
           <div className="flex-1 relative">
             <Input
               placeholder="Répondre à cette story..."
@@ -414,14 +414,14 @@ export function StoryViewer({
               </Button>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Debug info */}
-        <div className="absolute bottom-20 left-4 text-white/50 text-xs bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
+        {/* <div className="absolute bottom-20 left-4 text-white/50 text-xs bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
           {isPaused ? "⏸️ Pause" : "▶️ Lecture"} | Progress:{" "}
           {Math.round(progress)}% | Story: {currentStoryIndex + 1}/
           {currentUser.stories.length}
-        </div>
+        </div> */}
       </div>
     </div>
   );
