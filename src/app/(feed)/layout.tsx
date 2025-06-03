@@ -6,9 +6,9 @@ export default function FeedLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en">
             <body>
-                <SidebarProvider>
+                
                     {/* Sidebar visible à partir de md (>=768px) */}
-                    <div className="hidden md:block fixed top-0 left-0 h-full z-40">
+                    <div className="hidden  fixed top-0 left-0 h-full z-40">
                         <Sidebar />
                     </div>
                     {/* NavBarMobile visible uniquement en-dessous de md (<768px) */}
@@ -21,7 +21,6 @@ export default function FeedLayout({ children }: { children: React.ReactNode }) 
                             {children}
                         </div>
                     </div>
-                </SidebarProvider>
             </body>
         </html>
     );

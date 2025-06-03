@@ -1,27 +1,15 @@
-// src/components/settings/SettingsMain.tsx
+// src/app/(feed)/settings/page.tsx
 'use client'
 
 import {
-  User,
-  Bell,
-  Lock,
-  Star,
-  Slash,
-  EyeOff,
-  MessageCircle,
-  Tag,
-  MessageSquare,
-  Share2,
-  ShieldOff,
-  Filter,
-  VolumeX,
-  Sliders,
-  Heart,
-  Bookmark
+  User, Bell, Lock, Star, Slash, EyeOff,
+  MessageCircle, Tag, MessageSquare, Share2,
+  ShieldOff, Filter, VolumeX, Sliders, Heart, Bookmark
 } from 'lucide-react'
 import Link from 'next/link'
 import type { ComponentType, SVGProps } from 'react'
 
+// Types discriminants pour sections et liens
 type SectionItem = { section: string }
 type LinkItem = { icon: ComponentType<SVGProps<SVGSVGElement>>; label: string; href: string }
 type MenuItem = SectionItem | LinkItem
@@ -48,13 +36,14 @@ const menu: MenuItem[] = [
   { icon: Bookmark, label: 'Subscriptions', href: '/settings/subscriptions' },
 ]
 
-export default function SettingsMain() {
+export default function Settings() {
   return (
-    <div className="hidden md:flex flex-col h-screen w-64 bg-[var(--bgLevel1)] border-r border-[var(--detailMinimal)]">
-      <header className="flex-none p-5 bg-[var(--bgLevel1)]">
+    <div className="min-h-screen bg-[var(--bgLevel1)]">
+      <header className="p-5 border-b-1 border-[var(--detailMinimal)] bg-[var(--bgLevel1)]">
         <h1 className="text-xl font-semibold text-blue">Settings</h1>
       </header>
-      <nav className="flex-1 overflow-y-auto p-4 space-y-4">
+
+      <main className="flex-grow overflow-auto p-4 space-y-4">
         {menu.map((item, i) => {
           if ('section' in item) {
             return (
@@ -63,6 +52,7 @@ export default function SettingsMain() {
               </h2>
             )
           }
+      
           const Icon = item.icon
           return (
             <Link
@@ -75,7 +65,7 @@ export default function SettingsMain() {
             </Link>
           )
         })}
-      </nav>
+      </main>
     </div>
   )
 }

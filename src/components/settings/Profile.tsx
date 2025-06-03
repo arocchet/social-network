@@ -3,6 +3,9 @@
 
 import { useState, ChangeEvent, FormEvent } from "react";
 import Image from "next/image";
+import { ChevronLeft } from 'lucide-react'
+import Link from 'next/link'
+
 
 type GenderOption = "male" | "female" | "prefer_not_to_say";
 
@@ -80,7 +83,12 @@ const EditProfile = () => {
 
   return (
     <div className="min-h-screen bg-[var(--bgLevel2)] text-white p-6 md:px-20 lg:px-40">
-      <h1 className="text-3xl font-semibold mb-8">Edit profile</h1>
+      <header className="flex items-center px-6 mb-6">
+        <Link href="/settings" className="mr-4">
+          <ChevronLeft className="w-6 h-6 text-white" />
+        </Link>
+        <h1 className="text-2xl font-semibold">Edit Profile</h1>
+      </header>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* --- Bloc photo + username + displayName --- */}

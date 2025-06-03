@@ -11,7 +11,7 @@ export default function AccountPrivacySettings() {
   const [showActivityStatus, setShowActivityStatus] = useState(true)
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col pt-16 pb-8">
+    <div className="min-h-screen bg-[var(--bgLevel2)] text-white p-6 md:px-20 lg:px-40">
       <header className="flex items-center px-6 mb-6">
         <Link href="/settings" className="mr-4">
           <ChevronLeft className="w-6 h-6 text-white" />
