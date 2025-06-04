@@ -5,9 +5,9 @@ import { FaImage } from "react-icons/fa6";
 
 
 export function ProfileBg() {
-    const { imageData, handleThumbnailClick, handleFileChange } = useUserForm()
-    const cover = imageData.cover
-    const currentImage = cover.previewUrl || ""
+    const { userInfo, inputRefs, handleThumbnailClick, handleFileChange } = useUserForm()
+    const cover = userInfo.cover
+    const currentImage = cover && cover.previewUrl || ""
 
     return (
         <div className="h-32">
@@ -31,7 +31,7 @@ export function ProfileBg() {
             </div>
             <input
                 type="file"
-                ref={cover.fileInputRef}
+                ref={inputRefs.cover}
                 onChange={(e) => handleFileChange("cover", e)}
                 className="hidden"
                 accept="image/*"
