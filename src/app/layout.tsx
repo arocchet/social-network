@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "../../config/site";
 import { geistMono, geistSans } from "../../config/font";
 import { ModeToggle } from "@/components/toggle-theme";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: {
@@ -29,6 +30,7 @@ export default function RootLayout({
           defaultTheme="light"
         >
           {children}
+          <Toaster richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

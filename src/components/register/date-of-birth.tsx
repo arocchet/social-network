@@ -29,8 +29,12 @@ const FormSchema = z.object({
     }),
 })
 
+/**
+ * @deprecated This component has been inlined into <RegisterForm />.
+ * @todo Maybe delete this file if it's no longer used anywhere.
+ */
 export function DateOfBirth() {
-    const { setdateOfBirth } = useUserForm()
+    const { handleChange } = useUserForm()
 
     const form = useForm<z.infer<typeof FormSchema>>({
         resolver: zodResolver(FormSchema),
@@ -47,18 +51,18 @@ export function DateOfBirth() {
                     name="dob"
                     render={({ field }) => (
                         <FormItem className="flex flex-col">
-                            <FormLabel>Date de naissance</FormLabel>
+                            <FormLabel>Date of Birth</FormLabel>
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <FormControl>
                                         <Button
-                                        variant={"ghost"}
-                                           className="pl-3 text-left font-normal border-1 border-[var(--detailMinimal)]"
+                                            variant={"ghost"}
+                                            className="pl-3 text-left font-normal border-1 border-[var(--detailMinimal)]"
                                         >
                                             {field.value ? (
                                                 format(field.value, "PPP")
                                             ) : (
-                                                <span>Choisissez une date</span>
+                                                <span>Select a date</span>
                                             )}
                                             <FaBirthdayCake className="ml-auto h-4 w-4 opacity-50" />
                                         </Button>
@@ -71,8 +75,13 @@ export function DateOfBirth() {
                                         onSelect={(date) => {
                                             field.onChange(date)
                                             if (date) {
-                                                const formatted = format(date, "yyyy-MM-dd")
-                                                setdateOfBirth(formatted)
+                                                const formatted = format(date, "yyyy-MM-dd");
+                                                handleChange({
+                                                    target: {
+                                                        id: "dateOfBirth",
+                                                        value: formatted,
+                                                    },
+                                                } as React.ChangeEvent<HTMLInputElement>);
                                             }
                                         }}
                                         disabled={(date) =>
