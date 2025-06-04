@@ -1,0 +1,20 @@
+import { Credentials_Login } from "@/lib/types/types";
+
+export async function login(data: Credentials_Login) {
+
+    const res = await fetch("/api/login", {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+
+    const json = await res.json();
+
+    if (!res.ok) {
+        if (json.errors && typeof json.errors === "object") {
+            throw json.errors;
+        }
+        throw new Error(json.message || "Failed to register");
+    }
+
+    return json;
+}
