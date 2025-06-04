@@ -38,7 +38,7 @@ const menu: MenuItem[] = [
 
 export default function Settings() {
   return (
-    <div className="min-h-screen bg-[var(--bgLevel1)] flex flex-col w-full md:w-fit">
+    <div className="min-h-screen bg-[var(--bgLevel1)]">
       <header className="p-5 border-b-1 border-[var(--detailMinimal)] bg-[var(--bgLevel1)]">
         <h1 className="text-xl font-semibold text-blue">Settings</h1>
       </header>
