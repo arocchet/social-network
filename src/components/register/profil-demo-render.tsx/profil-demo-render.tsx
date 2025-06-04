@@ -17,12 +17,11 @@ import { FaBirthdayCake } from "react-icons/fa";
 import { useIsMounted } from "@/hooks/use-is-mounted";
 
 const ProfilDemoRender = () => {
-  const { imageData, username, biography, dateOfBirth, firstname, lasttname } =
-    useUserForm();
-  const avatar = imageData.avatar;
-  const cover = imageData.cover;
-  const currentAvatarImage = avatar.previewUrl || "";
-  const currentCoverImage = cover.previewUrl || "";
+  const { userInfo } = useUserForm();
+  const avatar = userInfo?.avatar;
+  const cover = userInfo?.cover;
+  const currentAvatarImage = userInfo.avatar?.previewUrl || "";
+  const currentCoverImage = userInfo.cover?.previewUrl || "";
 
   const isMounted = useIsMounted();
 
@@ -34,8 +33,8 @@ const ProfilDemoRender = () => {
         <Input
           readOnly
           className="z-10 -ms-px rounded-none border-none shadow-none "
-          placeholder={`https://konekt/profil/${username}.fr`}
-          onChange={(e) => {}}
+          placeholder={`https://konekt/profil/${userInfo.username}.fr`}
+          onChange={(e) => { }}
           type="text"
         />
       </div>
@@ -73,7 +72,7 @@ const ProfilDemoRender = () => {
           <div className="text-blue-500 text-sm font-semibold flex gap-2 items-center">
             <FaBirthdayCake />
 
-            {dateOfBirth ? formatDate(dateOfBirth) : ""}
+            {userInfo.dateOfBirth ? formatDate(userInfo.dateOfBirth) : ""}
           </div>
           <div className="flex flex-col gap-4 sm:flex-row ">
             <div className="flex-1 space-y-2">
@@ -83,7 +82,7 @@ const ProfilDemoRender = () => {
                 type="text"
                 required
                 readOnly
-                value={firstname}
+                value={userInfo.firstname}
               />
             </div>
             <div className="flex-1 space-y-2">
@@ -93,7 +92,7 @@ const ProfilDemoRender = () => {
                 type="text"
                 required
                 readOnly
-                value={lasttname}
+                value={userInfo.lastname}
               />
             </div>
           </div>
@@ -101,7 +100,7 @@ const ProfilDemoRender = () => {
             <Label>Username</Label>
             <div className="relative">
               <Input
-                value={username}
+                value={userInfo.username}
                 className="peer pe-9"
                 placeholder="Username"
                 type="text"
@@ -117,7 +116,7 @@ const ProfilDemoRender = () => {
             <Label>Biographie</Label>
             <Textarea
               placeholder="Write a few sentences about yourself"
-              value={biography}
+              value={userInfo.biography}
               readOnly
             />
           </div>

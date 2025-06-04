@@ -3,9 +3,9 @@ import { FaImage } from "react-icons/fa6";
 
 
 export function Avatar() {
-    const { imageData, handleThumbnailClick, handleFileChange } = useUserForm()
-    const avatar = imageData.avatar
-    const currentImage = avatar.previewUrl || ""
+    const { userInfo, inputRefs, handleThumbnailClick, handleFileChange } = useUserForm()
+    const avatar = userInfo.avatar
+    const currentImage = userInfo.avatar && avatar?.previewUrl || ""
 
     return (
         <div className=" px-6">
@@ -27,7 +27,7 @@ export function Avatar() {
 
                 <input
                     type="file"
-                    ref={avatar.fileInputRef}
+                    ref={inputRefs.avatar}
                     onChange={(e) => handleFileChange("avatar", e)}
                     className="hidden"
                     accept="image/*"

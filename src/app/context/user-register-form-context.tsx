@@ -1,3 +1,7 @@
+import { register } from "@/lib/auth/client/register";
+import { Credentials_Register } from "@/lib/types/types";
+import { Credentials_Schema_Register } from "@/lib/validations/auth";
+import { useRouter } from "next/navigation";
 import {
   createContext,
   useCallback,
@@ -7,62 +11,91 @@ import {
   useState,
 } from "react";
 
-type ImageKey = "avatar" | "cover"; // Ajoute d'autres clés ici si nécessaire
+type ImageKey = "avatar" | "cover";
+type ImageRefs = {
+  avatar: React.RefObject<HTMLInputElement | null>;
+  cover: React.RefObject<HTMLInputElement | null>;
+}
 
 type UserFormContextType = {
-  username: string;
-  setUsername: (val: string) => void;
-  firstname: string;
-  setFirstname: (val: string) => void;
-  lasttname: string;
-  setLasttname: (val: string) => void;
-  dateOfBirth: string;
-  setdateOfBirth: (val: string) => void;
-  biography: string;
-  setBiography: (val: string) => void;
-  imageData: Record<ImageKey, ImageData>;
+  userInfo: Credentials_Register;
+  inputRefs: ImageRefs;
+  errors: Partial<Credentials_Register>;
+  handleSubmit: (e: React.FormEvent) => void;
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleThumbnailClick: (key: ImageKey) => void;
-  handleFileChange: (
-    key: ImageKey,
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => void;
+  handleFileChange: (key: ImageKey, e: React.ChangeEvent<HTMLInputElement>) => void;
   handleRemove: (key: ImageKey) => void;
 };
 
-type ImageData = {
-  previewUrl: string | null;
-  fileName: string | null;
-  fileInputRef: React.RefObject<HTMLInputElement | null>;
-};
+const UserFormContext = createContext<UserFormContextType | undefined>(undefined);
 
-const UserFormContext = createContext<UserFormContextType | undefined>(
-  undefined
-);
+export const UserFormProvider = ({ children }: { children: React.ReactNode }) => {
 
-export const UserFormProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [username, setUsername] = useState("");
-  const [firstname, setFirstname] = useState("");
-  const [lasttname, setLasttname] = useState("");
-  const [dateOfBirth, setdateOfBirth] = useState("");
-  const [biography, setBiography] = useState("");
+  const router = useRouter();
 
-  const initialImageState = (): ImageData => ({
+  const initialImageData = {
     previewUrl: null,
     fileName: null,
-    fileInputRef: useRef(null),
+    file: null
+  };
+
+  const [userInfo, setUserInfo] = useState<Credentials_Register>({
+    username: "",
+    firstname: "",
+    lastname: "",
+    dateOfBirth: "",
+    biography: "",
+    password: "",
+    email: "",
+    avatar: initialImageData,
+    cover: initialImageData,
   });
 
-  const [imageData, setImageData] = useState<Record<ImageKey, ImageData>>({
-    avatar: initialImageState(),
-    cover: initialImageState(),
-  });
+  const [errors, setErrors] = useState<Partial<Credentials_Register>>({});
 
-  const handleThumbnailClick = (key: ImageKey) => {
-    imageData[key].fileInputRef.current?.click();
+  const inputRefs = {
+    avatar: useRef<HTMLInputElement | null>(null),
+    cover: useRef<HTMLInputElement | null>(null),
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setUserInfo((prev) => ({
+      ...prev,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const result = Credentials_Schema_Register.safeParse(userInfo);
+
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+      setErrors({
+        email: fieldErrors.email?.[0],
+        password: fieldErrors.password?.[0],
+        biography: fieldErrors.biography?.[0],
+        dateOfBirth: fieldErrors.dateOfBirth?.[0],
+        firstname: fieldErrors.firstname?.[0],
+        lastname: fieldErrors.lastname?.[0],
+        username: fieldErrors.username?.[0],
+      });
+      return;
+    }
+    try {
+      setErrors({});
+      const response = await register(userInfo);
+      console.log('response sucess', response)
+      if (response.success) router.push('/')
+    } catch (err) {
+      if (err && typeof err === "object" && !Array.isArray(err)) {
+        setErrors((prev) => ({ ...prev, ...err }));
+      } else if (err instanceof Error) {
+        console.error("Unexpected error :", err.message);
+      }
+    }
   };
 
   const handleFileChange = (
@@ -73,12 +106,12 @@ export const UserFormProvider = ({
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImageData((prev) => ({
+        setUserInfo((prev) => ({
           ...prev,
           [key]: {
-            ...prev[key],
             previewUrl: reader.result as string,
             fileName: file.name,
+            file: file
           },
         }));
       };
@@ -86,53 +119,47 @@ export const UserFormProvider = ({
     }
   };
 
-  const handleRemove = useCallback(
-    (key: ImageKey) => {
-      const preview = imageData[key].previewUrl;
-      if (preview) {
-        URL.revokeObjectURL(preview);
-      }
+  const handleRemove = useCallback((key: ImageKey) => {
+    const preview = userInfo[key]?.previewUrl;
+    if (preview) {
+      URL.revokeObjectURL(preview);
+    }
 
-      setImageData((prev) => ({
-        ...prev,
-        [key]: {
-          ...prev[key],
-          previewUrl: null,
-          fileName: null,
-        },
-      }));
+    setUserInfo((prev) => ({
+      ...prev,
+      [key]: {
+        previewUrl: null,
+        fileName: null,
+      },
+    }));
 
-      const inputRef = imageData[key].fileInputRef.current;
-      if (inputRef) inputRef.value = "";
-    },
-    [imageData]
-  );
+    const inputRef = inputRefs[key].current;
+    if (inputRef) inputRef.value = "";
+  }, [userInfo]);
 
-  // Nettoyage des previews à l’unmount
+  const handleThumbnailClick = (key: ImageKey) => {
+    inputRefs[key].current?.click();
+  };
+
   useEffect(() => {
     return () => {
-      Object.values(imageData).forEach((data) => {
-        if (data.previewUrl) {
-          URL.revokeObjectURL(data.previewUrl);
+      ["avatar", "cover"].forEach((key) => {
+        const preview = userInfo[key as ImageKey]?.previewUrl;
+        if (preview) {
+          URL.revokeObjectURL(preview);
         }
       });
     };
-  }, [imageData]);
+  }, [userInfo]);
 
   return (
     <UserFormContext.Provider
       value={{
-        biography,
-        setBiography,
-        dateOfBirth,
-        setdateOfBirth,
-        lasttname,
-        setLasttname,
-        username,
-        setUsername,
-        firstname,
-        setFirstname,
-        imageData,
+        userInfo,
+        errors,
+        inputRefs,
+        handleChange,
+        handleSubmit,
         handleThumbnailClick,
         handleFileChange,
         handleRemove,
