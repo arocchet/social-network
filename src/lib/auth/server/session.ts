@@ -7,7 +7,7 @@ export async function getServerSession() {
     const token = cookieStore.get('token')?.value
     if (!token) return null
 
-    const payload = verifyJwt(token)
+    const payload = await verifyJwt(token)
     if (!payload) return null
 
     const user = await db.user.findUnique({ where: { id: payload.userId } })
