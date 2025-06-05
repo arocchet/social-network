@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { PlusSquare, Search, Home, SettingsIcon } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CreatePost from "../post/createPost";
+import Link from "next/link";
 
 export default function NavigationBar() {
   return (
@@ -31,13 +32,15 @@ export default function NavigationBar() {
             <SettingsIcon className="w-6 h-6" />
           </Button>
           <div className="p-2 hover:bg-gray-100 transition-colors duration-200 rounded-xl cursor-pointer">
-            <Avatar className="w-6 h-6">
-              <AvatarImage
-                src="/placeholder.svg?height=24&width=24"
-                alt="Profile"
-              />
-              <AvatarFallback className="bg-[var(--pink20)]"></AvatarFallback>
-            </Avatar>
+            <Link href="/profile">
+              <Avatar className="w-6 h-6">
+                <AvatarImage
+                  src="/placeholder.svg?height=24&width=24"
+                  alt="Profile"
+                />
+                <AvatarFallback className="bg-[var(--pink20)]"></AvatarFallback>
+              </Avatar>
+            </Link>
           </div>
         </div>
       </div>

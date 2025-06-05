@@ -27,19 +27,16 @@ const CreatePost: React.FC = () => {
       <DialogContent className="p-0 w-full max-w-2xl max-h-[90vh] overflow-hidden">
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-4 border-b bg-[var(--bgLevel1)]">
             <DialogTitle className="text-lg font-semibold">
               Créer un post
             </DialogTitle>
             <DialogClose asChild>
-              <button className="p-2 hover:bg-[var(--bgLevel1)] rounded-full transition-colors">
-                <X className="h-4 w-4" />
-              </button>
             </DialogClose>
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+          <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-[var(--bgLevel1)]">
             {/* User info */}
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
@@ -55,13 +52,13 @@ const CreatePost: React.FC = () => {
             <div className="space-y-3">
               <textarea
                 placeholder="Que voulez-vous partager ?"
-                className="w-full min-h-[120px] p-3 text-base resize-none border-none outline-none bg-transparent placeholder:text-[var(--textNeutral)]"
+                className="w-full min-h-[120px] p-3 text-base resize-none border-1 border-[var(--detailMinimal)] rounded-lg outline-none bg-[var(--bgLevel2)] placeholder:text-[var(--textNeutral)]"
                 style={{ fontSize: "16px" }}
               />
             </div>
 
             {/* Media upload area */}
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors cursor-pointer">
+            <div className="border-2 border-dashed border-[var(--detailMinimal)] bg-[var(--bgLevel2)] rounded-lg p-8 text-center hover:border-[var(--detailNeutralAlt)] transition-colors cursor-pointer">
               <div className="space-y-2">
                 <div className="w-12 h-12 mx-auto bg-[var(--bgLevel1)] rounded-full flex items-center justify-center">
                   <svg
@@ -86,7 +83,7 @@ const CreatePost: React.FC = () => {
             </div>
 
             {/* Options */}
-            <div className="flex items-center justify-between p-3 bg-[var(--bgLevel1)] rounded-lg">
+            {/* <div className="flex items-center justify-between p-3 bg-[var(--bgLevel1)] rounded-lg">
               <span className="text-sm font-medium">Ajouter à votre post</span>
               <div className="flex items-center gap-2">
                 <button className="p-2 hover:bg-[var(--bgLevel2)] rounded-full transition-colors">
@@ -117,7 +114,7 @@ const CreatePost: React.FC = () => {
                   </svg>
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Footer */}
