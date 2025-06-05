@@ -7,6 +7,8 @@ import { GiphyFetch } from "@giphy/js-fetch-api";
 import type { IGif } from "@giphy/js-types";
 import { Button } from "@/components/ui/button";
 
+const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
+
 type GifPopoverProps = {
   onSelect: (gif: IGif) => void;
   apiKey: string;
@@ -20,8 +22,7 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
   const [error, setError] = useState<string | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  const defaultApiKey = "GlVGYHkr3WSBnllca54iNt0yFbjz7L65";
-  const gf = new GiphyFetch(apiKey || defaultApiKey);
+  const gf = new GiphyFetch(apiKey || GIPHY_API_KEY!);
 
   const searchGifs = async (q: string) => {
     if (!q.trim()) return;
