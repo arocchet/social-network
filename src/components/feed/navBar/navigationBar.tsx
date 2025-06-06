@@ -26,13 +26,16 @@ export default function NavigationBar() {
               <Search className="w-6 h-6" />
             </Button>
             <CreatePost />
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-gray-100 transition-colors duration-200 rounded-xl"
-            >
-              <SettingsIcon className="w-6 h-6" />
-            </Button>
+            <Link href="/settings">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-gray-100 transition-colors duration-200 rounded-xl"
+              >
+                <SettingsIcon className="w-6 h-6" />
+              </Button>
+            </Link>
+
             <div className="p-2 hover:bg-gray-100 transition-colors duration-200 rounded-xl cursor-pointer">
               <Link href="/profile">
                 <Avatar className="w-6 h-6">
@@ -69,13 +72,16 @@ export default function NavigationBar() {
             <div className="w-12 h-12 flex items-center justify-center">
               <CreatePost />
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-gray-100 transition-colors duration-200 rounded-xl w-12 h-12"
-            >
-              <SettingsIcon className="w-6 h-6" />
-            </Button>
+            <Link href="/settings">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-gray-100 transition-colors duration-200 rounded-xl w-12 h-12"
+              >
+                <SettingsIcon className="w-6 h-6" />
+              </Button>
+            </Link>
+
             <div className="p-3 hover:bg-gray-100 transition-colors duration-200 rounded-xl cursor-pointer">
               <Link href="/profile">
                 <Avatar className="w-6 h-6">
