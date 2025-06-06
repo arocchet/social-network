@@ -78,7 +78,7 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
         GIF
       </Button>
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-2 z-[99999] w-80 bg-white border shadow-lg rounded-lg p-4">
+        <div className="absolute bottom-full  mb-2 right-0 z-[99999] w-80 bg-white border shadow-lg rounded-lg p-4">
           <input
             type="text"
             placeholder="Rechercher des GIFs (min 3 caractères)"

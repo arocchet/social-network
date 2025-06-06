@@ -236,7 +236,7 @@ const CreatePost: React.FC = () => {
                 <PopoverTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="border-1 border-[var(--detailMinimal)] p-2 flex items-center justify-center"
+                    className="border-1 border-[var(--detailMinimal)] hover:bg-[var(--bgLevel2)] cursor-pointer p-2 flex items-center justify-center"
                   >
                     <FaRegFaceSmileBeam className="w-5 h-5" />
                   </Button>
