@@ -1,3 +1,4 @@
+'use client'
 
 import { useEffect, useRef, ReactNode } from 'react'
 import { gsap } from 'gsap'
