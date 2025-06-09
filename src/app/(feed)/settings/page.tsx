@@ -39,6 +39,7 @@ import { LanguagePage } from "@/components/settings/language-page"
 import ContentPreferencesPage from "@/components/settings/content-pref-page"
 import BlockedPage from "@/components/settings/blocked-page"
 import CloseFriendsPage from "@/components/settings/close-friends-page"
+import { AboutPage } from "@/components/settings/about-page"
 
 interface SettingsPageProps {
   onBack?: () => void
@@ -102,6 +103,9 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   }
   if (currentView === "close-friends") {
     return <CloseFriendsPage onBack={handleBackToMain} />
+  }
+  if (currentView === "about") {
+    return <AboutPage onBack={handleBackToMain} />
   }
   // Main settings page
   return (
@@ -196,7 +200,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         </div>
 
         {/* Comment les autres peuvent interagir avec vous */}
-        <div className="border-b-1 border-[var(--detailMinimal)]">
+        {/* <div className="border-b-1 border-[var(--detailMinimal)]">
           <div className="p-4 pb-2">
             <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Comment les autres peuvent interagir avec vous</h2>
           </div>
@@ -214,7 +218,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             title="Partage et remixage"
             subtitle="Contrôler le partage de votre contenu"
           />
-        </div>
+        </div> */}
 
         {/* Votre activité */}
         <div className="border-b-1 border-[var(--detailMinimal)]">
@@ -248,7 +252,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Plus d'infos et assistance</h2>
           </div>
 
-          <SettingsItem icon={<HelpCircle className="w-5 h-5" />} title="Centre d'aide" subtitle="Obtenir de l'aide" />
+          {/* <SettingsItem icon={<HelpCircle className="w-5 h-5" />} title="Centre d'aide" subtitle="Obtenir de l'aide" /> */}
 
           <SettingsItem
             icon={<Shield className="w-5 h-5" />}
@@ -261,6 +265,8 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             icon={<Info className="w-5 h-5" />}
             title="À propos"
             subtitle="Conditions d'utilisation, politique de confidentialité"
+            onClick={() => setCurrentView("about")}
+
           />
         </div>
 

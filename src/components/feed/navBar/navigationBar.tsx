@@ -55,13 +55,15 @@ export default function NavigationBar() {
       <nav className="hidden md:block fixed left-4 top-1/2 -translate-y-1/2 z-40">
         <div className="backdrop-blur-lg border border-[var(--detailMinimal)] bg-[var(--bgLevel1)] rounded-2xl shadow-lg shadow-black/10 px-3 py-6">
           <div className="flex flex-col items-center space-y-6">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl w-12 h-12"
-            >
-              <Home className="w-6 h-6" />
-            </Button>
+            <Link href="/">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl w-12 h-12"
+              >
+                <Home className="w-6 h-6" />
+              </Button>
+            </Link>
             <Button
               variant="ghost"
               size="icon"
