@@ -79,7 +79,7 @@ export function RegisterForm({
               onChange={handleChange}
             />
             <div className="min-h-[1.25rem]">
-              {errors.firstname && (
+              {errors.lastname && (
                 <p className="text-red-500 text-sm">{errors.lastname}</p>
               )}
             </div>

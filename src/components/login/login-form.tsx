@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { siteConfig } from "../../../config/site";
 import Link from "next/link";
 import { useState } from "react";
-import { Credentials_Schema_Login } from "@/lib/validations/auth";
+import { Credentials_Schema_Login } from "@/lib/validations/authSchemaZod";
 import { Credentials_Login, LoginFormErrors } from "@/lib/types/types";
 import { login } from "@/lib/auth/client/login";
 import { useRouter } from "next/navigation";
