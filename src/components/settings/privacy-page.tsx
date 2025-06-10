@@ -20,7 +20,7 @@ export function PrivacyPage({ onBack }: PrivacyPageProps) {
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="font-semibold text-lg text-[var(--textMinimal)]">Confidentialité du compte</h1>
+        <h1 className="font-semibold text-lg">Confidentialité du compte</h1>
       </header>
 
       <div className="p-4 space-y-8 max-w-3xl mx-auto">

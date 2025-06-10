@@ -15,7 +15,7 @@ export function NotificationsPage({ onBack }: NotificationsPageProps) {
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="font-semibold text-lg text-[var(--textMinimal)]">Notifications</h1>
+        <h1 className="font-semibold text-lg">Notifications</h1>
       </header>
 
       <div className="space-y-6  max-w-3xl mx-auto">

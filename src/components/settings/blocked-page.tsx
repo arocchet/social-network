@@ -38,7 +38,7 @@ export default function BlockedPage({ onBack }: BlockedSettingsProps) {
         <Button variant="ghost" size="icon" onClick={onBack}>
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="font-semibold text-lg text-[var(--textMinimal)]">Utilisateurs bloqués</h1>
+        <h1 className="font-semibold text-lg ">Utilisateurs bloqués</h1>
       </header>
 
       <div className="p-4 space-y-6 max-w-3xl mx-auto">

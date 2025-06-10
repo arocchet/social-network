@@ -99,13 +99,12 @@ const CreatePost: React.FC = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl"
+        <button
+          className="md:w-full md:h-auto md:justify-start flex items-center gap-3 p-3 rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors text-normal"
         >
-          <PlusSquare className="w-6 h-6" />
-        </Button>
+          <PlusSquare className="h-5 w-5" />
+          <span className="hidden md:inline text-[var(--textNeutral)] font-normal">Créer un post</span>
+        </button>
       </DialogTrigger>
 
       <DialogContent className="p-0 w-full sm:max-h-[min(840px,90vh)] sm:max-w-3xl [&>button:last-child]:top-3.5 [&>button:last-child]:z-[60] bg-[var(--bgLevel1)] rounded-xl">

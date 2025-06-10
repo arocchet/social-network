@@ -40,6 +40,7 @@ import ContentPreferencesPage from "@/components/settings/content-pref-page"
 import BlockedPage from "@/components/settings/blocked-page"
 import CloseFriendsPage from "@/components/settings/close-friends-page"
 import { AboutPage } from "@/components/settings/about-page"
+import { ModeToggle } from "@/components/toggle-theme"
 
 interface SettingsPageProps {
   onBack?: () => void
@@ -98,7 +99,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
   if (currentView === "content-preferences") {
     return <ContentPreferencesPage onBack={handleBackToMain} />
   }
-    if (currentView === "blocked") {
+  if (currentView === "blocked") {
     return <BlockedPage onBack={handleBackToMain} />
   }
   if (currentView === "close-friends") {
@@ -117,7 +118,10 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         }}>
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="font-semibold text-lg">Paramètres et confidentialité</h1>
+        <h1 className="font-semibold text-lg flex-1">Paramètres et confidentialité</h1>
+        <div>
+          <ModeToggle/>
+        </div>
       </header>
 
       <div className=" mx-auto">
@@ -270,7 +274,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
           />
         </div>
 
-        <div className="">
+        <div className="pb-2">
           <div className="p-4 pb-2">
             <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Actions du compte</h2>
           </div>

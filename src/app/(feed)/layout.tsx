@@ -1,5 +1,3 @@
-import { NavBarMobile } from "@/components/feed/navBar/navBar";
-import { Sidebar } from "@/components/feed/navBar/sideBar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function FeedLayout({ children }: { children: React.ReactNode }) {
