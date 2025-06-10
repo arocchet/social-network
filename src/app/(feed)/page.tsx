@@ -1,15 +1,11 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import PostCard from "@/components/feed/post/postCard"
 import { Button } from "@/components/ui/button"
-import { MessageCircle, Play, PlusSquare, Search, Send, Home, Settings2, SettingsIcon, User, HelpCircle, Database, DollarSign, Trash2, FolderOpen } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { MessageCircle } from "lucide-react"
 import Image from "next/image"
 import { ModeToggle } from "@/components/toggle-theme"
 import { Stories } from "@/components/stories/stories"
-import CreatePost from "@/components/feed/post/createPost"
 import Link from "next/link"
 import NavigationBar from "@/components/feed/navBar/navigationBar"
 
@@ -17,7 +13,7 @@ export default function HomePage() {
   return (
     <div className="flex h-screen bg-[var(--bgLevel1)]">
       {/*Navigation */}
-      <NavigationBar/>
+      <NavigationBar />
 
 
       {/* Main Content */}
@@ -31,9 +27,11 @@ export default function HomePage() {
           />
           <div className="flex items-center gap-2">
             <ModeToggle />
-            <Button variant="ghost" size="icon">
-              <MessageCircle className="w-6 h-6" />
-            </Button>
+            <Link href={"/chat"} >
+              <Button variant="ghost" size="icon" className="hover:bg-[var(--bgLevel2)] cursor-pointer">
+                <MessageCircle className="w-6 h-6" />
+              </Button>
+            </Link>
           </div>
         </header>
 

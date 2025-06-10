@@ -24,7 +24,7 @@ export function ModeToggle() {
 
   if (!mounted) {
     return (
-      <Button variant="ghost" size="icon">
+      <Button variant="ghost" size="icon" className="">
         <Sun className="h-[1.2rem] w-[1.2rem]" />
         <span className="sr-only">Toggle theme</span>
       </Button>
@@ -36,7 +36,7 @@ export function ModeToggle() {
       variant="ghost" 
       size="icon" 
       onClick={toggleTheme}
-      className="transition-colors duration-200"
+      className="hover:bg-[var(--bgLevel2)] cursor-pointer"
     >
       <Sun className={`h-[1.2rem] w-[1.2rem] transition-all duration-200 ${
         isDark ? "rotate-90 scale-0" : "rotate-0 scale-100"

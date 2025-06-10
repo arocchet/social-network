@@ -63,20 +63,23 @@ export default function NavigationBar() {
       <nav className="md:hidden fixed bottom-4 left-1 right-1 z-40 max-w-3xl mx-auto">
         <div className="backdrop-blur-lg border border-[var(--detailMinimal)] bg-[var(--bgLevel1)] rounded-2xl max-w-xs sm:max-w-md mx-auto shadow-lg shadow-black/10 px-5 py-1">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl"
-            >
-              <Home className="w-6 h-6" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl"
-            >
-              <Search className="w-6 h-6" />
-            </Button>
+            <Link href="/">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl"
+              >
+                <Home className="w-6 h-6" />
+              </Button>
+            </Link>
+            <Link href="/search">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl"
+              >
+                <Search className="w-6 h-6" />
+              </Button></Link>
             <CreatePost />
             <Link href="/settings">
               <Button
