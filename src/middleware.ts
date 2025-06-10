@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyJwt } from '@/lib/auth/server/jwt'
+import { verifyJwt } from './lib/jwt/verifyJwt'
 
 export async function middleware(req: NextRequest) {
     const token = req.cookies.get('token')?.value
@@ -19,5 +19,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/dashboard/:path*', '/profile/:path*'],
+    matcher: ['/dashboard/:path*', '/profile/:path*', '/api/private/:path*'],
 }

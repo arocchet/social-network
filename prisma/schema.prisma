@@ -23,13 +23,13 @@ enum ReactionType {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
-  password  String
-  email     String   @unique
-  birthDate DateTime
-  username  String   @unique
+  id        String    @id @default(cuid())
+  firstName String?
+  lastName  String?
+  password  String?
+  email     String    @unique
+  birthDate DateTime?
+  username  String?   @unique
   bio       String?
   avatar    String?
   banner    String?
@@ -48,6 +48,25 @@ model User {
   groupMessages       GroupMessage[]
   notifications       Notification[]
   userSettings        UserSettings?
+  accounts            Account[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String?
+  access_token      String?
+  expires_at        BigInt?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId], name: "provider_providerAccountId")
+  @@map("accounts")
 }
 
 model Post {

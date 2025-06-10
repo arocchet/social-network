@@ -2,7 +2,7 @@ import { Credentials_Login } from "@/lib/types/types";
 
 export async function login(data: Credentials_Login) {
 
-    const res = await fetch("/api/login", {
+    const res = await fetch("/api/public/auth/login", {
         method: "POST",
         body: JSON.stringify(data),
     });
