@@ -19,6 +19,7 @@ import { Credentials_Login, LoginFormErrors } from "@/lib/types/types";
 import { login } from "@/lib/auth/client/login";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { OAuthLoginButton } from "../auth/OAuthLoginButton";
 
 export function LoginForm({
   className,
@@ -71,6 +72,7 @@ export function LoginForm({
       <Card className="shadow-none text-center border border-[var(--detailMinimal)] bg-[var(--bgLevel2)]">
         <CardHeader>
           <CardTitle className="text-2xl text-[var(--textNeutral)]">Se connecter</CardTitle>
+          <OAuthLoginButton />
           <CardDescription>
             Entrez vos informations pour continuer sur {siteConfig.name}
           </CardDescription>
