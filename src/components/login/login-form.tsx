@@ -19,7 +19,6 @@ import { Credentials_Login, LoginFormErrors } from "@/lib/types/types";
 import { login } from "@/lib/auth/client/login";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
-import { OAuthLoginButton } from "../auth/OAuthLoginButton";
 
 export function LoginForm({
   className,
@@ -79,7 +78,6 @@ export function LoginForm({
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-col gap-6">
-              <OAuthLoginButton />
               <div className="grid gap-2">
                 <Label className="text-[var(--textNeutral)]" htmlFor="email">Email</Label>
                 <Input
