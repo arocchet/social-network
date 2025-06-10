@@ -15,7 +15,7 @@ export default function NavigationBar() {
           <div className="flex items-center gap-3 mb-8 p-3 rounded-lg">
             <Avatar className="w-10 h-10">
               <AvatarImage src="/placeholder.svg?height=40&width=40" alt="Profile" />
-              <AvatarFallback className="bg-[var(--pink20)]">A</AvatarFallback>
+              <AvatarFallback className="bg-[var(--pink20)] text-[var(--white10)]">U</AvatarFallback>
             </Avatar>
             <div className="flex-1">
               <p className="text-[var(--textNeutral)] font-medium">Username</p>

@@ -29,7 +29,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         value={value}
         onChange={handleChange}
         placeholder="Rechercher des comptes, hashtags, lieux..."
-        className="pl-10 pr-10 py-2.5 w-full rounded-lg text-sm bg-[var(--bgLevel2)] border border-[var(--detailMinimal)] focus:outline-none focus:ring-1 focus:ring-[var(--blue)] text-[var(--textNeutral)] placeholder:text-[var(--textMinimal)]"
+        className="pl-10 pr-10 py-[7px] w-full rounded-lg text-sm bg-[var(--bgLevel2)] border border-[var(--detailMinimal)] focus:outline-none focus:ring-1 focus:ring-[var(--blue)] text-[var(--textNeutral)] placeholder:text-[var(--textMinimal)]"
       />
       {value && (
         <button
