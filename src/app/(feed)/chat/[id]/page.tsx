@@ -282,23 +282,30 @@ function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
         }`}
       >
         <div
-          className={`inline-block px-4 py-2 rounded-2xl ${
+          className={`relative inline-block px-4 py-2 rounded-2xl ${
             message.isFromMe
               ? "bg-[var(--blue)] text-[var(--white10)] rounded-br-md"
               : "bg-[var(--white)] text-[var(--grey80)] rounded-bl-md"
           }`}
+          style={{ maxWidth: "70vw", wordBreak: "break-word" }}
         >
           <p className="text-sm">{message.text}</p>
-        </div>
-        <div
-          className={`text-xs text-gray-500 mt-1 ${
-            message.isFromMe ? "text-right" : "text-left"
-          }`}
-        >
-          {message.timestamp}
-          {message.isFromMe && (
-            <span className="ml-1">{message.isRead ? "Lu" : "Envoyé"}</span>
-          )}
+          {/* Triangle bubble tail */}
+          <span
+            className={`
+    absolute
+    ${
+      message.isFromMe
+        ? "rotate-65 -right-1 bottom"
+        : "-rotate-65 -left-1 bottom"
+    }
+    w-0 h-0
+    border-l-11 border-l-transparent
+    border-r-11 border-r-transparent
+    border-t-11
+    ${message.isFromMe ? "border-t-[var(--blue)]" : "border-t-[var(--white)]"}
+  `}
+          />
         </div>
       </div>
     </div>
