@@ -1,26 +1,50 @@
-/* eslint-disable jsx-a11y/alt-text */
-/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import PostCard from "@/components/feed/post/postCard"
-import Stories from "@/components/stories/stories"
+import { Button } from "@/components/ui/button"
+import { MessageCircle } from "lucide-react"
+import Image from "next/image"
+import { ModeToggle } from "@/components/toggle-theme"
+import { Stories } from "@/components/stories/stories"
+import Link from "next/link"
+import NavigationBar from "@/components/feed/navBar/navigationBar"
 
-export default function Home() {
+export default function HomePage() {
   return (
-    <div className="flex h-screen w-screen flex-col bg-[var(--bgLevel1)]">
-      <main className="flex grow flex-col overflow-auto">
-        <div className="w-full md:hidden bg-[var(--bgLevel1)] border-b-1 border-[var(--detailMinimal)] fixed top-0 z-50 flex justify-center items-center py-4">
-          <img
-            src={"/konekt-logo-full.png"}
-            className="w-32 h-auto block md:hidden"
+    <div className="flex h-screen bg-[var(--bgLevel1)]">
+      {/*Navigation */}
+      <NavigationBar />
+
+
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-50">
+          <Image
+            src="/konekt-logo-full.png"
+            alt="Konekt Logo"
+            width={128}
+            height={128}
           />
+          <div className="flex items-center gap-2">
+            <ModeToggle />
+            <Link href={"/chat"} >
+              <Button variant="ghost" size="icon" className="hover:bg-[var(--bgLevel2)] cursor-pointer">
+                <MessageCircle className="w-6 h-6" />
+              </Button>
+            </Link>
+          </div>
+        </header>
+
+        <div className="border-b border-[var(--detailMinimal)] bg-[var(--bgLevel2)]">
+          <Stories />
         </div>
 
-        <ul className="max-w-2xl w-full mx-auto space-y-4 p-4">
-          <Stories />
-          <PostCard />
-        </ul>
-      </main>
+        <div className="flex-1 overflow-y-auto bg-[var(--bgLevel1)]">
+          <div className="mx-auto max-w-xl px-2 py-2">
+            <PostCard />
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
