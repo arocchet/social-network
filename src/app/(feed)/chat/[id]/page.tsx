@@ -1,27 +1,40 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, Phone, Video, Info, Camera, ImageIcon, Heart, Send } from "lucide-react"
-import { useParams } from "next/navigation"
-import { ModeToggle } from "@/components/toggle-theme"
+import { useState, useRef, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  ArrowLeft,
+  Phone,
+  Video,
+  Info,
+  Camera,
+  ImageIcon,
+  Heart,
+  Send,
+} from "lucide-react";
+import { useParams } from "next/navigation";
+import { ModeToggle } from "@/components/toggle-theme";
 import {
   EmojiPicker,
   EmojiPickerContent,
   EmojiPickerFooter,
   EmojiPickerSearch,
 } from "@/components/reaction/emojiPicker";
-import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover"
-import { FaRegFaceSmileBeam } from "react-icons/fa6"
-import Link from "next/link"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import { FaRegFaceSmileBeam } from "react-icons/fa6";
+import Link from "next/link";
 
 interface ChatPageProps {
-  chatId: string
-  onBack?: () => void
+  chatId: string;
+  onBack?: () => void;
 }
 
 const chatData = {
@@ -70,60 +83,65 @@ const chatData = {
       },
     ],
   },
-}
+};
 
-export default function ChatPage({ }: ChatPageProps) {
-  const [message, setMessage] = useState("")
+export default function ChatPage({}: ChatPageProps) {
+  const [message, setMessage] = useState("");
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
 
-  const [messages, setMessages] = useState(chatData["1"]?.messages || [])
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  const chat = chatData["1"]
+  const [messages, setMessages] = useState(chatData["1"]?.messages || []);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chat = chatData["1"];
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
   const handleSendMessage = () => {
     if (message.trim()) {
       const newMessage = {
         id: Date.now().toString(),
         text: message,
-        timestamp: new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+        timestamp: new Date().toLocaleTimeString("fr-FR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
         isFromMe: true,
         isRead: false,
-      }
-      setMessages([...messages, newMessage])
-      setMessage("")
+      };
+      setMessages([...messages, newMessage]);
+      setMessage("");
     }
-  }
+  };
 
-  const handleEmojiSelect = (emoji: string) => {
-    //setPostContent((prev) => prev + emoji);
+  const handleEmojiSelect = (emojiObj: { emoji: string }) => {
+    setMessage((prev) => prev + emojiObj.emoji);
     setIsEmojiOpen(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      handleSendMessage()
+      e.preventDefault();
+      handleSendMessage();
     }
-  }
+  };
 
   function onBack() {
-    window.history.back()
+    window.history.back();
   }
 
   if (!chat) {
     return (
       <div className="min-h-screen bg-[var(--bgLevel2)] flex items-center justify-center">
-        <div className="text-[var(--textMinimal)]">Conversation non trouvée</div>
+        <div className="text-[var(--textMinimal)]">
+          Conversation non trouvée
+        </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -131,13 +149,23 @@ export default function ChatPage({ }: ChatPageProps) {
       {/* Header */}
       <header className="flex items-center justify-between p-3.5 border-b border-[var(--detailMinimal)]  sticky top-0 bg-[var(--bgLevel1)] z-40">
         <div className="flex items-center gap-3">
-          <Button variant="ghost" size="icon" onClick={onBack} className="hover:bg-[var(--bgLevel2)] cursor-pointer ml-0.5">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onBack}
+            className="hover:bg-[var(--bgLevel2)] cursor-pointer ml-0.5"
+          >
             <ArrowLeft className="w-6 h-6" />
           </Button>
           <div className="relative">
             <Avatar className="w-10 h-10 border-1 border-[var(--detailMinimal)]">
-              <AvatarImage src={chat.user.avatar || "/placeholder.svg"} alt={chat.user.username} />
-              <AvatarFallback>{chat.user.displayName[0].toUpperCase()}</AvatarFallback>
+              <AvatarImage
+                src={chat.user.avatar || "/placeholder.svg"}
+                alt={chat.user.username}
+              />
+              <AvatarFallback>
+                {chat.user.displayName[0].toUpperCase()}
+              </AvatarFallback>
             </Avatar>
             {chat.user.isOnline && (
               <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-[var(--green)] border-1 border-[var(--detailMinimal)] rounded-full" />
@@ -145,12 +173,14 @@ export default function ChatPage({ }: ChatPageProps) {
           </div>
           <div>
             <div className="font-medium text-sm">{chat.user.displayName}</div>
-            <div className="text-xs text-[var(--textMinimal)]">{chat.user.isOnline ? "En ligne" : "Hors ligne"}</div>
+            <div className="text-xs text-[var(--textMinimal)]">
+              {chat.user.isOnline ? "En ligne" : "Hors ligne"}
+            </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <ModeToggle />
-          <Link href={`/profile/${/*chat.user.username*/""}`}>
+          <Link href={`/profile/${/*chat.user.username*/ ""}`}>
             <Button variant="ghost" size="icon">
               <Info className="w-5 h-5" />
             </Button>
@@ -161,7 +191,11 @@ export default function ChatPage({ }: ChatPageProps) {
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg) => (
-          <MessageBubble key={msg.id} message={msg} userAvatar={chat.user.avatar} />
+          <MessageBubble
+            key={msg.id}
+            message={msg}
+            userAvatar={chat.user.avatar}
+          />
         ))}
         <div ref={messagesEndRef} />
       </div>
@@ -180,7 +214,7 @@ export default function ChatPage({ }: ChatPageProps) {
               placeholder="Message..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyPress}
               className="flex pr-12 border-[var(--detailMinimal)]"
             />
             <Popover onOpenChange={setIsEmojiOpen} open={isEmojiOpen}>
@@ -188,14 +222,11 @@ export default function ChatPage({ }: ChatPageProps) {
                 <button className="absolute right-1 top-1/2 -translate-y-1/2 mx-2 py-4">
                   <FaRegFaceSmileBeam className="w-4 h-4" />
                 </button>
-
               </PopoverTrigger>
               <PopoverContent className="w-fit p-0 z-[100]">
                 <EmojiPicker
                   className="h-[342px]"
-                  onEmojiSelect={({ emoji }) => {
-                    handleEmojiSelect(emoji);
-                  }}
+                  onEmojiSelect={handleEmojiSelect}
                 >
                   <EmojiPickerSearch />
                   <EmojiPickerContent />
@@ -207,48 +238,69 @@ export default function ChatPage({ }: ChatPageProps) {
           <Button
             onClick={handleSendMessage}
             disabled={!message.trim()}
-            className={`${message.trim() ? "bg-[var(--blue)] hover:bg-blue-700 text-[var(--white10)]" : "bg-[var(--bgLevel2)] text-[var(--textNeutral)]"}`}
+            className={`${
+              message.trim()
+                ? "bg-[var(--blue)] hover:bg-blue-700 text-[var(--white10)]"
+                : "bg-[var(--bgLevel2)] text-[var(--textNeutral)]"
+            }`}
           >
             <Send className="w-4 h-4" />
           </Button>
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface MessageBubbleProps {
   message: {
-    id: string
-    text: string
-    timestamp: string
-    isFromMe: boolean
-    isRead: boolean
-  }
-  userAvatar: string
+    id: string;
+    text: string;
+    timestamp: string;
+    isFromMe: boolean;
+    isRead: boolean;
+  };
+  userAvatar: string;
 }
 
 function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
   return (
-    <div className={`flex gap-2 ${message.isFromMe ? "justify-end" : "justify-start"}`}>
+    <div
+      className={`flex gap-2 ${
+        message.isFromMe ? "justify-end" : "justify-start"
+      }`}
+    >
       {!message.isFromMe && (
         <Avatar className="w-8 h-8 border-1 border-[var(--detailMinimal)]">
           <AvatarImage src={userAvatar || "/placeholder.svg"} alt="User" />
           <AvatarFallback>A</AvatarFallback>
         </Avatar>
       )}
-      <div className={`max-w-xs lg:max-w-md ${message.isFromMe ? "order-1" : "order-2"}`}>
+      <div
+        className={`max-w-xs lg:max-w-md ${
+          message.isFromMe ? "order-1" : "order-2"
+        }`}
+      >
         <div
-          className={`px-4 py-2 rounded-2xl ${message.isFromMe ? "bg-[var(--blue)] text-[var(--white10)] rounded-br-md" : "bg-[var(--white)] text-[var(--grey80)] rounded-bl-md"
-            }`}
+          className={`inline-block px-4 py-2 rounded-2xl ${
+            message.isFromMe
+              ? "bg-[var(--blue)] text-[var(--white10)] rounded-br-md"
+              : "bg-[var(--white)] text-[var(--grey80)] rounded-bl-md"
+          }`}
         >
           <p className="text-sm">{message.text}</p>
         </div>
-        <div className={`text-xs text-gray-500 mt-1 ${message.isFromMe ? "text-right" : "text-left"}`}>
+        <div
+          className={`text-xs text-gray-500 mt-1 ${
+            message.isFromMe ? "text-right" : "text-left"
+          }`}
+        >
           {message.timestamp}
-          {message.isFromMe && <span className="ml-1">{message.isRead ? "Lu" : "Envoyé"}</span>}
+          {message.isFromMe && (
+            <span className="ml-1">{message.isRead ? "Lu" : "Envoyé"}</span>
+          )}
         </div>
       </div>
     </div>
-  )
+  );
 }
