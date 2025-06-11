@@ -19,5 +19,9 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
+<<<<<<< HEAD
     matcher: ['/dashboard/:path*', '/profile/:path*', '/api/private/:path*'],
+=======
+    matcher: ['/dashboard/:path*', /*'/profile/:path*'*/],
+>>>>>>> main
 }

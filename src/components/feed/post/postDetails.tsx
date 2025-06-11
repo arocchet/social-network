@@ -3,126 +3,198 @@
 
 import { Button } from "@/components/ui/button";
 import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTrigger,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTrigger,
 } from "@/components/ui/dialog";
-import { useEffect, useRef, useState } from "react";
-import { User } from "./postCard";
-import { createRandomUser } from "./fakeUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { MessageCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import type { User } from "./postCard";
+import { createRandomUser } from "./fakeUser";
 import InputComment from "../../comments/InputComment";
-import PostReaction from "./postReaction";
 import CommentPage from "@/components/comments/Comment";
 
-function PostDetails() {
-    const [hasReadToBottom, setHasReadToBottom] = useState(false);
-    const contentRef = useRef<HTMLDivElement>(null);
-    const [users, setUsers] = useState<User[]>([]);
+interface PostDetailsProps {
+  postId?: string;
+  username?: string;
+  userAvatar?: string;
+  description?: string;
+  commentsCount?: number;
+}
 
-    useEffect(() => {
-        const generated = Array.from({ length: 50 }, () => createRandomUser());
-        setUsers(generated);
-    }, []);
+function PostDetails({
+  username = "UserName",
+  userAvatar = "",
+  description = "Bonjour à tous ceci est la description du post",
+  commentsCount = 0,
+}: PostDetailsProps) {
+  const [hasReadToBottom, setHasReadToBottom] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const contentRef = useRef<HTMLDivElement>(null);
 
-    const handleScroll = () => {
-        const content = contentRef.current;
-        if (!content) return;
+  // Génération des utilisateurs factices
+  useEffect(() => {
+    const generated = Array.from({ length: 50 }, () => createRandomUser());
+    setUsers(generated);
+  }, []);
 
-        const scrollPercentage = content.scrollTop / (content.scrollHeight - content.clientHeight);
-        if (scrollPercentage >= 0.99 && !hasReadToBottom) {
-            setHasReadToBottom(true);
-        }
-    };
+  // Gestion du scroll pour détecter la fin
+  const handleScroll = () => {
+    const content = contentRef.current;
+    if (!content) return;
 
-    return (
-        <Dialog>
-            <DialogTrigger asChild>
-                {/* Add comments.length number of comments for this post */}
-                <Button className="p-0" variant="ghost">Afficher les commentaires</Button>
-            </DialogTrigger>
-            <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(840px,90vh)] sm:max-w-5xl [&>button:last-child]:top-3.5">
-                <DialogHeader className="contents space-y-0 text-left">
-                    <DialogDescription asChild>
-                        <div className="flex flex-col sm:flex-row h-[80vh] max-h-[80vh] w-full">
-                            {/* Image - en haut sur mobile, à gauche sur desktop */}
-                            <div className="w-full sm:w-1/2 shrink-0">
-                                <video
-                                    autoPlay
-                                    loop
-                                    className="h-64 sm:h-full w-full object-cover sm:rounded-tl-lg"
-                                    src={"https://videos.pexels.com/video-files/3198512/3198512-sd_640_360_25fps.mp4"}
+    const scrollPercentage =
+      content.scrollTop / (content.scrollHeight - content.clientHeight);
 
-                                />
-                            </div>
+    if (scrollPercentage >= 0.99 && !hasReadToBottom) {
+      setHasReadToBottom(true);
+    }
+  };
 
-                            {/* Partie commentaires scrollable */}
-                            {/* Partie commentaires scrollable */}
-                            <div
-                                ref={contentRef}
-                                onScroll={handleScroll}
-                                className="relative flex flex-col w-full sm:w-1/2 overflow-y-auto"
-                            >
-                                {/* Header sticky */}
-                                <div className="p-4 border-b border-[var(--detailMinimal)] sticky top-0 bg-background z-10 rounded-tr-xl">
-                                    <div className="flex items-center gap-2">
-                                        <Avatar className="w-10 h-10">
-                                            <AvatarImage src={""} alt={""} className="object-cover" />
-                                            <AvatarFallback />
-                                        </Avatar>
-                                        <div className="font-medium">UserName</div>
-                                    </div>
-                                </div>
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="p-0 relative">
+          <MessageCircle className="w-6 h-6" />
+          {commentsCount > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+              {commentsCount > 99 ? "99+" : commentsCount}
+            </span>
+          )}
+        </Button>
+      </DialogTrigger>
 
-                                {/* Liste des commentaires + padding bas */}
-                                <div className="p-4 space-y-4  [&_strong]:font-semibold [&_strong]:text-foreground">
-                                    <div className="flex items-center gap-2">
-                                        <Avatar className="w-10 h-10">
-                                            <AvatarImage src={""} alt={""} className="object-cover" />
-                                            <AvatarFallback />
-                                        </Avatar>
-                                        <div className="font-medium">Bonjour à tous ceci est la description du post</div>
-                                    </div>
-                                    {users.map((user, index) => (
-                                        <div key={index}>
-                                            <div className="flex-col">
-                                                <div className="flex items-center gap-2">
-                                                    <Avatar className="w-10 h-10">
-                                                        <AvatarImage src={user.avatar} alt={""} className="object-cover" />
-                                                        <AvatarFallback />
-                                                    </Avatar>
-                                                    {user.username}
+      <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(840px,90vh)] sm:max-w-3xl [&>button:last-child]:top-3.5 [&>button:last-child]:z-50">
+        <DialogHeader className="contents space-y-0 text-left">
+          <DialogDescription asChild>
+            <div className="flex flex-col h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
+              {/* Section des commentaires avec layout flex */}
+              <div className="flex flex-col h-full bg-[var(--bgLevel1)]">
+                {/* Header sticky avec info du post */}
+                <PostHeader
+                  username={username}
+                  userAvatar={userAvatar}
+                  description={description}
+                />
 
-                                                </div>
-                                                <CommentPage />
-                                                <div className="px-4 pb-5">
-                                                    <PostReaction />
+                {/* Liste des commentaires scrollable */}
+                <div
+                  ref={contentRef}
+                  onScroll={handleScroll}
+                  className="flex-1 overflow-y-auto"
+                >
+                  <CommentsSection users={users} />
+                </div>
 
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                {/* Footer fixe */}
+                <PostFooter />
+              </div>
+            </div>
+          </DialogDescription>
+        </DialogHeader>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-                                <div className="sticky bottom-0 bg-background z-10 border-t border-border px-8 py-3 ">
+// Composant pour le header du post
+function PostHeader({
+  username,
+  userAvatar,
+  description,
+}: {
+  username: string;
+  userAvatar: string;
+  description: string;
+}) {
+  return (
+    <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-b border-[var(--detailMinimal)]">
+      <div className="p-4 space-y-3">
+        {/* Info utilisateur */}
+        <div className="flex items-center gap-3">
+          <Avatar className="w-10 h-10">
+            <AvatarImage
+              src={userAvatar || "/placeholder.svg"}
+              alt={username}
+              className="object-cover"
+            />
+            <AvatarFallback>{username.charAt(0).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div className="font-semibold text-foreground">{username}</div>
+        </div>
 
-                                    <PostReaction />
-                                    <div className="text-sm text-[var(--greyFill)] pt-3">il y a 12 heures</div>
-                                    <div className="h-5 "></div>
-                                    <InputComment />
-                                </div>
-                            </div>
+        {/* Description du post */}
+        {description && (
+          <div className="text-sm text-muted-foreground leading-relaxed">
+            {description}
+            <div className="text-xs text-muted-foreground">
+              il y a 12 heures
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-                        </div>
-                    </DialogDescription>
+// Composant pour la section des commentaires
+function CommentsSection({ users }: { users: User[] }) {
+  return (
+    <div className="space-y-4">
+      {users.map((user, index) => (
+        <CommentItem
+          key={`${user.userId}-${index}`}
+          user={user}
+          isLast={index === users.length - 1}
+        />
+      ))}
+    </div>
+  );
+}
 
-                </DialogHeader>
+// Composant pour un commentaire individuel
+function CommentItem({ user, isLast }: { user: User; isLast?: boolean }) {
+  return (
+    <div
+      className={`flex flex-col gap-0 ${
+        !isLast ? "border-b border-[var(--detailMinimal)] pb-6" : "pb-5"
+      }`}
+    >
+      {/* Header du commentaire */}
+      <div className="flex items-center gap-3 px-4">
+        <Avatar className="w-8 h-8">
+          <AvatarImage
+            src={user.avatar || "/placeholder.svg"}
+            alt={user.username}
+            className="object-cover"
+          />
+          <AvatarFallback>
+            {user.username.charAt(0).toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <span className="font-medium text-sm">{user.username}</span>
+      </div>
 
-            </DialogContent>
-        </Dialog>
-    );
+      {/* Contenu du commentaire */}
+      <div className="self-center">
+        <CommentPage />
+      </div>
+    </div>
+  );
+}
+
+// Composant pour le footer avec actions
+function PostFooter() {
+  return (
+    <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)] -mt-px">
+      <div className="p-2 w-full">
+        <InputComment />
+      </div>
+    </div>
+  );
 }
 
 export { PostDetails };
