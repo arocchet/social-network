@@ -14,6 +14,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { FaBirthdayCake } from "react-icons/fa";
 import Image from "next/image";
+import { ProfileBg } from "../register/banner-upload";
 
 interface UserInfoType {
   email?: string;
@@ -54,6 +55,10 @@ export default function OnBoarding({
                         alt="Profile image"
               />) : <Avatar />}
 
+        </div>
+
+        <div className="grid gap-2 w-full">
+              <ProfileBg />
         </div>
 
         <div className="flex gap-4">
