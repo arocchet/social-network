@@ -22,6 +22,9 @@ import {
   EmojiPickerSearch,
 } from "@/components/reaction/emojiPicker";
 
+import { toast } from "sonner"
+
+
 type MediaFile = {
   file: File;
   previewUrl: string;
@@ -32,6 +35,8 @@ const CreatePost: React.FC = () => {
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
   const [postContent, setPostContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -96,8 +101,67 @@ const CreatePost: React.FC = () => {
     fileInputRef.current?.click();
   };
 
+  // Fonction utilitaire pour convertir un fichier en base64
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = error => reject(error);
+    });
+  };
+
+  async function handlePostSubmit() {
+    try {
+      let mediaString = "";
+
+      // Si il y a des fichiers média, prendre le premier
+      if (mediaFiles.length > 0) {
+        mediaString = await fileToBase64(mediaFiles[0].file);
+      }
+
+      // Envoie de la requête POST à l'API
+      const res = await fetch("/api/post", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: {
+            content: postContent,
+            img: mediaString
+          }
+        })
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+
+        toast.error("Error", {
+          description: data.message || "Une erreur est survenue lors de la publication.",
+        })
+      } else {
+        // Réinitialiser les champs
+        setPostContent("");
+        setMediaFiles([]);
+        setIsDialogOpen(false);
+
+        // Afficher un message de succès
+        toast.success("Succès", {
+          description: "Post publié avec succès !",
+        })
+      }
+    } catch (error) {
+        toast.error("Error", {
+          description: "Une erreur est survenue lors de la publication.",
+        })
+      console.error("Erreur lors de la conversion ou de l'envoi:", error);
+    }
+  }
+
+
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <button
           className="md:w-full md:h-auto md:justify-start flex items-center gap-3 p-3 rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors text-normal"
@@ -258,6 +322,7 @@ const CreatePost: React.FC = () => {
             <button
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!postContent.trim() && mediaFiles.length === 0}
+              onClick={handlePostSubmit}
             >
               Publier
             </button>
@@ -267,5 +332,7 @@ const CreatePost: React.FC = () => {
     </Dialog>
   );
 };
+
+
 
 export default CreatePost;
