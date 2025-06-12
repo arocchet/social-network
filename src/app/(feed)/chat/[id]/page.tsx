@@ -276,20 +276,17 @@ function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
           <AvatarFallback>A</AvatarFallback>
         </Avatar>
       )}
-      <div
-        className={`max-w-xs lg:max-w-md ${
-          message.isFromMe ? "order-1" : "order-2"
-        }`}
-      >
+      <div className={`max-w-xs lg:max-w-md`}>
         <div
           className={`relative inline-block px-4 py-2 rounded-2xl ${
             message.isFromMe
-              ? "bg-[var(--blue)] text-[var(--white10)] rounded-br-md"
+              ? "bg-[var(--pink20)] text-[var(--white10)] rounded-br-md"
               : "bg-[var(--white)] text-[var(--grey80)] rounded-bl-md"
           }`}
           style={{ maxWidth: "70vw", wordBreak: "break-word" }}
         >
           <p className="text-sm">{message.text}</p>
+
           {/* Triangle bubble tail */}
           <span
             className={`
@@ -303,9 +300,20 @@ function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
     border-l-11 border-l-transparent
     border-r-11 border-r-transparent
     border-t-11
-    ${message.isFromMe ? "border-t-[var(--blue)]" : "border-t-[var(--white)]"}
+    ${message.isFromMe ? "border-t-[var(--pink20)]" : "border-t-[var(--white)]"}
+    
   `}
-          />
+          ></span>
+        </div>
+        <div
+          className={`text-xs text-gray-500 mt-2 ${
+            message.isFromMe ? "text-right" : "text-left"
+          }`}
+        >
+          {message.timestamp}
+          {message.isFromMe && (
+            <span className="ml-1">{message.isRead ? "Lu" : "Envoyé"}</span>
+          )}
         </div>
       </div>
     </div>
