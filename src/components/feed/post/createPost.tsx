@@ -23,6 +23,9 @@ import {
 } from "@/components/reaction/emojiPicker";
 
 import { toast } from "sonner"
+import { PostSchema } from "@/lib/validations/createPostSchemaZod";
+import { createPostClient } from "@/lib/client/post/createPost";
+import { CreatePostForm } from "@/lib/types/types";
 
 
 type MediaFile = {
@@ -101,64 +104,50 @@ const CreatePost: React.FC = () => {
     fileInputRef.current?.click();
   };
 
-  // Fonction utilitaire pour convertir un fichier en base64
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = error => reject(error);
-    });
-  };
-
   async function handlePostSubmit() {
+    let imageData: CreatePostForm["image"] | undefined = undefined;
+    if (mediaFiles.length > 0) {
+      imageData = mediaFiles[0].file;
+    }
+
+    const data = {
+      content: postContent,
+      image: imageData,
+    };
+
+    const result = PostSchema.safeParse(data);
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+      const errorMessages = Object.entries(fieldErrors)
+        .map(([field, messages]) => `${field}: ${messages?.join(", ")}`)
+        .join("\n");
+
+      toast.error("Erreur de validation", {
+        description: errorMessages || "Des champs sont invalides.",
+      });
+      return;
+    }
+
     try {
-      let mediaString = "";
+      await createPostClient(result.data);
+      setPostContent("");
+      setMediaFiles([]);
+      setIsDialogOpen(false);
 
-      // Si il y a des fichiers média, prendre le premier
-      if (mediaFiles.length > 0) {
-        mediaString = await fileToBase64(mediaFiles[0].file);
-      }
-
-      // Envoie de la requête POST à l'API
-      const res = await fetch("/api/post", {
-        method: "POST",
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          data: {
-            content: postContent,
-            img: mediaString
-          }
-        })
+      toast.success("Succès", {
+        description: "Post publié avec succès !",
+      });
+    } catch (error) {
+      toast.error("Erreur critique", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Une erreur inconnue est survenue lors de la publication.",
       });
 
-      if (!res.ok) {
-        const data = await res.json();
-
-        toast.error("Error", {
-          description: data.message || "Une erreur est survenue lors de la publication.",
-        })
-      } else {
-        // Réinitialiser les champs
-        setPostContent("");
-        setMediaFiles([]);
-        setIsDialogOpen(false);
-
-        // Afficher un message de succès
-        toast.success("Succès", {
-          description: "Post publié avec succès !",
-        })
-      }
-    } catch (error) {
-        toast.error("Error", {
-          description: "Une erreur est survenue lors de la publication.",
-        })
-      console.error("Erreur lors de la conversion ou de l'envoi:", error);
+      console.error("Erreur lors de la publication :", error);
     }
   }
-
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
