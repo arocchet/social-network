@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { Credentials_Schema_Login, Credentials_Schema_Register } from "@/lib/validations/authSchemaZod";
+import { PostSchema } from "../validations/createPostSchemaZod";
 
 export type Credentials_Register = z.infer<typeof Credentials_Schema_Register>;
 
@@ -79,3 +80,5 @@ export type UserInfo = {
     lastName: string | null;
     username: string | null;
 }
+
+export type CreatePostForm = z.infer<typeof PostSchema>
