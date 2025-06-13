@@ -1,3 +1,4 @@
+'use client';
 import { register } from "@/lib/auth/client/register";
 import { Credentials_Register } from "@/lib/types/types";
 import { Credentials_Schema_Register } from "@/lib/validations/authSchemaZod";

@@ -1,4 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
+'use client';
 import { useUserForm } from "@/app/context/user-register-form-context";
 import { formatDate } from "@/app/utils/dateFormat";
 import {
