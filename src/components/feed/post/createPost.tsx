@@ -22,6 +22,12 @@ import {
   EmojiPickerSearch,
 } from "@/components/reaction/emojiPicker";
 
+import { toast } from "sonner"
+import { PostSchema } from "@/lib/validations/createPostSchemaZod";
+import { createPostClient } from "@/lib/client/post/createPost";
+import { CreatePostForm } from "@/lib/types/types";
+
+
 type MediaFile = {
   file: File;
   previewUrl: string;
@@ -32,6 +38,8 @@ const CreatePost: React.FC = () => {
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
   const [postContent, setPostContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -96,8 +104,53 @@ const CreatePost: React.FC = () => {
     fileInputRef.current?.click();
   };
 
+  async function handlePostSubmit() {
+    let imageData: CreatePostForm["image"] | undefined = undefined;
+    if (mediaFiles.length > 0) {
+      imageData = mediaFiles[0].file;
+    }
+
+    const data = {
+      content: postContent,
+      image: imageData,
+    };
+
+    const result = PostSchema.safeParse(data);
+    if (!result.success) {
+      const fieldErrors = result.error.flatten().fieldErrors;
+      const errorMessages = Object.entries(fieldErrors)
+        .map(([field, messages]) => `${field}: ${messages?.join(", ")}`)
+        .join("\n");
+
+      toast.error("Erreur de validation", {
+        description: errorMessages || "Des champs sont invalides.",
+      });
+      return;
+    }
+
+    try {
+      await createPostClient(result.data);
+      setPostContent("");
+      setMediaFiles([]);
+      setIsDialogOpen(false);
+
+      toast.success("Succès", {
+        description: "Post publié avec succès !",
+      });
+    } catch (error) {
+      toast.error("Erreur critique", {
+        description:
+          error instanceof Error
+            ? error.message
+            : "Une erreur inconnue est survenue lors de la publication.",
+      });
+
+      console.error("Erreur lors de la publication :", error);
+    }
+  }
+
   return (
-    <Dialog>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
         <button
           className="md:w-full md:h-auto md:justify-start flex items-center gap-3 p-3 rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors text-normal"
@@ -258,6 +311,7 @@ const CreatePost: React.FC = () => {
             <button
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={!postContent.trim() && mediaFiles.length === 0}
+              onClick={handlePostSubmit}
             >
               Publier
             </button>
@@ -267,5 +321,7 @@ const CreatePost: React.FC = () => {
     </Dialog>
   );
 };
+
+
 
 export default CreatePost;

@@ -1,17 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, Search, Edit } from "lucide-react"
-import { ModeToggle } from "@/components/toggle-theme"
-import Link from "next/link"
-
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ArrowLeft, Search, Edit } from "lucide-react";
+import { ModeToggle } from "@/components/toggle-theme";
+import Link from "next/link";
 
 interface MessagesPageProps {
-  onBack?: () => void
-  onChatOpen?: (chatId: string) => void
+  onBack?: () => void;
+  onChatOpen?: (chatId: string) => void;
 }
 
 const conversations = [
@@ -95,19 +94,19 @@ const conversations = [
     },
     unreadCount: 1,
   },
-]
+];
 
 export default function MessagesPage({ onBack }: MessagesPageProps) {
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState("");
 
   const filteredConversations = conversations.filter(
     (conv) =>
       conv.user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.user.username.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
+      conv.user.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   function onChatOpen(chatId: string) {
-    window.location.href = `/chat/${chatId}`
+    window.location.href = `/chat/${chatId}`;
   }
 
   return (
@@ -116,7 +115,11 @@ export default function MessagesPage({ onBack }: MessagesPageProps) {
       <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] sticky top-0 bg-[var(--bgLevel1)] z-40">
         <div className="flex items-center gap-4">
           <Link href={"/"}>
-            <Button variant="ghost" size="icon" className="hover:bg-[var(--bgLevel2)] cursor-pointer" >
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-[var(--bgLevel2)] cursor-pointer"
+            >
               <ArrowLeft className="w-6 h-6" />
             </Button>
           </Link>
@@ -143,7 +146,9 @@ export default function MessagesPage({ onBack }: MessagesPageProps) {
       <div className="pb-24">
         {filteredConversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-[var(--textMinimal)]">
-            <div className="text-lg font-medium mb-2">Aucune conversation trouvée</div>
+            <div className="text-lg font-medium mb-2">
+              Aucune conversation trouvée
+            </div>
             <div className="text-sm">Essayez un autre terme de recherche</div>
           </div>
         ) : (
@@ -157,12 +162,12 @@ export default function MessagesPage({ onBack }: MessagesPageProps) {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 interface ConversationItemProps {
-  conversation: (typeof conversations)[0]
-  onClick?: () => void
+  conversation: (typeof conversations)[0];
+  onClick?: () => void;
 }
 
 function ConversationItem({ conversation, onClick }: ConversationItemProps) {
@@ -173,8 +178,13 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
     >
       <div className="relative">
         <Avatar className="w-14 h-14">
-          <AvatarImage src={conversation.user.avatar || "/placeholder.svg"} alt={conversation.user.username} />
-          <AvatarFallback>{conversation.user.displayName[0].toUpperCase()}</AvatarFallback>
+          <AvatarImage
+            src={conversation.user.avatar || "/placeholder.svg"}
+            alt={conversation.user.username}
+          />
+          <AvatarFallback>
+            {conversation.user.displayName[0].toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         {conversation.user.isOnline && (
           <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[var(--detailMinimal)] rounded-full" />
@@ -183,23 +193,32 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <span className="font-medium text-[var(--textNeutral)] truncate">{conversation.user.displayName}</span>
-          <span className="text-xs text-[var(--textMinimal)]">{conversation.lastMessage.timestamp}</span>
+          <span className="font-medium text-[var(--textNeutral)] truncate">
+            {conversation.user.displayName}
+          </span>
+          <span className="text-xs text-[var(--textMinimal)]">
+            {conversation.lastMessage.timestamp}
+          </span>
         </div>
         <div className="flex items-center justify-between">
           <span
-            className={`text-sm truncate ${conversation.lastMessage.isRead || conversation.lastMessage.isFromMe ? "text-[var(--textMinimal)]" : "text-[var(--textNeutral)] font-medium"}`}
+            className={`text-sm truncate ${
+              conversation.lastMessage.isRead ||
+              conversation.lastMessage.isFromMe
+                ? "text-[var(--textMinimal)]"
+                : "text-[var(--textNeutral)] font-medium"
+            }`}
           >
             {conversation.lastMessage.isFromMe && "Vous: "}
             {conversation.lastMessage.text}
           </span>
           {conversation.unreadCount > 0 && (
-            <div className="ml-2 bg-[var(--blue)] text-[var(--white10)] text-xs rounded-full w-5 h-5 flex items-center justify-center">
+            <div className="ml-2 bg-[var(--pink20)] text-[var(--white10)] text-xs rounded-full w-5 h-5 flex items-center justify-center">
               {conversation.unreadCount}
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

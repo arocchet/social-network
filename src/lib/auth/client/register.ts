@@ -20,7 +20,7 @@ export async function register(data: Credentials_Register) {
         formData.append("biography", data.biography);
     }
 
-    const res = await fetch("/api/register", {
+    const res = await fetch("/api/public/auth/register", {
         method: "POST",
         body: formData,
     });
