@@ -8,7 +8,7 @@ export default function PostDetail({ postId }: { postId: string }) {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await fetch(`/api/posts/${postId}`);
+        const res = await fetch(`/api/post/${postId}`);
         if (!res.ok) throw new Error("Erreur lors du chargement");
 
         const data = await res.json();
