@@ -1,6 +1,6 @@
 import { register } from "@/lib/auth/client/register";
 import { Credentials_Register } from "@/lib/types/types";
-import { Credentials_Schema_Register } from "@/lib/validations/auth";
+import { Credentials_Schema_Register } from "@/lib/validations/authSchemaZod";
 import { useRouter } from "next/navigation";
 import {
   createContext,

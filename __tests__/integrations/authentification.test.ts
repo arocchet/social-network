@@ -1,5 +1,5 @@
-import { POST } from '@/app/api/register/route'
-import { login } from '@/lib/auth/server/login'
+import { POST } from '@/app/api/public/auth/register/route'
+import { login } from '@/lib/auth/server/credentials/login'
 import { db } from '@/lib/db'
 import { hashPassword } from '@/lib/hash'
 import { NextRequest } from 'next/server'
