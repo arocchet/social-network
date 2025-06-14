@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parse } from 'cookie';
 import { handleGoogleCallback } from '@/lib/auth/server/oauth/google/callBackHandler';
-import { JWT_EXPIRATION } from '@/lib/types/types';
 
 export async function GET(req: NextRequest) {
     try {
