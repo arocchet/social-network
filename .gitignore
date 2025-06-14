@@ -35,4 +35,4 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
-/prisma/social-network.db
+commit-msg.txt
