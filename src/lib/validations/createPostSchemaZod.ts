@@ -1,17 +1,30 @@
 import { z } from "zod";
 
 export const MAX_FILE_SIZE = 5 * 1024 * 1024;
-export const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
-export const PostSchema = z.strictObject({
+export const ACCEPTED_FILE_TYPES = [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'video/mp4',
+    'video/webm',
+    'video/ogg',
+    'video/quicktime'
+];
+
+export const PostSchema = z.object({
     content: z.string().min(1, "Content is required"),
-    image: z
+    media: z
         .instanceof(File)
-        .refine((file) => file.size <= MAX_FILE_SIZE, {
-            message: "Image must be less than 5MB.",
-        })
-        .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {
-            message: "Unsupported image format. Allowed: JPEG, PNG, WEBP.",
-        })
-        .optional(),
+        .optional()
+        .refine(
+            (file) => !file || file.size <= MAX_FILE_SIZE,
+            { message: "File must be less than 5MB." }
+        )
+        .refine(
+            (file) => !file || ACCEPTED_FILE_TYPES.includes(file.type),
+            {
+                message: "Unsupported file format. Allowed: JPEG, PNG, WEBP, MP4, WEBM, OGG, MOV.",
+            }
+        )
 });

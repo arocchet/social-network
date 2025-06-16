@@ -302,8 +302,8 @@ export function StoryViewer({
                     index < currentStoryIndex
                       ? "100%"
                       : index === currentStoryIndex
-                      ? `${progress}%`
-                      : "0%",
+                        ? `${progress}%`
+                        : "0%",
                 }}
               />
             </div>
@@ -347,7 +347,7 @@ export function StoryViewer({
         <div className="flex-1 relative px-4 min-h-0" onClick={handleTap}>
           <div className="w-full h-full flex items-center justify-center min-h-0">
             <div className="relative max-w-full max-h-full w-full h-full flex items-center justify-center">
-              <img
+              {/* <img
                 ref={imageRef}
                 src={currentStoryContent.image || "/placeholder.svg"}
                 alt="Story"
@@ -360,7 +360,13 @@ export function StoryViewer({
                 onLoad={handleImageLoad}
                 onError={handleImageError}
                 crossOrigin="anonymous"
-              />
+              /> */}
+              <video src={currentStoryContent.image} onLoad={handleImageLoad} onError={handleImageError}
+                crossOrigin="anonymous" style={{
+                  opacity: imageLoaded ? 1 : 0.7,
+                  maxHeight: "calc(100vh - 200px)",
+                  maxWidth: "calc(100vw - 32px)",
+                }} />
 
               {/* Loading overlay */}
               {!imageLoaded && (

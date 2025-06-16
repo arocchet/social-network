@@ -21,7 +21,7 @@ const stories = [
       {
         id: 1,
         image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop",
+          "https://pin.it/1kmbO3MXK",
         timeAgo: "2h",
       },
       {
@@ -199,11 +199,10 @@ export function Stories() {
           >
             <div className="relative">
               <button
-                className={`p-0.5 rounded-full ${
-                  story.isOwn
+                className={`p-0.5 rounded-full ${story.isOwn
                     ? "bg-gray-300"
                     : "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
-                }`}
+                  }`}
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage
