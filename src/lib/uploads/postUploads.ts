@@ -15,3 +15,18 @@ export async function handleImagePostUploads(image: File | null, userId: string)
 
     return { postImageUrl }
 }
+
+export async function handleVideoPostUploads(video: File | null, userId: string) {
+    let postVideoUrl = fallbackAvatarUrl
+
+    if (!disableUpload && video) {
+        const avatarBuffer = Buffer.from(await video.arrayBuffer())
+        const upload = await cloudinaryService.uploadVideo(avatarBuffer, {
+            format: userId,
+            filename: video.name
+        })
+        postVideoUrl = upload?.secure_url ?? fallbackAvatarUrl
+    }
+
+    return { postVideoUrl }
+}

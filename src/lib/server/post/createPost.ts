@@ -1,25 +1,34 @@
 import { createPostInDb } from "@/lib/db/queries/post/createPostInDb";
 import { CreatePostForm } from "@/lib/types/types";
-import { handleImagePostUploads } from "@/lib/uploads/postUploads";
+import { handleImagePostUploads, handleVideoPostUploads } from "@/lib/uploads/postUploads";
 
 export async function createPostServer(post: CreatePostForm, userId: string) {
     try {
-        let postImageUrl: string | undefined = undefined;
+        const { content, media } = post;
+        let postMediaUrl: string | undefined;
 
-        if (post.image) {
-            const result = await handleImagePostUploads(post.image, userId);
-            postImageUrl = result.postImageUrl;
+        if (media) {
+            const isVideo = media.type.startsWith("video");
+            const isImage = media.type.startsWith("image");
+
+            if (isVideo) {
+                const { postVideoUrl } = await handleVideoPostUploads(media, userId);
+                postMediaUrl = postVideoUrl;
+            } else if (isImage) {
+                const { postImageUrl } = await handleImagePostUploads(media, userId);
+                postMediaUrl = postImageUrl;
+            }
         }
 
-        const data = {
-            content: post.content,
+        const postData = {
+            content,
             userId,
-            ...(postImageUrl && { image: postImageUrl }),
+            ...(postMediaUrl && { image: postMediaUrl }),
         };
 
-        return await createPostInDb(data);
+        return await createPostInDb(postData);
     } catch (error) {
-        console.error("Error in createPost:", error);
+        console.error("❌ Error in createPostServer:", error);
         throw new Error("Failed to create post");
     }
 }

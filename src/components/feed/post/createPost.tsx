@@ -105,15 +105,17 @@ const CreatePost: React.FC = () => {
   };
 
   async function handlePostSubmit() {
-    let imageData: CreatePostForm["image"] | undefined = undefined;
+    let imageData: CreatePostForm["media"] | undefined = undefined;
     if (mediaFiles.length > 0) {
       imageData = mediaFiles[0].file;
     }
 
     const data = {
       content: postContent,
-      image: imageData,
+      media: imageData,
     };
+
+    console.log('type', imageData instanceof File);
 
     const result = PostSchema.safeParse(data);
     if (!result.success) {
@@ -127,6 +129,7 @@ const CreatePost: React.FC = () => {
       });
       return;
     }
+
 
     try {
       await createPostClient(result.data);
