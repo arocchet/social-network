@@ -7,6 +7,7 @@ export function parseCreatePost(formData: FormData): CreatePostForm {
 
     return {
         content,
-        image
+        image: image && image.size > 0 && image.name ? image : undefined
+
     }
 }
