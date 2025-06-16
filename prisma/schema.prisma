@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -30,7 +30,7 @@ model User {
   email     String    @unique
   birthDate DateTime?
   username  String?   @unique
-  bio       String?
+  biography String?
   avatar    String?
   banner    String?
 
