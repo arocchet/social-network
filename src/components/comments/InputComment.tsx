@@ -9,7 +9,7 @@ import {
   EmojiPickerSearch,
 } from "../reaction/emojiPicker";
 import { Button } from "../ui/button";
-import { GifPopover } from "@/app/utils/giphy";
+import { GifPopover } from "@/app/[locale]/utils/giphy";
 
 const InputComment = () => {
   const [isOpen, setIsOpen] = React.useState(false);

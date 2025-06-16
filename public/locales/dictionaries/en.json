@@ -1,0 +1,28 @@
+{
+    "navigation": {
+        "home": "Home",
+        "profile": "Profile",
+        "search": "Search",
+        "create": "Create a post",
+        "settings": "Settings",
+        "logout": "Logout",
+        "accounts": "Accounts"
+    },
+    "search": {
+        "recent": "Recent",
+        "notfind": "No recent search"
+    },
+    "auth": {
+        "login": "Login",
+        "register": "Register",
+        "email": "Email",
+        "password": "Password"
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "save": "Save"
+    }
+}

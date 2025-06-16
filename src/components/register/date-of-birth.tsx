@@ -21,7 +21,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { cn } from "@/lib/utils"
-import { useUserForm } from "@/app/context/user-register-form-context"
+import { useUserForm } from "@/app/[locale]/context/user-register-form-context"
 
 const FormSchema = z.object({
     dob: z.date({

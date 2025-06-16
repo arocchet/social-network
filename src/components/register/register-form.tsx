@@ -9,7 +9,7 @@ import { siteConfig } from "../../../config/site";
 import { format } from "date-fns"
 import { Avatar } from "./avatar-upload";
 import { ProfileBg } from "./banner-upload";
-import { useUserForm } from "@/app/context/user-register-form-context";
+import { useUserForm } from "@/app/[locale]/context/user-register-form-context";
 import Link from "next/link";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";

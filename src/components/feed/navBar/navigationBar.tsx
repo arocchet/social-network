@@ -1,10 +1,17 @@
+"use client"
 import { Button } from "@/components/ui/button";
-import { PlusSquare, Search, Home, SettingsIcon, User } from "lucide-react";
+import { Search, Home, SettingsIcon, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CreatePost from "../post/createPost";
 import Link from "next/link";
+import { useClientDictionary } from "@/app/[locale]/context/dictionnary-context";
+import LanguageSwitcher, { useCurrentLocale } from "@/components/translate/LanguageSwitcher";
 
 export default function NavigationBar() {
+
+  const { dict } = useClientDictionary();
+  const currentLocale = useCurrentLocale();
+
   return (
     <>
       {/* PC Navigation - Left bar */}
@@ -21,20 +28,24 @@ export default function NavigationBar() {
               <p className="text-[var(--textNeutral)] font-medium">Username</p>
             </div>
           </div>
-
+          <LanguageSwitcher
+            currentLocale={currentLocale}
+            variant="select"
+            className="ml-4"
+          />
           {/* Navigation principale */}
           <div className="mb-6 ">
             <Link href="/">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bgLevel3)] text-[var(--textNeutral)] hover:bg-[var(--bgLevel4)] transition-colors">
                 <Home className="w-5 h-5" />
-                <span>Accueil</span>
+                <span>{dict.navigation.home}</span>
               </div>
             </Link>
 
             <Link href="/search" className="">
               <div className="flex  items-center gap-3 p-3 mt-2 rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors">
                 <Search className="w-5 h-5" />
-                <span>Recherche</span>
+                <span>{dict.navigation.search}</span>
               </div>
             </Link>
 
@@ -45,14 +56,15 @@ export default function NavigationBar() {
             <Link href="/settings">
               <div className="flex items-center gap-3 p-3 mt-2  rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors">
                 <SettingsIcon className="w-5 h-5" />
-                <span>Paramètres</span>
+                <span>{dict.navigation.settings}</span>
+
               </div>
             </Link>
 
             <Link href="/profile">
               <div className="flex items-center gap-3 p-3 mt-2  rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors">
                 <User className="w-5 h-5" />
-                <span>Profil</span>
+                <span>{dict.navigation.profile}</span>
               </div>
             </Link>
           </div>
