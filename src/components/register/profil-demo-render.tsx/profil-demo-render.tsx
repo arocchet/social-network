@@ -18,8 +18,7 @@ import { useIsMounted } from "@/hooks/use-is-mounted";
 
 const ProfilDemoRender = () => {
   const { userInfo } = useUserForm();
-  const avatar = userInfo?.avatar;
-  const cover = userInfo?.cover;
+
   const currentAvatarImage = userInfo.avatar?.previewUrl || "";
   const currentCoverImage = userInfo.cover?.previewUrl || "";
 
