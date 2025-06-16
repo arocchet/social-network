@@ -1,0 +1,28 @@
+{
+    "navigation": {
+        "home": "Accueil",
+        "profile": "Profil",
+        "search": "Rechercher",
+        "create": "Créer un post",
+        "settings": "Paramètres",
+        "logout": "Déconnexion",
+        "accounts": "Comptes"
+    },
+    "search": {
+        "recent": "Réçent",
+        "notfind": "Aucune recherche récente"
+    },
+    "auth": {
+        "login": "Connexion",
+        "register": "Inscription",
+        "email": "Email",
+        "password": "Mot de passe"
+    },
+    "common": {
+        "loading": "Chargement...",
+        "error": "Erreur",
+        "success": "Succès",
+        "cancel": "Annuler",
+        "save": "Enregistrer"
+    }
+}

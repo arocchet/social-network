@@ -3,7 +3,7 @@
 
 "use client";
 
-import { siteConfig } from "../../../../config/site";
+import { siteConfig } from "../../../../../config/site";
 import { LoginForm } from "@/components/login/login-form";
 import { LoginGridPhoto } from "@/components/login/login-grid-photo";
 import Link from "next/link";

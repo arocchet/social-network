@@ -26,6 +26,7 @@ import { toast } from "sonner"
 import { PostSchema } from "@/lib/validations/createPostSchemaZod";
 import { createPostClient } from "@/lib/client/post/createPost";
 import { CreatePostForm } from "@/lib/types/types";
+import { useClientDictionary } from "@/app/[locale]/context/dictionnary-context";
 
 
 type MediaFile = {
@@ -40,6 +41,7 @@ const CreatePost: React.FC = () => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const { dict } = useClientDictionary();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -156,7 +158,8 @@ const CreatePost: React.FC = () => {
           className="md:w-full md:h-auto md:justify-start flex items-center gap-3 p-3 rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors text-normal"
         >
           <PlusSquare className="h-5 w-5" />
-          <span className="hidden md:inline text-[var(--textNeutral)] font-normal">Créer un post</span>
+          <span className="hidden md:inline text-[var(--textNeutral)] font-normal"> {dict.navigation.create}</span>
+
         </button>
       </DialogTrigger>
 

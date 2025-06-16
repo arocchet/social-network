@@ -1,4 +1,4 @@
-import { useUserForm } from "@/app/context/user-register-form-context";
+import { useUserForm } from "@/app/[locale]/context/user-register-form-context";
 import { FaImage } from "react-icons/fa6";
 
 

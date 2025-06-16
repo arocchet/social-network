@@ -1,4 +1,4 @@
-'use client'
+/* eslint-disable @next/next/no-async-client-component */
 
 import PostCard from "@/components/feed/post/postCard"
 import { Button } from "@/components/ui/button"
@@ -10,11 +10,11 @@ import Link from "next/link"
 import NavigationBar from "@/components/feed/navBar/navigationBar"
 
 export default function HomePage() {
+
+
   return (
     <div className="flex h-screen bg-[var(--bgLevel1)]">
-      {/*Navigation */}
-      <NavigationBar />
-
+      {/*Navigation */}  <NavigationBar />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
