@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "../../config/site";
 import { geistMono, geistSans } from "../../config/font";
-import { ModeToggle } from "@/components/toggle-theme";
 import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
@@ -21,14 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-[var(--bgLevel1)] `}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-        >
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable}`}
+    >
+      <body suppressHydrationWarning className="antialiased bg-[var(--bgLevel1)]">
+        <ThemeProvider attribute="class" defaultTheme="light">
           {children}
           <Toaster richColors closeButton />
         </ThemeProvider>
