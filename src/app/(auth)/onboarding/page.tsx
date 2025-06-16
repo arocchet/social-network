@@ -1,7 +1,10 @@
 import { LoginGridPhoto } from "@/components/login/login-grid-photo";
-import FormOnboardingPage from "@/components/onboarding/test";
+import FormOnboardingPage from "@/components/onboarding/onboarding";
+import { headers } from "next/headers";
 
-export default function OnboardingPag() {
+export default async function OnboardingPag() {
+    const headersList = await headers();
+    const userId = headersList.get('x-user-id');
 
     return (
         <div className="flex w-full h-screen">
