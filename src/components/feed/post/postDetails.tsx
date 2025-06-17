@@ -20,6 +20,17 @@ interface PostDetailsProps {
   trigger?: React.ReactNode; // Pour permettre un trigger personnalisé
 }
 
+interface Comment {
+  id: string;
+  message: string;
+  datetime: string;
+  user: {
+    id: string;
+    username: string;
+    avatar?: string;
+  };
+}
+
 interface PostWithDetails extends Post {
   comments: Comment[];
   reactions: any[];
@@ -42,19 +53,19 @@ function PostDetails({ postId, trigger }: PostDetailsProps) {
       setError(null);
 
       const response = await fetch(`/api/private/post/${postId}`, {
-        method: 'GET',
-        credentials: 'include',
+        method: "GET",
+        credentials: "include",
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to fetch post details');
+        throw new Error(errorData.message || "Failed to fetch post details");
       }
 
       const data = await response.json();
       setPost(data.post);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -119,7 +130,10 @@ function PostDetails({ postId, trigger }: PostDetailsProps) {
                   </div>
 
                   {/* Footer fixe */}
-                  <PostFooter postId={postId} onCommentAdded={fetchPostDetails} />
+                  <PostFooter
+                    postId={postId}
+                    onCommentAdded={fetchPostDetails}
+                  />
                 </div>
               ) : null}
             </div>
@@ -143,7 +157,13 @@ function LoadingState() {
 }
 
 // Composant d'erreur
-function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) {
+function ErrorState({
+  error,
+  onRetry,
+}: {
+  error: string;
+  onRetry: () => void;
+}) {
   return (
     <div className="flex items-center justify-center h-full">
       <div className="flex flex-col items-center gap-4 text-center max-w-sm">
@@ -163,7 +183,9 @@ function PostHeader({ post }: { post: PostWithDetails }) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInHours = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60));
+    const diffInHours = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60 * 60)
+    );
 
     if (diffInHours < 1) return "À l'instant";
     if (diffInHours < 24) return `il y a ${diffInHours}h`;
@@ -203,7 +225,7 @@ function PostHeader({ post }: { post: PostWithDetails }) {
         {/* Image/Vidéo du post si présente */}
         {post.image && (
           <div className="rounded-lg overflow-hidden">
-            {post.image.includes('.mp4') ? (
+            {post.image.includes(".mp4") ? (
               <video
                 src={post.image}
                 controls
@@ -249,11 +271,19 @@ function CommentsSection({ comments }: { comments: Comment[] }) {
 }
 
 // Composant pour un commentaire individuel
-function CommentItem({ comment, isLast }: { comment: Comment; isLast?: boolean }) {
+function CommentItem({
+  comment,
+  isLast,
+}: {
+  comment: Comment;
+  isLast?: boolean;
+}) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60)
+    );
 
     if (diffInMinutes < 1) return "À l'instant";
     if (diffInMinutes < 60) return `${diffInMinutes}min`;
@@ -267,8 +297,9 @@ function CommentItem({ comment, isLast }: { comment: Comment; isLast?: boolean }
 
   return (
     <div
-      className={`flex flex-col gap-2 px-4 ${!isLast ? "border-b border-[var(--detailMinimal)] pb-4" : "pb-4"
-        }`}
+      className={`flex flex-col gap-2 px-4 ${
+        !isLast ? "border-b border-[var(--detailMinimal)] pb-4" : "pb-4"
+      }`}
     >
       {/* Header du commentaire */}
       <div className="flex items-center gap-3">
@@ -291,9 +322,7 @@ function CommentItem({ comment, isLast }: { comment: Comment; isLast?: boolean }
       </div>
 
       {/* Contenu du commentaire */}
-      <div className="ml-11 text-sm">
-        {comment.message}
-      </div>
+      <div className="ml-11 text-sm">{comment.message}</div>
     </div>
   );
 }
@@ -301,7 +330,7 @@ function CommentItem({ comment, isLast }: { comment: Comment; isLast?: boolean }
 // Composant pour le footer avec actions
 function PostFooter({
   postId,
-  onCommentAdded
+  onCommentAdded,
 }: {
   postId: string;
   onCommentAdded: () => void;
@@ -309,7 +338,7 @@ function PostFooter({
   return (
     <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)] -mt-px">
       <div className="p-2 w-full">
-        <InputComment postId={postId} onCommentAdded={onCommentAdded} />
+        <InputComment />
       </div>
     </div>
   );
