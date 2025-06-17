@@ -12,15 +12,18 @@ export default function NavigationBar() {
       {/* PC Navigation - Left bar */}
       <nav className="hidden md:flex w-64 lg:w-72 flex-col bg-[var(--bgLevel2)] border-r border-[var(--detailMinimal)]">
         <div className="p-6">
-
           {/* Nom utilisateur */}
           <div className="flex items-center gap-3 mb-8 p-3 rounded-lg">
             <Avatar className="w-10 h-10">
               <AvatarImage src={`${user?.avatar}`} alt="Profile" />
-              <AvatarFallback className="bg-[var(--pink20)] text-[var(--white10)]">U</AvatarFallback>
+              <AvatarFallback className="bg-[var(--pink20)] text-[var(--white10)]">
+                U
+              </AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <p className="text-[var(--textNeutral)] font-medium">{user?.username}</p>
+              <p className="text-[var(--textNeutral)] font-medium">
+                {user?.username}
+              </p>
             </div>
           </div>
 
@@ -81,7 +84,8 @@ export default function NavigationBar() {
                 className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl"
               >
                 <Search className="w-6 h-6" />
-              </Button></Link>
+              </Button>
+            </Link>
             <CreatePost />
             <Link href="/settings">
               <Button
@@ -96,10 +100,7 @@ export default function NavigationBar() {
             <div className="p-2 hover:bg-gray-100 transition-colors duration-200 rounded-xl cursor-pointer">
               <Link href="/profile">
                 <Avatar className="w-6 h-6">
-                  <AvatarImage
-                    src="/placeholder.svg?height=24&width=24"
-                    alt="Profile"
-                  />
+                  <AvatarImage src={`${user?.avatar}`} alt="Profile" />
                   <AvatarFallback className="bg-[var(--pink20)]"></AvatarFallback>
                 </Avatar>
               </Link>
