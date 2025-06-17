@@ -50,7 +50,7 @@ export interface RegisterUserInput {
     lastName?: string;
     username?: string;
     birthDate?: Date;
-    bio?: string;
+    biography?: string;
     avatar?: string;
     banner?: string;
 
@@ -70,7 +70,7 @@ export const JWT_EXPIRATION = {
 export type UserInfo = {
     providerAccountId: string | undefined;
     birthDate: Date | null;
-    bio: string | null;
+    biography: string | null;
     avatar: string | null;
     banner: string | null;
     email: string;

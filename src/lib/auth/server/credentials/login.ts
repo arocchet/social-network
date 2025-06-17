@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { comparePasswords } from '@/lib/hash'
+import { comparePasswords } from '@/lib/security/hash'
 import { signJwt } from '@/lib/jwt/signJwt';
 
 

@@ -1,7 +1,7 @@
 import { POST } from '@/app/api/public/auth/register/route'
 import { login } from '@/lib/auth/server/credentials/login'
 import { db } from '@/lib/db'
-import { hashPassword } from '@/lib/hash'
+import { hashPassword } from '@/lib/security/hash';
 import { NextRequest } from 'next/server'
 
 beforeAll(async () => {
