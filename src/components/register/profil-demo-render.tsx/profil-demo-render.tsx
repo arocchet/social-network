@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
-import { useUserForm } from "@/app/[locale]/context/user-register-form-context";
-import { formatDate } from "@/app/[locale]/utils/dateFormat";
+'use client';
+import { useUserForm } from "@/app/context/user-register-form-context";
+import { formatDate } from "@/app/utils/dateFormat";
 import {
   Card,
   CardContent,
@@ -18,8 +19,7 @@ import { useIsMounted } from "@/hooks/use-is-mounted";
 
 const ProfilDemoRender = () => {
   const { userInfo } = useUserForm();
-  const avatar = userInfo?.avatar;
-  const cover = userInfo?.cover;
+
   const currentAvatarImage = userInfo.avatar?.previewUrl || "";
   const currentCoverImage = userInfo.cover?.previewUrl || "";
 

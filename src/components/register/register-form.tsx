@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -6,12 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { siteConfig } from "../../../config/site";
-import { format } from "date-fns"
+import { format } from "date-fns";
 import { Avatar } from "./avatar-upload";
 import { ProfileBg } from "./banner-upload";
 import { useUserForm } from "@/app/[locale]/context/user-register-form-context";
 import Link from "next/link";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
@@ -23,6 +23,10 @@ export function RegisterForm({
 }: React.ComponentPropsWithoutRef<"form">) {
   const { handleChange, handleSubmit, userInfo, errors } = useUserForm();
   const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [dropdown] =
+    React.useState<React.ComponentProps<typeof Calendar>["captionLayout"]>(
+      "dropdown"
+    );
 
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>
@@ -43,7 +47,9 @@ export function RegisterForm({
           <div className="grid gap-2 w-full">
             <Label htmlFor="firstname" className="font-medium">
               First Name
-              <span className="text-red-500 text-xl" aria-hidden="true">*</span>
+              <span className="text-red-500 text-xl" aria-hidden="true">
+                *
+              </span>
               <span className="sr-only"> (champ obligatoire)</span>
             </Label>
 
@@ -66,7 +72,9 @@ export function RegisterForm({
           <div className="grid gap-2 w-full">
             <Label htmlFor="lastname" className="font-medium">
               Last Name
-              <span className="text-red-500 text-xl" aria-hidden="true">*</span>
+              <span className="text-red-500 text-xl" aria-hidden="true">
+                *
+              </span>
               <span className="sr-only"> (champ obligatoire)</span>
             </Label>
             <Input
@@ -91,7 +99,9 @@ export function RegisterForm({
           <div className="grid gap-2 w-full">
             <Label htmlFor="username" className="font-medium">
               Username
-              <span className="text-red-500 text-xl" aria-hidden="true">*</span>
+              <span className="text-red-500 text-xl" aria-hidden="true">
+                *
+              </span>
               <span className="sr-only"> (champ obligatoire)</span>
             </Label>
             <Input
@@ -114,7 +124,9 @@ export function RegisterForm({
           <div className="grid gap-2 w-full">
             <Label htmlFor="dateOfBirth" className="font-medium">
               Date de naissance
-              <span className="text-red-500 text-xl" aria-hidden="true">*</span>
+              <span className="text-red-500 text-xl" aria-hidden="true">
+                *
+              </span>
               <span className="sr-only"> (champ obligatoire)</span>
             </Label>
             <Popover>
@@ -134,7 +146,12 @@ export function RegisterForm({
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
-                  selected={userInfo.dateOfBirth ? new Date(userInfo.dateOfBirth) : undefined}
+                  captionLayout={dropdown}
+                  selected={
+                    userInfo.dateOfBirth
+                      ? new Date(userInfo.dateOfBirth)
+                      : undefined
+                  }
                   onSelect={(date) => {
                     if (date) {
                       const formatted = format(date, "yyyy-MM-dd");
@@ -184,7 +201,9 @@ export function RegisterForm({
         <div className="grid gap-2">
           <Label htmlFor="email" className="font-medium">
             Email
-            <span className="text-red-500 text-xl" aria-hidden="true">*</span>
+            <span className="text-red-500 text-xl" aria-hidden="true">
+              *
+            </span>
             <span className="sr-only"> (champ obligatoire)</span>
           </Label>
           <Input
@@ -205,7 +224,9 @@ export function RegisterForm({
         <div className="grid gap-2">
           <Label htmlFor="password" className="font-medium">
             Password
-            <span className="text-red-500 text-xl" aria-hidden="true">*</span>
+            <span className="text-red-500 text-xl" aria-hidden="true">
+              *
+            </span>
             <span className="sr-only"> (champ obligatoire)</span>
           </Label>
           <div className="relative">

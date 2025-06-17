@@ -1,5 +1,5 @@
 import { db } from '@/lib/db'
-import { hashPassword } from '@/lib/hash'
+import { hashPassword } from '@/lib/security/hash'
 import { RegisterDataWithUrls } from '@/lib/types/types';
 
 export async function register(new_user: RegisterDataWithUrls) {

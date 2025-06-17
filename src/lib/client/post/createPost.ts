@@ -4,8 +4,8 @@ export async function createPostClient(post: CreatePostForm) {
     const formData = new FormData();
     formData.append("content", post.content);
 
-    if (post.image) {
-        formData.append("img", post.image);
+    if (post.media) {
+        formData.append("media", post.media);
     }
 
     const res = await fetch("/api/private/post", {

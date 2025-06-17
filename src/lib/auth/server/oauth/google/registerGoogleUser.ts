@@ -1,5 +1,6 @@
 import { register } from "@/lib/db/queries/registerUser";
 import { GoogleOAuth, GoogleToken, RegistrationSource, UserInfo } from "@/lib/types/types";
+import { encryptValue } from "@/lib/security/encryptToken";
 
 type Params = {
     userInfo: GoogleOAuth;
@@ -8,10 +9,18 @@ type Params = {
     source: RegistrationSource;
 }
 
-export async function registerGoogleOAuthUser({ userInfo, tokens, origin, source }: Params) {
+export async function registerGoogleOAuthUser({ userInfo, tokens, source }: Params) {
     if (!userInfo.email) throw new Error("Email is required");
     if (!userInfo.googleId) throw new Error("Google ID is required");
     if (!source) throw new Error("Source is required");
+
+    const encryptedAccessToken = tokens.access_token
+        ? await encryptValue(tokens.access_token)
+        : null;
+
+    const encryptedRefreshToken = tokens.refresh_token
+        ? await encryptValue(tokens.refresh_token)
+        : null;
 
     const user: UserInfo = await register({
         email: userInfo.email,
@@ -20,7 +29,14 @@ export async function registerGoogleOAuthUser({ userInfo, tokens, origin, source
         source,
         providerAccountId: userInfo.googleId,
         firstName: userInfo.given_name ?? undefined,
-        tokens
+        tokens: {
+            access_token: encryptedAccessToken,
+            refresh_token: encryptedRefreshToken,
+            scope: tokens.scope,
+            id_token: tokens.id_token,
+            expiry_date: tokens.expiry_date,
+            token_type: tokens.token_type,
+        },
     });
 
     return user;

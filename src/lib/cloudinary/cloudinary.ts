@@ -14,6 +14,28 @@ class CloudinaryService {
                 {
                     folder,
                     public_id: options.filename,
+                    resource_type: 'image' // Explicite pour les images
+                },
+                (error, result) => {
+                    if (error) return reject(error)
+                    resolve(result!)
+                }
+            )
+            Readable.from(fileBuffer).pipe(stream)
+        })
+    }
+
+    async uploadVideo(fileBuffer: Buffer, options: UploadApiOptions): Promise<UploadApiResponse> {
+        const folder = `users/${options.format}`
+        return new Promise((resolve, reject) => {
+            const stream = cloudinary.uploader.upload_stream(
+                {
+                    folder,
+                    public_id: options.filename,
+                    resource_type: 'video', // OBLIGATOIRE pour les vidéos
+                    format: 'mp4', // Format de sortie souhaité
+                    quality: 'auto', // Optimisation automatique
+                    fetch_format: 'auto' // Format adaptatif
                 },
                 (error, result) => {
                     if (error) return reject(error)
