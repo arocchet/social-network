@@ -1,4 +1,4 @@
-import { POST } from '@/app/[locale]/api/public/auth/register/route'
+import { POST } from '@/app/api/public/auth/register/route'
 import { login } from '@/lib/auth/server/credentials/login'
 import { db } from '@/lib/db'
 import { hashPassword } from '@/lib/hash'
