@@ -17,9 +17,9 @@ import Image from "next/image";
 import { ModeToggle } from "@/components/toggle-theme";
 import NavigationBar from "@/components/feed/navBar/navigationBar";
 import { useUser } from "@/hooks/use-user-data";
-import { formatDate } from "@/app/utils/dateFormat";
 import { useUserPosts } from "@/hooks/use-posts-by-user";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { formatDate } from "../../utils/dateFormat";
 
 const profileData = {
   username: "alice_photo",
@@ -278,7 +278,7 @@ export default function ProfilePage({ }: ProfilePageProps) {
                   <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-[var(--bgLevel2)]">
                     <AvatarImage
                       src={user?.avatar || "/placeholder.svg"}
-                      alt={profileData.username}
+                      alt={user?.username}
                     />
                     <AvatarFallback className="bg-[var(--greyFill)] text-[var(--textNeutral)]">
                       {profileData.username[0].toUpperCase()}

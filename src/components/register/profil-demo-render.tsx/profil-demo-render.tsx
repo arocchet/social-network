@@ -1,7 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 'use client';
-import { useUserForm } from "@/app/context/user-register-form-context";
-import { formatDate } from "@/app/utils/dateFormat";
 import {
   Card,
   CardContent,
@@ -16,6 +14,8 @@ import { Check } from "lucide-react";
 import { FaImage } from "react-icons/fa6";
 import { FaBirthdayCake } from "react-icons/fa";
 import { useIsMounted } from "@/hooks/use-is-mounted";
+import { formatDate } from "@/app/[locale]/utils/dateFormat";
+import { useUserForm } from "@/app/[locale]/context/user-register-form-context";
 
 const ProfilDemoRender = () => {
   const { userInfo } = useUserForm();
