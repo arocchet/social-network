@@ -54,7 +54,6 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: "User not found." }, { status: 404 });
         }
 
-        console.log("POSTDATA", postData)
 
         return NextResponse.json({
             success: true,
@@ -70,3 +69,4 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ message }, { status: 500 });
     }
 }
+

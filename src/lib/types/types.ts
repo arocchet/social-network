@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Credentials_Schema_Login, Credentials_Schema_Register } from "@/lib/validations/authSchemaZod";
 import { PostSchema } from "../validations/createPostSchemaZod";
+import { StorySchema } from "../validations/createStorySchemaZod";
 
 export type Credentials_Register = z.infer<typeof Credentials_Schema_Register>;
 
@@ -81,4 +82,37 @@ export type UserInfo = {
     username: string | null;
 }
 
+export interface User {
+    userId: string;
+    firstName: string;
+    lastName: string;
+    username: string;
+    email: string;
+    bio: string;
+    avatar: string;
+    password: string;
+    birthdate: Date;
+    registeredAt: Date;
+}
+
+
+export interface Post {
+    id: string;
+    content: string;
+    username: string;
+    message: string;
+    avatar: string;
+    image: string;
+    userId: string;
+    user: User;
+    visibility: 'PUBLIC' | 'PRIVATE';
+    datetime: string;
+    _count: {
+        comments: number;
+        reactions: number;
+    };
+}
+
+
 export type CreatePostForm = z.infer<typeof PostSchema>
+export type CreateStoryForm = z.infer<typeof StorySchema>

@@ -1,7 +1,5 @@
-import { getUserByIdServer } from "@/lib/server/user/getUser";
-// import { UserInfoSchema } from "@/lib/validations/userValidation";
+import { getAllPosts } from "@/lib/db/queries/post/getAllPosts";
 import { NextRequest, NextResponse } from "next/server";
-
 
 export async function GET(req: NextRequest) {
     try {
@@ -13,32 +11,17 @@ export async function GET(req: NextRequest) {
         }
 
         // Récupérer les données utilisateur depuis la base de données
-        const userData = await getUserByIdServer(userId);
+        const allPosts = await getAllPosts();
 
-
-
-        if (!userData) {
+        if (!allPosts) {
             return NextResponse.json({ message: "User not found." }, { status: 404 });
         }
 
-        // Valider les données avec Zod (optionnel)
-        // const validatedUserData = UserInfoSchema.safeParse(userData);
-
-        // if (!validatedUserData.success) {
-        //     const errors = validatedUserData.error.flatten().fieldErrors;
-        //     return NextResponse.json(
-        //         { message: "Data validation failed", errors },
-        //         { status: 500 }
-        //     );
-        // }
-
-        // Retourner les données utilisateur (sans informations sensibles)
-        // const { ...safeUserData } = validatedUserData.data;
-
+        console.log("ALL POSTS", allPosts)
 
         return NextResponse.json({
             success: true,
-            user: userData
+            user: allPosts
         }, { status: 200 });
 
     } catch (error) {

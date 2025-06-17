@@ -2,95 +2,75 @@
 
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Plus } from "lucide-react";
 import { StoryViewer } from "./story-viewer";
+import { UserStoriesGroup, useUserStories } from "@/hooks/use-user-stories";
+import CreateStory from "./createStory";
+// Interface pour adapter vos données aux composants existants
+interface AdaptedStory {
+  id: number;
+  image: string;
+  timeAgo: string;
+}
 
-const stories = [
-  {
-    id: 1,
-    username: "Votre story",
-    avatar: "/placeholder.svg?height=60&width=60",
-    isOwn: true,
-    stories: [],
-  },
-  {
-    id: 2,
-    username: "alice_photo",
-    avatar: "/placeholder.svg?height=60&width=60",
-    stories: [
-      {
-        id: 1,
-        image:
-          "https://pin.it/1kmbO3MXK",
-        timeAgo: "2h",
-      },
-      {
-        id: 2,
-        image:
-          "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop",
-        timeAgo: "3h",
-      },
-      {
-        id: 3,
-        image:
-          "https://images.unsplash.com/photo-1748199625281-bde664abf23f?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-        timeAgo: "4h",
-      },
-    ],
-  },
-  {
-    id: 3,
-    username: "bob_travel",
-    avatar: "/placeholder.svg?height=60&width=60",
-    stories: [
-      {
-        id: 1,
-        image:
-          "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&h=600&fit=crop",
-        timeAgo: "5h",
-      },
-      {
-        id: 2,
-        image:
-          "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&h=600&fit=crop",
-        timeAgo: "6h",
-      },
-      {
-        id: 3,
-        image:
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800&fit=crop",
-        timeAgo: "7h",
-      },
-    ],
-  },
-  {
-    id: 4,
-    username: "nature_lover",
-    avatar: "/placeholder.svg?height=60&width=60",
-    stories: [
-      {
-        id: 1,
-        image:
-          "https://images.unsplash.com/photo-1440342359743-84fcb8c21f21?w=800&h=600&fit=crop",
-        timeAgo: "1h",
-      },
-      {
-        id: 2,
-        image:
-          "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?w=600&h=800&fit=crop",
-        timeAgo: "2h",
-      },
-    ],
-  },
-];
+interface AdaptedUser {
+  id: number;
+  username: string;
+  avatar: string;
+  isOwn?: boolean;
+  stories: AdaptedStory[];
+}
 
 export function Stories() {
+  const { storiesGroups, loading, error, refetch } = useUserStories({
+    publicOnly: true,
+    includeExpired: false
+  });
+
   const [viewingStory, setViewingStory] = useState<number | null>(null);
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
-  const [viewableStories, setViewableStories] = useState(
-    stories.filter((story) => !story.isOwn)
-  );
+
+  // Fonction pour calculer le temps écoulé
+  const getTimeAgo = (datetime: string) => {
+    const now = new Date();
+    const storyDate = new Date(datetime);
+    const diffInMinutes = Math.floor((now.getTime() - storyDate.getTime()) / (1000 * 60));
+
+    if (diffInMinutes < 60) {
+      return `${diffInMinutes}min`;
+    } else {
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      return `${diffInHours}h`;
+    }
+  };
+
+  // Adapter les données de la base de données au format attendu par les composants
+  const adaptStoryData = (storiesGroups: UserStoriesGroup[]): AdaptedUser[] => {
+    return storiesGroups.map((group, groupIndex) => ({
+      id: groupIndex + 1, // Index temporaire
+      username: group.user.username || `${group.user.firstName} ${group.user.lastName}`.trim(),
+      avatar: group.user.avatar || "/placeholder.svg",
+      stories: group.stories.map((story, storyIndex) => ({
+        id: storyIndex + 1,
+        image: story.media || "/placeholder.svg",
+        timeAgo: getTimeAgo(story.datetime)
+      }))
+    }));
+  };
+
+  // Ajouter la story "Votre story" au début
+  const adaptedStories: AdaptedUser[] = [
+    {
+      id: 0,
+      username: "Votre story",
+      avatar: "/placeholder.svg?height=60&width=60",
+      isOwn: true,
+      stories: [],
+    },
+    ...adaptStoryData(storiesGroups)
+  ];
+
+  const viewableStories = adaptedStories.filter((story) => !story.isOwn);
 
   // Vérifier que les indices sont valides avant de rendre le StoryViewer
   const isValidUserIndex =
@@ -104,17 +84,17 @@ export function Stories() {
     currentStoryIndex < currentUser.stories.length;
 
   const handleStoryClick = (storyIndex: number) => {
-    if (stories[storyIndex].isOwn) return;
+    if (adaptedStories[storyIndex].isOwn) return;
 
     const viewableIndex = viewableStories.findIndex(
-      (s) => s.id === stories[storyIndex].id
+      (s) => s.id === adaptedStories[storyIndex].id
     );
 
     // Vérifier que l'index est valide
     if (viewableIndex !== -1) {
       setCurrentUserIndex(viewableIndex);
       setCurrentStoryIndex(0);
-      setViewingStory(stories[storyIndex].id);
+      setViewingStory(adaptedStories[storyIndex].id);
     }
   };
 
@@ -188,10 +168,38 @@ export function Stories() {
     setViewingStory(null);
   };
 
+  if (loading) {
+    return (
+      <div className="flex gap-4 p-4 overflow-x-auto">
+        {/* Skeleton pour le chargement */}
+        {[...Array(5)].map((_, index) => (
+          <div key={index} className="flex flex-col items-center gap-1 min-w-fit">
+            <div className="w-14 h-14 bg-gray-200 rounded-full animate-pulse" />
+            <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-4 text-center">
+        <p className="text-red-500">Erreur: {error}</p>
+        <button
+          onClick={refetch}
+          className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Réessayer
+        </button>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="flex gap-4 p-4 overflow-x-auto">
-        {stories.map((story, index) => (
+        {adaptedStories.map((story, index) => (
           <div
             key={story.id}
             className="flex flex-col items-center gap-1 min-w-fit cursor-pointer"
@@ -200,8 +208,10 @@ export function Stories() {
             <div className="relative">
               <button
                 className={`p-0.5 rounded-full ${story.isOwn
-                    ? "bg-gray-300"
-                    : "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
+                  ? "bg-gray-300"
+                  : story.stories.length > 0
+                    ? "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
+                    : "bg-gray-300"
                   }`}
               >
                 <Avatar className="w-14 h-14">
@@ -215,8 +225,8 @@ export function Stories() {
                 </Avatar>
               </button>
               {story.isOwn && (
-                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-white">
-                  <Plus className="w-3 h-3 text-white" />
+                <div className="absolute -bottom-0 -right-0  flex items-center justify-center border-2 border-white">
+                  <CreateStory />
                 </div>
               )}
             </div>

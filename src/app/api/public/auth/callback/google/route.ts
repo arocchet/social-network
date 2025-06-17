@@ -28,7 +28,6 @@ export async function GET(req: NextRequest) {
             maxAge: result.type === 'success' ? 8 * 60 * 60 : 10 * 60,
             path: '/',
         });
-        console.log('res: ', response)
 
         return response;
     } catch (err) {
