@@ -15,7 +15,7 @@ export async function register(input: RegisterUserInput) {
         firstName,
         lastName,
         birthDate,
-        bio,
+        biography,
         avatar,
         banner
     } = input;
@@ -50,7 +50,7 @@ export async function register(input: RegisterUserInput) {
             firstName,
             lastName,
             birthDate,
-            bio,
+            biography,
             avatar,
             banner
         }

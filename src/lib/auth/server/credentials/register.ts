@@ -32,7 +32,7 @@ export async function register(new_user: RegisterDataWithUrls) {
             firstName: new_user.firstname,
             lastName: new_user.lastname,
             birthDate: new_user.dateOfBirth,
-            bio: new_user.biography,
+            biography: new_user.biography,
             ...(new_user.avatar && { avatar: new_user.avatar }),
             ...(new_user.cover && { banner: new_user.cover }),
         }
