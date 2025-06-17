@@ -26,6 +26,8 @@ import { toast } from "sonner"
 import { PostSchema } from "@/lib/validations/createPostSchemaZod";
 import { createPostClient } from "@/lib/client/post/createPost";
 import { CreatePostForm } from "@/lib/types/types";
+import { useUser } from "@/hooks/use-user-data";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 
 type MediaFile = {
@@ -39,7 +41,7 @@ const CreatePost: React.FC = () => {
   const [postContent, setPostContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const { user } = useUser();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -168,11 +170,17 @@ const CreatePost: React.FC = () => {
           {/* Header with user info and title */}
           <div className="flex items-center justify-between p-4 border-b bg-[var(--bgLevel1)] rounded-t-xl">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-semibold">
-                U
-              </div>
+              <Avatar className="w-10 h-10 md:w-14 md:h-14 border-4 border-[var(--bgLevel2)]">
+                <AvatarImage
+                  src={user?.avatar || "/placeholder.svg"}
+                  alt={user?.username}
+                />
+                <AvatarFallback className="bg-[var(--greyFill)] text-[var(--textNeutral)]">
+                  {user?.username![0].toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
               <div>
-                <p className="font-medium text-sm">Utilisateur</p>
+                <p className="font-medium text-lg">{user?.username}</p>
                 <p className="text-xs text-[var(--textNeutral)]">Public</p>
               </div>
             </div>
