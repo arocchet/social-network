@@ -113,7 +113,6 @@ export default function ProfilePage({ }: ProfilePageProps) {
     };
   }, [posts]);
 
-  console.log("FRONT POSTS", posts);
 
   if (error) {
     return (

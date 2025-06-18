@@ -33,7 +33,6 @@ export function useUser(): UseUserReturn {
 
             const data = await response.json();
 
-            console.log(data)
             setUser(data.user);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Unknown error');

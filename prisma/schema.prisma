@@ -31,6 +31,7 @@ model User {
   Story               Story[]
   userSettings        UserSettings?
   accounts            Account[]
+  stories             Story[]
 }
 
 model Account {
@@ -58,8 +59,18 @@ model Post {
   datetime   DateTime   @default(now())
   image      String?
   visibility Visibility
-  comments   Comment[]
+
+  comments  Comment[]
+  reactions Reaction[]
+}
+
+model Story {
+  id         String     @id @default(cuid())
   user       User       @relation(fields: [userId], references: [id])
+  userId     String
+  datetime   DateTime   @default(now())
+  media      String?
+  visibility Visibility
   reactions  Reaction[]
 }
 
@@ -79,10 +90,8 @@ model Reaction {
   userId   String
   postId   String
   datetime DateTime     @default(now())
+  story    Story?       @relation(fields: [storyId], references: [id])
   storyId  String?
-  post     Post         @relation(fields: [postId], references: [id])
-  Story    Story?       @relation(fields: [storyId], references: [id])
-  user     User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, postId])
 }
