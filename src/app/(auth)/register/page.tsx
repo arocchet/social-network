@@ -1,15 +1,9 @@
-"use client";
-
 import { RegisterForm } from "@/components/register/register-form";
 import ProfilDemoRender from "@/components/register/profil-demo-render.tsx/profil-demo-render";
 import { UserFormProvider } from "../../context/user-register-form-context";
 import Link from "next/link";
-import { useIsMounted } from "@/hooks/use-is-mounted";
 
 export default function RegisterPage() {
-  const isMounted = useIsMounted();
-
-  if (!isMounted) return null;
   return (
     <UserFormProvider>
       <div className="grid min-h-svh lg:grid-cols-2 bg-[var(--bgLevel3)]">

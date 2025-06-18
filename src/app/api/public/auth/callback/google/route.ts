@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { parse } from 'cookie';
 import { handleGoogleCallback } from '@/lib/auth/server/oauth/google/callBackHandler';
 
 export async function GET(req: NextRequest) {
@@ -8,8 +7,8 @@ export async function GET(req: NextRequest) {
         const code = url.searchParams.get('code');
         const state = url.searchParams.get('state');
 
-        const cookies = parse(req.headers.get('cookie') || '');
-        const storedState = cookies.oauth_state || '';
+        const cookies = req.cookies.get('oauth_state');
+        const storedState = cookies?.value || '';
 
         const origin = `${url.protocol}//${url.host}`;
 

@@ -1,19 +1,30 @@
-import { z } from "zod";
-import { Credentials_Schema_Login, Credentials_Schema_Register } from "@/lib/validations/authSchemaZod";
-import { PostSchema } from "../validations/createPostSchemaZod";
-import { StorySchema } from "../validations/createStorySchemaZod";
+// types/index.ts
 
-export type Credentials_Register = z.infer<typeof Credentials_Schema_Register>;
+import { z } from "zod";
+import {
+    Credentials_Schema_Login,
+    Credentials_Schema_Register,
+} from "@/lib/validations/authSchemaZod";
+import { PostSchema } from "@/lib/validations/createPostSchemaZod";
+import { StorySchema } from "@/lib/validations/createStorySchemaZod";
+import { OnboardingUserSchema, UserInfoProfileSchema } from "../validations/userValidation";
+
+/* -------------------------------------------------------------------------- */
+/*                                  Auth Types                                */
+/* -------------------------------------------------------------------------- */
 
 export type Credentials_Login = z.infer<typeof Credentials_Schema_Login>;
+export type Credentials_Register = z.infer<typeof Credentials_Schema_Register>;
 
-
-export type RegisterDataWithUrls = Omit<Credentials_Register, 'avatar' | 'cover' | "dateOfBirth"> & {
-    id: string,
-    avatar?: string | null
-    cover?: string | null
-    dateOfBirth: Date
-}
+export type RegisterDataWithUrls = Omit<
+    Credentials_Register,
+    "avatar" | "cover" | "dateOfBirth"
+> & {
+    id: string;
+    avatar?: string | null;
+    cover?: string | null;
+    dateOfBirth: Date;
+};
 
 export type RegisterResponse = { success: boolean };
 
@@ -22,97 +33,120 @@ export type LoginFormErrors = Partial<Credentials_Login> & {
 };
 
 export type GoogleOAuth = {
+    email?: string | null | undefined;
+    family_name?: string | null | undefined;
+    given_name?: string | null | undefined;
     googleId?: string | null | undefined;
-    email?: string | null | undefined
-    name?: string | null | undefined
-    given_name?: string | null | undefined
-    family_name?: string | null | undefined
-    picture?: string | null | undefined
-}
+    name?: string | null | undefined;
+    picture?: string | null | undefined;
+};
 
 export type GoogleToken = {
     access_token?: string | null | undefined;
+    expiry_date?: number | null | undefined;
+    id_token?: string | null | undefined;
     refresh_token?: string | null;
     scope?: string | undefined;
-    id_token?: string | null | undefined;
-    expiry_date?: number | null | undefined;
     token_type?: string | null | undefined;
-}
-export type RegistrationSource = 'credentials' | 'google' | 'discord';
+};
 
+export type RegistrationSource = "credentials" | "google" | "discord";
 
 export interface RegisterUserInput {
-    source: RegistrationSource;
-    email: string;
-    providerAccountId?: string;
-    id?: string;
-
-    firstName?: string;
-    lastName?: string;
-    username?: string;
-    birthDate?: Date;
-    bio?: string;
     avatar?: string;
     banner?: string;
-
+    biography?: string;
+    birthDate?: Date;
+    email: string;
+    firstName?: string;
+    id?: string;
+    lastName?: string;
     password?: string;
+    providerAccountId?: string;
+    source: RegistrationSource;
     tokens?: GoogleToken;
+    username?: string;
 }
 
 export const JWT_EXPIRATION = {
-    TEN_MINUTES: '10m',           // 10 minutes
-    HOUR: '60m',                 // 1 heure
-    DAY: '1d',                  // 1 jour
-    WEEK: '7d',                // 7 jours (604800 secondes)
-    MONTH: '30d',             // 30 jours
-    DEFAULT: '480m'          // 8 heures
-}
+    TEN_MINUTES: "10m",
+    HOUR: "60m",
+    DAY: "1d",
+    WEEK: "7d",
+    MONTH: "30d",
+    DEFAULT: "480m", // 8 heures
+} as const;
+
+/* -------------------------------------------------------------------------- */
+/*                                  User Types                                */
+/* -------------------------------------------------------------------------- */
 
 export type UserInfo = {
-    providerAccountId: string | undefined;
-    birthDate: Date | null;
-    bio: string | null;
     avatar: string | null;
     banner: string | null;
+    biography: string | null;
+    birthDate: Date | null;
     email: string;
-    password: string | null;
-    id: string;
     firstName: string | null;
+    id: string;
     lastName: string | null;
+    password: string | null;
+    providerAccountId: string | undefined;
     username: string | null;
-}
+};
 
 export interface User {
-    userId: string;
+    avatar: string;
+    biography: string;
+    birthdate: Date;
+    email: string;
     firstName: string;
     lastName: string;
-    username: string;
-    email: string;
-    bio: string;
-    avatar: string;
     password: string;
-    birthdate: Date;
     registeredAt: Date;
+    userId: string;
+    username: string;
 }
 
+export type UserInfoProfile = z.infer<typeof UserInfoProfileSchema>;
+
+
+/* -------------------------------------------------------------------------- */
+/*                                  Post Types                                */
+/* -------------------------------------------------------------------------- */
 
 export interface Post {
-    id: string;
-    content: string;
-    username: string;
-    message: string;
-    avatar: string;
-    image: string;
-    userId: string;
-    user: User;
-    visibility: 'PUBLIC' | 'PRIVATE';
-    datetime: string;
     _count: {
         comments: number;
         reactions: number;
     };
+    avatar: string;
+    content: string;
+    datetime: string;
+    id: string;
+    image: string;
+    message: string;
+    user: User;
+    userId: string;
+    username: string;
+    visibility: "PUBLIC" | "PRIVATE";
 }
 
+export type CreatePostForm = z.infer<typeof PostSchema>;
+export type CreateStoryForm = z.infer<typeof StorySchema>;
 
-export type CreatePostForm = z.infer<typeof PostSchema>
-export type CreateStoryForm = z.infer<typeof StorySchema>
+/* -------------------------------------------------------------------------- */
+/*                                Onboarding Form                             */
+/* -------------------------------------------------------------------------- */
+
+export type FormStep = {
+    editable: boolean;
+    id: string;
+    placeholder: string;
+    question: string;
+    type: "text" | "email" | "date" | "textarea" | "select" | "password";
+    value: string;
+    visible?: boolean;
+};
+
+export type OnboardingUser = z.infer<typeof OnboardingUserSchema>;

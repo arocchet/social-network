@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
-import { hashPassword } from '@/lib/hash';
+import { hashPassword } from '@/lib/security/hash';
 import { RegisterUserInput } from '@/lib/types/types';
+import { generateUsername } from '@/lib/utils';
 import { Prisma } from '@prisma/client';
 
 export async function register(input: RegisterUserInput) {
@@ -15,7 +16,7 @@ export async function register(input: RegisterUserInput) {
         firstName,
         lastName,
         birthDate,
-        bio,
+        biography,
         avatar,
         banner
     } = input;
@@ -46,11 +47,11 @@ export async function register(input: RegisterUserInput) {
             id: id ?? undefined,
             email,
             password: password ? await hashPassword(password) : null,
-            username,
+            username: username ? username : generateUsername(email),
             firstName,
             lastName,
             birthDate,
-            bio,
+            biography,
             avatar,
             banner
         }

@@ -1,12 +1,12 @@
 // lib/server/user/getUserById.ts
-import { db } from "@/lib/db"; // Votre connexion à la base de données
-import { UserInfo } from "@/lib/validations/userValidation";
+import { db } from "@/lib/db";
+import { UserInfoProfile } from "@/lib/types/types";
+import { UserInfoProfileSchema } from "@/lib/validations/userValidation";
 
-export async function getUserByIdServer(userId: string): Promise<UserInfo | null> {
+export async function getUserByIdServer(userId: string): Promise<UserInfoProfile | null> {
     try {
-        // Exemple avec Prisma
         const user = await db.user.findUnique({
-            where: { id: userId! },
+            where: { id: userId },
             select: {
                 id: true,
                 email: true,
@@ -17,12 +17,17 @@ export async function getUserByIdServer(userId: string): Promise<UserInfo | null
                 lastName: true,
                 birthDate: true,
                 firstName: true,
-                // N'inclure le password que si nécessaire pour la validation
-                // password: false, // Exclure par défaut
             },
         });
 
-        return user;
+        if (!user) return null;
+
+        const userWithStringDate = {
+            ...user,
+            birthDate: user.birthDate ? user.birthDate.toISOString() : null,
+        };
+
+        return UserInfoProfileSchema.parse(userWithStringDate);
 
     } catch (error) {
         console.error("Database error in getUserByIdServer:", error);

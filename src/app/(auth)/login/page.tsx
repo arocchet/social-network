@@ -1,8 +1,5 @@
 /* eslint-disable jsx-a11y/alt-text */
 /* eslint-disable @next/next/no-img-element */
-
-"use client";
-
 import { siteConfig } from "../../../../config/site";
 import { LoginForm } from "@/components/login/login-form";
 import { LoginGridPhoto } from "@/components/login/login-grid-photo";
