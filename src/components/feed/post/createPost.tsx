@@ -28,6 +28,7 @@ import { createPostClient } from "@/lib/client/post/createPost";
 import { CreatePostForm } from "@/lib/types/types";
 import { useUser } from "@/hooks/use-user-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { usePostContext } from "@/app/context/post-context";
 
 
 type MediaFile = {
@@ -42,6 +43,7 @@ const CreatePost: React.FC = () => {
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useUser();
+  const { setPosts, posts } = usePostContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -107,19 +109,21 @@ const CreatePost: React.FC = () => {
   };
 
   async function handlePostSubmit() {
-    let imageData: CreatePostForm["media"] | undefined = undefined;
+    let media: CreatePostForm["media"] | undefined = undefined;
     if (mediaFiles.length > 0) {
-      imageData = mediaFiles[0].file;
+      media = mediaFiles[0].file;
     }
 
     const data = {
       content: postContent,
-      media: imageData,
+      media: media,
     };
 
-    console.log('type', imageData instanceof File);
+    console.log('type', media instanceof File);
 
     const result = PostSchema.safeParse(data);
+
+
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
       const errorMessages = Object.entries(fieldErrors)
@@ -134,7 +138,28 @@ const CreatePost: React.FC = () => {
 
 
     try {
-      await createPostClient(result.data);
+      const newPost = await createPostClient(result.data);
+
+      const optimisticPost = {
+        ...newPost,
+        id: newPost.id ?? crypto.randomUUID(),
+        content: postContent,
+        media: mediaFiles[0]?.previewUrl ?? null,
+        _count: { reactions: 0 },
+        comments: [],
+        user: {
+          userId: user?.id || "inconnu",
+          username: user?.username || "Anonyme",
+          avatar: user?.avatar || null,
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
+        },
+        datetime: new Date().toISOString(),
+      };
+
+      console.log("optimisticPost", optimisticPost)
+
+      setPosts([optimisticPost, ...posts]);
       setPostContent("");
       setMediaFiles([]);
       setIsDialogOpen(false);
@@ -142,6 +167,7 @@ const CreatePost: React.FC = () => {
       toast.success("Succès", {
         description: "Post publié avec succès !",
       });
+
     } catch (error) {
       toast.error("Erreur critique", {
         description:

@@ -32,6 +32,7 @@ export function useUser(): UseUserReturn {
             }
 
             const data = await response.json();
+            console.log("REFECTH", data)
 
             setUser(data.user);
         } catch (err) {

@@ -56,5 +56,6 @@ export function useAllPosts() {
         loading,
         error,
         refetch: fetchAllPosts,
+        setPosts
     };
 }
