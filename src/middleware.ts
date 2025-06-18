@@ -92,11 +92,13 @@ export async function middleware(req: NextRequest) {
       const locale = getLocale(req);
       return NextResponse.redirect(new URL(`/${locale}/login`, req.url));
     }
-
-    const payload = await verifyJwt(token);
-    if (!payload) {
-      const locale = getLocale(req);
-      return NextResponse.redirect(new URL(`/${locale}/login`, req.url));
+    
+  let payload = null;
+    try {
+      payload = await verifyJwt(token);
+    } catch (error) {
+      console.warn('JWT error:', error);
+      return NextResponse.redirect(new URL("/login", req.url));
     }
 
     const res = NextResponse.next();
