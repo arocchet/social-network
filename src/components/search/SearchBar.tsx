@@ -1,5 +1,6 @@
 import React, { useState, ChangeEvent } from "react";
 import { Search, X } from "lucide-react";
+import { useClientDictionary } from "@/app/[locale]/context/dictionnary-context";
 
 interface SearchBarProps {
   onSearch: (query: string) => void;
@@ -7,7 +8,7 @@ interface SearchBarProps {
 
 export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
   const [value, setValue] = useState("");
-
+  const {dict} = useClientDictionary();
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setValue(newValue);
@@ -28,7 +29,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({ onSearch }) => {
         type="text"
         value={value}
         onChange={handleChange}
-        placeholder="Rechercher des comptes, hashtags, lieux..."
+        placeholder={dict.search.placeholder}
         className="pl-10 pr-10 py-[7px] w-full rounded-lg text-sm bg-[var(--bgLevel2)] border border-[var(--detailMinimal)] focus:outline-none focus:ring-1 focus:ring-[var(--blue)] text-[var(--textNeutral)] placeholder:text-[var(--textMinimal)]"
       />
       {value && (

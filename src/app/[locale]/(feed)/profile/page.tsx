@@ -20,6 +20,7 @@ import { useUser } from "@/hooks/use-user-data";
 import { useUserPosts } from "@/hooks/use-posts-by-user";
 import { useState, useMemo, useEffect } from "react";
 import { formatDate } from "../../utils/dateFormat";
+import { useClientDictionary } from "../../context/dictionnary-context";
 
 const profileData = {
   username: "alice_photo",
@@ -46,6 +47,7 @@ type FilterType = 'all' | 'photos' | 'videos' | 'text';
 
 export default function ProfilePage({ }: ProfilePageProps) {
   const { user } = useUser();
+  const {dict} = useClientDictionary();
   const userId = user?.id;
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
 
@@ -305,8 +307,8 @@ export default function ProfilePage({ }: ProfilePageProps) {
                       </div>
                       <div className="text-sm text-[var(--textMinimal)]">
                         {posts.length > 1 ? (
-                          <>publications</>) : (
-                          <>publication</>
+                          <>{dict.profile.posts}s</>) : (
+                          <>{dict.profile.posts}</>
                         )
                         }
 
@@ -317,7 +319,7 @@ export default function ProfilePage({ }: ProfilePageProps) {
                         {profileData.stats.followers.toLocaleString()}
                       </div>
                       <div className="text-sm text-[var(--textMinimal)]">
-                        abonnés
+                        {dict.profile.followers}
                       </div>
                     </div>
                     <div className="flex flex-col items-center">
@@ -326,7 +328,7 @@ export default function ProfilePage({ }: ProfilePageProps) {
                           {profileData.stats.following}
                         </div>
                         <div className="text-sm text-[var(--textMinimal)]">
-                          abonnements
+                          {dict.profile.following}
                         </div>
                       </div>
                     </div>
@@ -346,7 +348,7 @@ export default function ProfilePage({ }: ProfilePageProps) {
                   @{user?.username || profileData.username}
                 </p>
                 <div className="text-sm whitespace-pre-line text-[var(--textMinimal)] mb-2">
-                  {user?.biography || "Aucune bio pour le moment"}
+                  {user?.biography || dict.profile.noBio}
                 </div>
                 {user?.website && (
                   <a
@@ -368,10 +370,10 @@ export default function ProfilePage({ }: ProfilePageProps) {
                       variant="outline"
                       className="flex-1 mx-2 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
                     >
-                      Modifier le profil
+                      {dict.profile.edit}
                     </Button>
                     <Button className="flex-1 mx-2 bg-[var(--pink20)] hover:bg-[var(--pink40)] text-white">
-                      Partager le profil
+                      {dict.profile.shareProfile}
                     </Button>
                   </>
                 ) : (
@@ -402,7 +404,7 @@ export default function ProfilePage({ }: ProfilePageProps) {
               <TabButton
                 type="all"
                 icon={Grid3X3}
-                label="Tous"
+                label={dict.profile.all}
                 count={postCounts.all}
               />
               <TabButton
@@ -414,7 +416,7 @@ export default function ProfilePage({ }: ProfilePageProps) {
               <TabButton
                 type="videos"
                 icon={Video}
-                label="Vidéos"
+                label={dict.profile.videos}
                 count={postCounts.videos}
               />
 
@@ -426,14 +428,14 @@ export default function ProfilePage({ }: ProfilePageProps) {
             <div className="p-4">
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <div className="text-[var(--textMinimal)]">Chargement...</div>
+                  <div className="text-[var(--textMinimal)]">{dict.common.loading}</div>
                 </div>
               ) : filteredPosts.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-[var(--textMinimal)]">
-                    {activeFilter === 'photos' && 'Aucune photo à afficher'}
-                    {activeFilter === 'videos' && 'Aucune vidéo à afficher'}
-                    {activeFilter === 'all' && 'Aucun post à afficher'}
+                    {activeFilter === 'photos' && dict.profile.noPhotos}
+                    {activeFilter === 'videos' && dict.profile.noVideos}
+                    {activeFilter === 'all' && dict.profile.noPosts }
                   </p>
                 </div>
               ) : (

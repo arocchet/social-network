@@ -6,6 +6,8 @@ import { useState, useRef, useEffect } from "react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import type { IGif } from "@giphy/js-types";
 import { Button } from "@/components/ui/button";
+import { useClientDictionary } from "../context/dictionnary-context";
+
 
 const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
 
@@ -15,6 +17,7 @@ type GifPopoverProps = {
 };
 
 export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
+  const dict = useClientDictionary();
   const [isOpen, setIsOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<IGif[]>([]);
@@ -91,7 +94,7 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
           {loading ? (
             <div className="text-center py-4">
               <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-              <p className="mt-2 text-sm">Chargement...</p>
+              <p className="mt-2 text-sm">{dict.common.loading}</p>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">

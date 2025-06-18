@@ -1,28 +1,148 @@
 {
-    "navigation": {
-        "home": "Accueil",
-        "profile": "Profil",
-        "search": "Rechercher",
-        "create": "Créer un post",
-        "settings": "Paramètres",
-        "logout": "Déconnexion",
-        "accounts": "Comptes"
+  "navigation": {
+    "home": "Accueil",
+    "profile": "Profil",
+    "search": "Rechercher",
+    "create": "Créer un post",
+    "settings": "Paramètres",
+    "logout": "Déconnexion",
+    "accounts": "Comptes"
+  },
+  "search": {
+    "recent": "Réçent",
+    "notfind": "Aucune recherche récente",
+    "placeholder": "Rechercher des utilisateurs, hashtags ou sujets"
+  },
+  "auth": {
+    "login": "Connexion",
+    "register": "Inscription",
+    "email": "Email",
+    "password": "Mot de passe"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "save": "Enregistrer"
+  },
+  "profile": {
+    "edit": "Modifier le profile",
+    "shareProfile": "Partager le profile",
+    "posts": "Publication",
+    "followers": "Abonnés",
+    "following": "Abonnements",
+    "photos": "Photos",
+    "videos": "Vidéos",
+    "text": "Textes",
+    "all": "Tous",
+    "noBio": "Aucune bio pour le moment",
+    "noPosts": "Aucun post à afficher",
+    "noPhotos": "Aucune photo à afficher",
+    "noVideos": "Aucune vidéo à afficher",
+    "mediaType": {
+      "video": "Vidéo",
+      "image": "Image",
+      "text": "Texte"
     },
-    "search": {
-        "recent": "Réçent",
-        "notfind": "Aucune recherche récente"
+    "errorLoading": "Erreur lors du chargement des posts",
+    "likes": "J'aime",
+    "comments": "Commentaires"
+  },
+  "settingsPage": {
+    "title": "Paramètres et confidentialité",
+    "userProfile": {
+      "edit": "Modifier le profil",
+      "subtitle": "Nom, nom d'utilisateur, site web, bio",
+      "displayName": "Nom affiché",
+      "username": "Nom d'utilisateur"
     },
-    "auth": {
-        "login": "Connexion",
-        "register": "Inscription",
-        "email": "Email",
-        "password": "Mot de passe"
+    "sections": {
+      "account": "Compte",
+      "content": "Contenu que vous voyez",
+      "interactions": "Comment les autres peuvent interagir avec vous",
+      "activity": "Votre activité",
+      "info": "Plus d'infos et assistance"
     },
-    "common": {
-        "loading": "Chargement...",
-        "error": "Erreur",
-        "success": "Succès",
-        "cancel": "Annuler",
-        "save": "Enregistrer"
+    "settings": {
+      "privacy": {
+        "title": "Confidentialité du compte",
+        "subtitle": "Compte privé"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "subtitle": "Push, e-mail, SMS"
+      },
+      "contentPreferences": {
+        "title": "Préférences de contenu",
+        "subtitle": "Gérer les sujets et les comptes"
+      },
+      "closeFriends": {
+        "title": "Amis proches",
+        "subtitle": "Gérer votre entourage proche"
+      },
+      "blocked": {
+        "title": "Bloqués",
+        "subtitle": "Gérer les personnes bloquées"
+      },
+      "language": {
+        "title": "Langue",
+        "subtitle": "Français"
+      },
+      "timeSpent": {
+        "title": "Temps passé",
+        "subtitle": "Tableau de bord d'activité"
+      },
+      "archive": {
+        "title": "Archive",
+        "subtitle": "Publications et stories archivées"
+      },
+      "downloadData": {
+        "title": "Télécharger vos informations",
+        "subtitle": "Demander un téléchargement"
+      }
+    },
+    "accountActions": {
+      "title": "Actions du compte",
+      "deleteAccount": "Supprimer le compte",
+      "logout": "Se déconnecter"
+    },
+    "security": {
+      "title": "Sécurité",
+      "subtitle": "Mot de passe, authentification à deux facteurs"
+    },
+    "about": {
+      "title": "À propos",
+      "subtitle": "Conditions d'utilisation, politique de confidentialité"
     }
+  },
+    "feed": {
+        "post": {
+        "caption": "Une belle photo partagée !",
+        "timeAgo": "il y a {hours}h",
+        "story" : "Votre story",
+        "comments": "Commentaires",
+        "likes": "J'aime",
+        "share": "Partager",
+        "reactions" : "Réactions",
+        "postedBy": "Publié par {username}",
+        "placeholder": {
+            "text": "Écrivez quelque chose...",
+            "share": "Que voulez-vous partager ?",
+            "multimedia": "Ajouter une photos/vidéos",
+            "image": "Ajouter une image",
+            "video": "Ajouter une vidéo",
+            "addOrDrop": "ou glisser-déposez ici",
+            "post" : "Publier"
+        }
+        }
+    },
+  "messages": {
+    "title": "Messages",
+    "searchPlaceholder": "Rechercher...",
+    "notFoundTitle": "Aucune conversation trouvée",
+    "notFoundDescription": "Essayez un autre terme de recherche",
+    "fromYou": "Vous"
+}
+
 }

@@ -41,6 +41,7 @@ import BlockedPage from "@/components/settings/blocked-page"
 import CloseFriendsPage from "@/components/settings/close-friends-page"
 import { AboutPage } from "@/components/settings/about-page"
 import { ModeToggle } from "@/components/toggle-theme"
+import { useClientDictionary } from "../../context/dictionnary-context"
 
 interface SettingsPageProps {
   onBack?: () => void
@@ -72,7 +73,7 @@ const settingsData = {
 
 export default function SettingsPage({ onBack }: SettingsPageProps) {
   const [currentView, setCurrentView] = useState<SettingsView>("main")
-
+  const {dict} = useClientDictionary()
   const handleBackToMain = () => {
     setCurrentView("main")
   }
@@ -118,7 +119,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         }}>
           <ArrowLeft className="w-6 h-6" />
         </Button>
-        <h1 className="font-semibold text-lg flex-1">Paramètres et confidentialité</h1>
+        <h1 className="font-semibold text-lg flex-1">{dict.settingsPage.title}</h1>
         <div>
           <ModeToggle/>
         </div>
@@ -140,30 +141,30 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
           </div>
         </div>
 
-        {/* Compte Section */}
+         {/* Compte Section */}
         <div className="border-b-1 border-[var(--detailMinimal)]">
           <div className="p-4 pb-2">
-            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Compte</h2>
+            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">{dict.settingsPage.sections.account}</h2>
           </div>
 
           <SettingsItem
             icon={<User className="w-5 h-5" />}
-            title="Modifier le profil"
-            subtitle="Nom, nom d'utilisateur, site web, bio"
+            title={dict.settingsPage.userProfile.edit}
+            subtitle={dict.settingsPage.userProfile.subtitle}
             onClick={() => setCurrentView("edit-profile")}
           />
 
           <SettingsItem
             icon={<Lock className="w-5 h-5" />}
-            title="Confidentialité du compte"
-            subtitle="Compte privé"
+            title={dict.settingsPage.settings.privacy.title}
+            subtitle={dict.settingsPage.settings.privacy.subtitle}
             onClick={() => setCurrentView("privacy")}
           />
 
           <SettingsItem
             icon={<Bell className="w-5 h-5" />}
-            title="Notifications"
-            subtitle="Push, e-mail, SMS"
+            title={dict.settingsPage.settings.notifications.title}
+            subtitle={dict.settingsPage.settings.notifications.subtitle}
             onClick={() => setCurrentView("notifications")}
           />
         </div>
@@ -171,122 +172,100 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         {/* Contenu que vous voyez */}
         <div className="border-b-1 border-[var(--detailMinimal)]">
           <div className="p-4 pb-2">
-            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Contenu que vous voyez</h2>
+            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">{dict.settingsPage.sections.content}</h2>
           </div>
 
           <SettingsItem
             icon={<Eye className="w-5 h-5" />}
-            title="Péréférences de contenu"
-            subtitle="Gérer les sujets et les comptes"
+            title={dict.settingsPage.settings.contentPreferences.title}
+            subtitle={dict.settingsPage.settings.contentPreferences.subtitle}
             onClick={() => setCurrentView("content-preferences")}
           />
 
           <SettingsItem
             icon={<Heart className="w-5 h-5" />}
-            title="Amis proches"
-            subtitle="Gérer votre entourage proche"
+            title={dict.settingsPage.settings.closeFriends.title}
+            subtitle={dict.settingsPage.settings.closeFriends.subtitle}
             onClick={() => setCurrentView("close-friends")}
           />
 
           <SettingsItem
             icon={<Slash className="w-5 h-5" />}
-            title="Bloqués"
-            subtitle="Gérer les peronnes bloqués"
+            title={dict.settingsPage.settings.blocked.title}
+            subtitle={dict.settingsPage.settings.blocked.subtitle}
             onClick={() => setCurrentView("blocked")}
           />
 
           <SettingsItem
             icon={<Globe className="w-5 h-5" />}
-            title="Langue"
-            subtitle="Français"
+            title={dict.settingsPage.settings.language.title}
+            subtitle={dict.settingsPage.settings.language.subtitle}
             onClick={() => setCurrentView("language")}
           />
         </div>
 
-        {/* Comment les autres peuvent interagir avec vous */}
-        {/* <div className="border-b-1 border-[var(--detailMinimal)]">
-          <div className="p-4 pb-2">
-            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Comment les autres peuvent interagir avec vous</h2>
-          </div>
-
-          <SettingsItem
-            icon={<MessageCircle className="w-5 h-5" />}
-            title="Messages et réponses aux stories"
-            subtitle="Contrôler qui peut vous contacter"
-          />
-
-          <SettingsItem icon={<User className="w-5 h-5" />} title="Tags et mentions" subtitle="Gérer les tags" />
-
-          <SettingsItem
-            icon={<Share className="w-5 h-5" />}
-            title="Partage et remixage"
-            subtitle="Contrôler le partage de votre contenu"
-          />
-        </div> */}
-
         {/* Votre activité */}
         <div className="border-b-1 border-[var(--detailMinimal)]">
           <div className="p-4 pb-2">
-            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Votre activité</h2>
+            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">{dict.settingsPage.sections.activity}</h2>
           </div>
 
           <SettingsItem
             icon={<Clock className="w-5 h-5" />}
-            title="Temps passé"
-            subtitle="Tableau de bord d'activité"
+            title={dict.settingsPage.settings.timeSpent.title}
+            subtitle={dict.settingsPage.settings.timeSpent.subtitle}
             onClick={() => setCurrentView("time-spent")}
           />
 
           <SettingsItem
             icon={<Archive className="w-5 h-5" />}
-            title="Archive"
-            subtitle="Publications et stories archivées"
+            title={dict.settingsPage.settings.archive.title}
+            subtitle={dict.settingsPage.settings.archive.subtitle}
           />
 
           <SettingsItem
             icon={<Download className="w-5 h-5" />}
-            title="Télécharger vos informations"
-            subtitle="Demander un téléchargement"
+            title={dict.settingsPage.settings.downloadData.title}
+            subtitle={dict.settingsPage.settings.downloadData.subtitle}
           />
         </div>
 
         {/* Plus d'infos et assistance */}
         <div className="border-b-1 border-[var(--detailMinimal)]">
           <div className="p-4 pb-2">
-            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Plus d'infos et assistance</h2>
+            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">{dict.settingsPage.sections.info}</h2>
           </div>
 
           {/* <SettingsItem icon={<HelpCircle className="w-5 h-5" />} title="Centre d'aide" subtitle="Obtenir de l'aide" /> */}
 
           <SettingsItem
             icon={<Shield className="w-5 h-5" />}
-            title="Sécurité"
-            subtitle="Mot de passe, authentification à deux facteurs"
+            title={dict.settingsPage.security.title}
+            subtitle={dict.settingsPage.security.subtitle}
             onClick={() => setCurrentView("security")}
           />
 
           <SettingsItem
             icon={<Info className="w-5 h-5" />}
-            title="À propos"
-            subtitle="Conditions d'utilisation, politique de confidentialité"
+            title={dict.settingsPage.about.title}
+            subtitle={dict.settingsPage.about.subtitle}
             onClick={() => setCurrentView("about")}
-
           />
         </div>
 
-        <div className="pb-2">
+                <div className="pb-2">
           <div className="p-4 pb-2">
-            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Actions du compte</h2>
+            <h2 className="font-semibold text-[var(--textNeutral)] mb-3">{dict.settingsPage.accountActions.title}</h2>
           </div>
           <SettingsItem
             icon={<Trash2 className="w-5 h-5 text-red-500" />}
-            title="Supprimer le compte"
+            title={dict.settingsPage.accountActions.deleteAccount}
             titleColor="text-red-500"
           />
 
           <SettingsItem
             icon={<LogOut className="w-5 h-5 text-red-500" />}
-            title="Se déconnecter"
+            title={dict.settingsPage.accountActions.logout}
             titleColor="text-red-500"
           />
         </div>

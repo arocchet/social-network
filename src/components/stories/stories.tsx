@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Plus } from "lucide-react";
 import { StoryViewer } from "./story-viewer";
+import { useClientDictionary } from "@/app/[locale]/context/dictionnary-context";
 
 const stories = [
   {
@@ -85,6 +86,7 @@ const stories = [
 ];
 
 export function Stories() {
+  const { dict } = useClientDictionary();
   const [viewingStory, setViewingStory] = useState<number | null>(null);
   const [currentUserIndex, setCurrentUserIndex] = useState(0);
   const [currentStoryIndex, setCurrentStoryIndex] = useState(0);

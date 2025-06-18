@@ -1,10 +1,11 @@
 "use client";
+import { useClientDictionary } from "@/app/[locale]/context/dictionnary-context";
 import { useEffect, useState } from "react";
 
 export default function PostDetail({ postId }: { postId: string }) {
   const [post, setPost] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-
+  const { dict } = useClientDictionary();
   useEffect(() => {
     const fetchPost = async () => {
       try {
@@ -21,15 +22,15 @@ export default function PostDetail({ postId }: { postId: string }) {
     fetchPost();
   }, [postId]);
 
-  if (error) return <p>Erreur : {error}</p>;
-  if (!post) return <p>Chargement...</p>;
+  if (error) return <p>{dict.common.error} : {error}</p>;
+  if (!post) return <p>{dict.common.loading}</p>;
 
   return (
     <div>
       <h1>{post.title}</h1>
       <p>Posté par : {post.user.username}</p>
 
-      <h2>Commentaires</h2>
+      <h2>{dict.feed.comments}</h2>
       <ul>
         {post.comments.map((comment: any) => (
           <li key={comment.id}>
@@ -38,7 +39,7 @@ export default function PostDetail({ postId }: { postId: string }) {
         ))}
       </ul>
 
-      <h2>Réactions</h2>
+      <h2>{dict.feed.reactions}</h2>
       <ul>
         {post.reactions.map((reaction: any) => (
           <li key={reaction.id}>

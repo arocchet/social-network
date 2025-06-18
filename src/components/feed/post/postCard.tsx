@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Heart, MessageCircle, Send, Bookmark, MoreHorizontal } from "lucide-react";
 import { PostDetails } from "./postDetails";
 import InputComment from "../../comments/InputComment";
+import { useClientDictionary } from "@/app/[locale]/context/dictionnary-context";
 
 export interface User {
   userId: string;
@@ -22,6 +23,7 @@ export interface User {
 
 const PostCard = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const { dict } = useClientDictionary();
 
   useEffect(() => {
     const generated = Array.from({ length: 50 }, () => createRandomUser());
@@ -66,9 +68,6 @@ const PostCard = () => {
                 <Button variant="ghost" size="icon" className="p-0">
                   <Heart className="w-6 h-6" />
                 </Button>
-                {/* <Button variant="ghost" size="icon" className="p-0">
-                  <MessageCircle className="w-6 h-6" />
-                </Button> */}
                 <PostDetails />
                 <Button variant="ghost" size="icon" className="p-0">
                   <Send className="w-6 h-6" />
@@ -81,18 +80,18 @@ const PostCard = () => {
 
             {/* Likes */}
             <div className="font-semibold text-sm mb-1">
-              {Math.floor(Math.random() * 1000).toLocaleString()} mentions J'aime
+              {Math.floor(Math.random() * 1000).toLocaleString()} {dict.profile.likes}
             </div>
 
             {/* Caption */}
             <div className="text-sm">
               <span className="font-semibold mr-2">{user.username}</span>
-              Une belle photo partagée !
+              {dict.feed.post.caption}
             </div>
 
             {/* Time */}
             <div className="text-xs text-gray-500 mt-1 uppercase">
-              Il y a {Math.floor(Math.random() * 24)}h
+              {dict.feed.post.timeAgo.replace('{hours}', Math.floor(Math.random() * 24).toString())}
             </div>
           </div>
         </div>

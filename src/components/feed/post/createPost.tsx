@@ -257,10 +257,10 @@ const CreatePost: React.FC = () => {
                     <ImagePlus className="w-8 h-8 text-[var(--textNeutral)]" />
                   </div>
                   <p className="text-base font-medium">
-                    Ajouter des photos/vidéos
+                    {dict.feed.post.placeholder.multimedia}
                   </p>
                   <p className="text-sm text-[var(--textNeutral)]">
-                    ou glissez-déposez
+                    {dict.feed.post.placeholder.addOrDrop}
                   </p>
                 </div>
               </div>
@@ -270,7 +270,7 @@ const CreatePost: React.FC = () => {
             <textarea
               value={postContent}
               onChange={(e) => setPostContent(e.target.value)}
-              placeholder="Que voulez-vous partager ?"
+              placeholder={dict.feed.post.placeholder.share}
               className="w-full min-h-[120px] p-3 text-base resize-none border-1 border-[var(--detailMinimal)] rounded-lg outline-none bg-[var(--bgLevel2)] placeholder:text-[var(--textNeutral)]"
               style={{ fontSize: "16px" }}
             />
@@ -319,7 +319,7 @@ const CreatePost: React.FC = () => {
               disabled={!postContent.trim() && mediaFiles.length === 0}
               onClick={handlePostSubmit}
             >
-              Publier
+              {dict.feed.post.placeholder.post}
             </button>
           </div>
         </div>

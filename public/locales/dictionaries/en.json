@@ -1,28 +1,147 @@
 {
-    "navigation": {
-        "home": "Home",
-        "profile": "Profile",
-        "search": "Search",
-        "create": "Create a post",
-        "settings": "Settings",
-        "logout": "Logout",
-        "accounts": "Accounts"
+  "navigation": {
+    "home": "Home",
+    "profile": "Profile",
+    "search": "Search",
+    "create": "Create post",
+    "settings": "Settings",
+    "logout": "Logout",
+    "accounts": "Accounts"
+  },
+  "search": {
+    "recent": "Recent",
+    "notfind": "No recent searches",
+    "placeholder": "Search for users, hashtags, or topics"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "profile": {
+    "edit": "Edit profile",
+    "shareProfile": "Share profile",
+    "posts": "Posts",
+    "followers": "Followers",
+    "following": "Following",
+    "photos": "Photos",
+    "videos": "Videos",
+    "text": "Text",
+    "all": "All",
+    "noBio": "No bio yet",
+    "noPosts": "No posts to display",
+    "noPhotos": "No photos to display",
+    "noVideos": "No videos to display",
+    "mediaType": {
+      "video": "Video",
+      "image": "Image",
+      "text": "Text"
     },
-    "search": {
-        "recent": "Recent",
-        "notfind": "No recent search"
+    "errorLoading": "Error loading posts",
+    "likes": "Likes",
+    "comments": "Comments"
+  },
+  "settingsPage": {
+    "title": "Settings and privacy",
+    "userProfile": {
+      "edit": "Edit profile",
+      "subtitle": "Name, username, website, bio",
+      "displayName": "Display name",
+      "username": "Username"
     },
-    "auth": {
-        "login": "Login",
-        "register": "Register",
-        "email": "Email",
-        "password": "Password"
+    "sections": {
+      "account": "Account",
+      "content": "What you see",
+      "interactions": "How others can interact with you",
+      "activity": "Your activity",
+      "info": "More info and support"
     },
-    "common": {
-        "loading": "Loading...",
-        "error": "Error",
-        "success": "Success",
-        "cancel": "Cancel",
-        "save": "Save"
+    "settings": {
+      "privacy": {
+        "title": "Account privacy",
+        "subtitle": "Private account"
+      },
+      "notifications": {
+        "title": "Notifications",
+        "subtitle": "Push, email, SMS"
+      },
+      "contentPreferences": {
+        "title": "Content preferences",
+        "subtitle": "Manage topics and accounts"
+      },
+      "closeFriends": {
+        "title": "Close friends",
+        "subtitle": "Manage your close circle"
+      },
+      "blocked": {
+        "title": "Blocked",
+        "subtitle": "Manage blocked people"
+      },
+      "language": {
+        "title": "Language",
+        "subtitle": "English"
+      },
+      "timeSpent": {
+        "title": "Time spent",
+        "subtitle": "Activity dashboard"
+      },
+      "archive": {
+        "title": "Archive",
+        "subtitle": "Archived posts and stories"
+      },
+      "downloadData": {
+        "title": "Download your data",
+        "subtitle": "Request a download"
+      }
+    },
+    "accountActions": {
+      "title": "Account actions",
+      "deleteAccount": "Delete account",
+      "logout": "Log out"
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Password, two-factor authentication"
+    },
+    "about": {
+      "title": "About",
+      "subtitle": "Terms of use, privacy policy"
     }
+  },
+    "feed": {
+    "post": {
+        "caption": "A beautiful photo shared!",
+        "timeAgo": "{hours}h ago",
+        "story": "Your story",
+        "comments": "Comments",
+        "likes": "Like",
+        "share": "Share",
+        "reactions": "Reactions",
+        "postedBy": "Posted by {username}",
+        "placeholder": {
+            "text": "Write something...",
+            "share": "What do you want to share?",
+            "multimedia": "Add photos/videos",
+            "image": "Add an image",
+            "video": "Add a video",
+            "addOrDrop": "or drop-drag here",
+            "post" : "Publish"
+        }
+    }
+},
+  "messages": {
+    "title": "Messages",
+    "searchPlaceholder": "Search...",
+    "notFoundTitle": "No conversations found",
+    "notFoundDescription": "Try another search term",
+    "fromYou": "You"
+  }
 }
