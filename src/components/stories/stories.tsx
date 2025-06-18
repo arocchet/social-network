@@ -23,7 +23,7 @@ interface AdaptedUser {
 export function Stories() {
   const { storiesGroups, loading, error, refetch } = useUserStories({
     publicOnly: true,
-    includeExpired: false
+    includeExpired: false,
   });
 
   const [viewingStory, setViewingStory] = useState<number | null>(null);
@@ -34,7 +34,9 @@ export function Stories() {
   const getTimeAgo = (datetime: string) => {
     const now = new Date();
     const storyDate = new Date(datetime);
-    const diffInMinutes = Math.floor((now.getTime() - storyDate.getTime()) / (1000 * 60));
+    const diffInMinutes = Math.floor(
+      (now.getTime() - storyDate.getTime()) / (1000 * 60)
+    );
 
     if (diffInMinutes < 60) {
       return `${diffInMinutes}min`;
@@ -48,13 +50,15 @@ export function Stories() {
   const adaptStoryData = (storiesGroups: UserStoriesGroup[]): AdaptedUser[] => {
     return storiesGroups.map((group, groupIndex) => ({
       id: groupIndex + 1, // Index temporaire
-      username: group.user.username || `${group.user.firstName} ${group.user.lastName}`.trim(),
+      username:
+        group.user.username ||
+        `${group.user.firstName} ${group.user.lastName}`.trim(),
       avatar: group.user.avatar || "/placeholder.svg",
       stories: group.stories.map((story, storyIndex) => ({
         id: storyIndex + 1,
         image: story.media || "/placeholder.svg",
-        timeAgo: getTimeAgo(story.datetime)
-      }))
+        timeAgo: getTimeAgo(story.datetime),
+      })),
     }));
   };
 
@@ -67,7 +71,7 @@ export function Stories() {
       isOwn: true,
       stories: [],
     },
-    ...adaptStoryData(storiesGroups)
+    ...adaptStoryData(storiesGroups),
   ];
 
   const viewableStories = adaptedStories.filter((story) => !story.isOwn);
@@ -173,7 +177,10 @@ export function Stories() {
       <div className="flex gap-4 p-4 overflow-x-auto">
         {/* Skeleton pour le chargement */}
         {[...Array(5)].map((_, index) => (
-          <div key={index} className="flex flex-col items-center gap-1 min-w-fit">
+          <div
+            key={index}
+            className="flex flex-col items-center gap-1 min-w-fit"
+          >
             <div className="w-14 h-14 bg-gray-200 rounded-full animate-pulse" />
             <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
           </div>
@@ -207,12 +214,13 @@ export function Stories() {
           >
             <div className="relative">
               <button
-                className={`p-0.5 rounded-full ${story.isOwn
-                  ? "bg-gray-300"
-                  : story.stories.length > 0
+                className={`p-0.5 rounded-full ${
+                  story.isOwn
+                    ? "bg-gray-300"
+                    : story.stories.length > 0
                     ? "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
                     : "bg-gray-300"
-                  }`}
+                }`}
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage
@@ -226,7 +234,7 @@ export function Stories() {
               </button>
               {story.isOwn && (
                 <div className="absolute -bottom-0 -right-0  flex items-center justify-center border-2 border-white">
-                  <CreateStory />
+                  <CreateStory onStoryCreated={refetch} />
                 </div>
               )}
             </div>

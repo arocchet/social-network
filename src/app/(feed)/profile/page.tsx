@@ -9,9 +9,7 @@ import {
   Camera,
   Edit3,
   Grid3X3,
-  FileText,
   Video,
-  Play,
 } from "lucide-react";
 import Image from "next/image";
 import { ModeToggle } from "@/components/toggle-theme";
@@ -20,6 +18,7 @@ import { useUser } from "@/hooks/use-user-data";
 import { formatDate } from "@/app/utils/dateFormat";
 import { useUserPosts } from "@/hooks/use-posts-by-user";
 import { useState, useMemo } from "react";
+import { PostProvider } from "@/app/context/post-context";
 
 const profileData = {
   username: "alice_photo",
@@ -212,240 +211,242 @@ export default function ProfilePage({ }: ProfilePageProps) {
   };
 
   return (
-    <div className="flex h-screen bg-[var(--bgLevel1)]">
-      <NavigationBar />
+    <PostProvider>
+      <div className="flex h-screen bg-[var(--bgLevel1)]">
+        <NavigationBar />
 
-      <div className="flex-1 flex flex-col overflow-auto">
-        {/* Header */}
-        <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-50">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                window.location.href = "/";
-              }}
-              className="text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </Button>
-            <h1 className="font-semibold text-lg text-[var(--textNeutral)]">
-              {user?.username}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <ModeToggle />
-          </div>
-        </header>
-
-        {/* Contenu principal */}
-        <div className="bg-[var(--bgLevel1)] mx-auto w-full">
-          {/* Profile Info avec Bannière */}
-          <div className="bg-[var(--bgLevel2)]">
-            {/* Bannière */}
-            <div className="relative h-32 md:h-48 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 overflow-hidden">
-              {user?.banner ? (
-                <div className="relative w-full h-64">
-                  <Image
-                    src={user.banner}
-                    alt="Bannière de profil"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500" />
-              )}
-
-              {profileData.isOwnProfile && (
-                <div className="absolute top-4 right-4">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm"
-                  >
-                    <Camera className="w-4 h-4" />
-                  </Button>
-                </div>
-              )}
+        <div className="flex-1 flex flex-col overflow-auto">
+          {/* Header */}
+          <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-50">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  window.location.href = "/";
+                }}
+                className="text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </Button>
+              <h1 className="font-semibold text-lg text-[var(--textNeutral)]">
+                {user?.username}
+              </h1>
             </div>
+            <div className="flex items-center gap-2">
+              <ModeToggle />
+            </div>
+          </header>
 
-            {/* Informations du profil */}
-            <div className="p-4">
-              <div className="flex items-start gap-4 mb-4 -mt-12 relative">
-                <div className="relative">
-                  <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-[var(--bgLevel2)]">
-                    <AvatarImage
-                      src={user?.avatar || "/placeholder.svg"}
-                      alt={profileData.username}
+          {/* Contenu principal */}
+          <div className="bg-[var(--bgLevel1)] mx-auto w-full">
+            {/* Profile Info avec Bannière */}
+            <div className="bg-[var(--bgLevel2)]">
+              {/* Bannière */}
+              <div className="relative h-32 md:h-48 bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 overflow-hidden">
+                {user?.banner ? (
+                  <div className="relative w-full h-64">
+                    <Image
+                      src={user.banner}
+                      alt="Bannière de profil"
+                      fill
+                      className="object-cover"
                     />
-                    <AvatarFallback className="bg-[var(--greyFill)] text-[var(--textNeutral)]">
-                      {profileData.username[0].toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  </div>
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500" />
+                )}
 
-                  {profileData.isOwnProfile && (
+                {profileData.isOwnProfile && (
+                  <div className="absolute top-4 right-4">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute -bottom-1 -right-1 w-8 h-8 bg-[var(--bgLevel2)] border border-[var(--detailMinimal)] hover:bg-[var(--greyHighlighted)] rounded-full"
+                      className="bg-black/20 hover:bg-black/40 text-white backdrop-blur-sm"
                     >
-                      <Edit3 className="w-3 h-3" />
+                      <Camera className="w-4 h-4" />
                     </Button>
-                  )}
-                </div>
+                  </div>
+                )}
+              </div>
 
-                {/* Stats */}
-                <div className="flex-1 mt-14">
-                  <div className="flex justify-around text-center mb-4">
-                    <div className="flex flex-col items-center">
-                      <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                        {posts.length}
-                      </div>
-                      <div className="text-sm text-[var(--textMinimal)]">
-                        {posts.length > 1 ? (
-                          <>publications</>) : (
-                          <>publication</>
-                        )
-                        }
+              {/* Informations du profil */}
+              <div className="p-4">
+                <div className="flex items-start gap-4 mb-4 -mt-12 relative">
+                  <div className="relative">
+                    <Avatar className="w-20 h-20 md:w-24 md:h-24 border-4 border-[var(--bgLevel2)]">
+                      <AvatarImage
+                        src={user?.avatar || "/placeholder.svg"}
+                        alt={profileData.username}
+                      />
+                      <AvatarFallback className="bg-[var(--greyFill)] text-[var(--textNeutral)]">
+                        {profileData.username[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
 
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center">
-                      <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                        {profileData.stats.followers.toLocaleString()}
-                      </div>
-                      <div className="text-sm text-[var(--textMinimal)]">
-                        abonnés
-                      </div>
-                    </div>
-                    <div className="flex flex-col items-center">
+                    {profileData.isOwnProfile && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="absolute -bottom-1 -right-1 w-8 h-8 bg-[var(--bgLevel2)] border border-[var(--detailMinimal)] hover:bg-[var(--greyHighlighted)] rounded-full"
+                      >
+                        <Edit3 className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Stats */}
+                  <div className="flex-1 mt-14">
+                    <div className="flex justify-around text-center mb-4">
                       <div className="flex flex-col items-center">
                         <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                          {profileData.stats.following}
+                          {posts.length}
                         </div>
                         <div className="text-sm text-[var(--textMinimal)]">
-                          abonnements
+                          {posts.length > 1 ? (
+                            <>publications</>) : (
+                            <>publication</>
+                          )
+                          }
+
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="font-semibold text-lg text-[var(--textNeutral)]">
+                          {profileData.stats.followers.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-[var(--textMinimal)]">
+                          abonnés
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <div className="flex flex-col items-center">
+                          <div className="font-semibold text-lg text-[var(--textNeutral)]">
+                            {profileData.stats.following}
+                          </div>
+                          <div className="text-sm text-[var(--textMinimal)]">
+                            abonnements
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Name and Bio */}
-              <div className="mb-4">
-                <h2 className="font-semibold text-base mb-1 text-[var(--textNeutral)]">
-                  {user?.birthDate && formatDate(user?.birthDate)}
-                </h2>
-                <h2 className="font-semibold text-base mb-1 text-[var(--textNeutral)]">
-                  {user?.firstName} {user?.lastName}
-                </h2>
-                <p className="text-sm text-[var(--textMinimal)] mb-1">
-                  @{user?.username || profileData.username}
-                </p>
-                <div className="text-sm whitespace-pre-line text-[var(--textMinimal)] mb-2">
-                  {user?.biography || "Aucune bio pour le moment"}
-                </div>
-                {user?.website && (
-                  <a
-                    href={`https://${user.website}`}
-                    className="text-sm text-[var(--blue)] hover:underline"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    {user.website}
-                  </a>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-2">
-                {profileData.isOwnProfile ? (
-                  <>
-                    <Button
-                      variant="outline"
-                      className="flex-1 mx-2 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
-                    >
-                      Modifier le profil
-                    </Button>
-                    <Button className="flex-1 mx-2 bg-[var(--pink20)] hover:bg-[var(--pink40)] text-white">
-                      Partager le profil
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      className={`flex-1 ${profileData.isFollowing
-                        ? "bg-[var(--greyFill)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
-                        : "bg-[var(--blue)] hover:bg-[var(--blue)] text-white"
-                        }`}
-                    >
-                      {profileData.isFollowing ? "Suivi(e)" : "Suivre"}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="flex-1 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
-                    >
-                      Message
-                    </Button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* TabBar pour filtrer les posts */}
-          <div className="bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)] sticky top-[73px] z-40">
-            <div className="flex">
-              <TabButton
-                type="all"
-                icon={Grid3X3}
-                label="Tous"
-                count={postCounts.all}
-              />
-              <TabButton
-                type="photos"
-                icon={Camera}
-                label="Photos"
-                count={postCounts.photos}
-              />
-              <TabButton
-                type="videos"
-                icon={Video}
-                label="Vidéos"
-                count={postCounts.videos}
-              />
-
-            </div>
-          </div>
-
-          {/* Posts Grid */}
-          <div className="bg-[var(--bgLevel2)]">
-            <div className="p-4">
-              {loading ? (
-                <div className="flex justify-center py-8">
-                  <div className="text-[var(--textMinimal)]">Chargement...</div>
-                </div>
-              ) : filteredPosts.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-[var(--textMinimal)]">
-                    {activeFilter === 'photos' && 'Aucune photo à afficher'}
-                    {activeFilter === 'videos' && 'Aucune vidéo à afficher'}
-                    {activeFilter === 'all' && 'Aucun post à afficher'}
+                {/* Name and Bio */}
+                <div className="mb-4">
+                  <h2 className="font-semibold text-base mb-1 text-[var(--textNeutral)]">
+                    {user?.birthDate && formatDate(user?.birthDate)}
+                  </h2>
+                  <h2 className="font-semibold text-base mb-1 text-[var(--textNeutral)]">
+                    {user?.firstName} {user?.lastName}
+                  </h2>
+                  <p className="text-sm text-[var(--textMinimal)] mb-1">
+                    @{user?.username || profileData.username}
                   </p>
+                  <div className="text-sm whitespace-pre-line text-[var(--textMinimal)] mb-2">
+                    {user?.biography || "Aucune bio pour le moment"}
+                  </div>
+                  {user?.website && (
+                    <a
+                      href={`https://${user.website}`}
+                      className="text-sm text-[var(--blue)] hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {user.website}
+                    </a>
+                  )}
                 </div>
-              ) : (
-                <div className="grid grid-cols-3 gap-2">
-                  {filteredPosts.map((post) => (
-                    <PostItem key={post.id} post={post} />
-                  ))}
+
+                {/* Action Buttons */}
+                <div className="flex gap-2">
+                  {profileData.isOwnProfile ? (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="flex-1 mx-2 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+                      >
+                        Modifier le profil
+                      </Button>
+                      <Button className="flex-1 mx-2 bg-[var(--pink20)] hover:bg-[var(--pink40)] text-white">
+                        Partager le profil
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button
+                        className={`flex-1 ${profileData.isFollowing
+                          ? "bg-[var(--greyFill)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+                          : "bg-[var(--blue)] hover:bg-[var(--blue)] text-white"
+                          }`}
+                      >
+                        {profileData.isFollowing ? "Suivi(e)" : "Suivre"}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="flex-1 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+                      >
+                        Message
+                      </Button>
+                    </>
+                  )}
                 </div>
-              )}
+              </div>
+            </div>
+
+            {/* TabBar pour filtrer les posts */}
+            <div className="bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)] sticky top-[73px] z-40">
+              <div className="flex">
+                <TabButton
+                  type="all"
+                  icon={Grid3X3}
+                  label="Tous"
+                  count={postCounts.all}
+                />
+                <TabButton
+                  type="photos"
+                  icon={Camera}
+                  label="Photos"
+                  count={postCounts.photos}
+                />
+                <TabButton
+                  type="videos"
+                  icon={Video}
+                  label="Vidéos"
+                  count={postCounts.videos}
+                />
+
+              </div>
+            </div>
+
+            {/* Posts Grid */}
+            <div className="bg-[var(--bgLevel2)]">
+              <div className="p-4">
+                {loading ? (
+                  <div className="flex justify-center py-8">
+                    <div className="text-[var(--textMinimal)]">Chargement...</div>
+                  </div>
+                ) : filteredPosts.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-[var(--textMinimal)]">
+                      {activeFilter === 'photos' && 'Aucune photo à afficher'}
+                      {activeFilter === 'videos' && 'Aucune vidéo à afficher'}
+                      {activeFilter === 'all' && 'Aucun post à afficher'}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-3 gap-2">
+                    {filteredPosts.map((post) => (
+                      <PostItem key={post.id} post={post} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </PostProvider>
   );
 }
