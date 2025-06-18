@@ -25,9 +25,9 @@ export async function POST(req: NextRequest) {
             );
         }
 
-        await createPostServer(post, userId);
+        const createdPost = await createPostServer(post, userId);
 
-        return NextResponse.json({ success: true }, { status: 201 });
+        return NextResponse.json(createdPost, { status: 201 });
     } catch (error) {
         console.error("Post creation failed:", error);
 

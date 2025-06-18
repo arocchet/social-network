@@ -7,12 +7,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Heart, Send, Bookmark, Play, Video } from "lucide-react";
 import { PostDetails } from "./postDetails";
-import { useAllPosts } from "@/hooks/use-post-data";
 import Link from "next/link";
 import { Post } from "@/lib/types/types";
+import { usePostContext } from "@/app/context/post-context";
 
 const PostCard = () => {
-  const { posts } = useAllPosts();
+  const { posts } = usePostContext();
 
   // Fonction pour détecter le type de média
   const getMediaType = (mediaUrl: string | null) => {
