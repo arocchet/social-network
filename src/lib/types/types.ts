@@ -8,6 +8,7 @@ import {
 import { PostSchema } from "@/lib/validations/createPostSchemaZod";
 import { StorySchema } from "@/lib/validations/createStorySchemaZod";
 import { OnboardingUserSchema, UserInfoProfileSchema } from "../validations/userValidation";
+import { CommentSchema } from "../validations/createCommentSchemaZod";
 
 /* -------------------------------------------------------------------------- */
 /*                                  Auth Types                                */
@@ -134,6 +135,7 @@ export interface Post {
 
 export type CreatePostForm = z.infer<typeof PostSchema>;
 export type CreateStoryForm = z.infer<typeof StorySchema>;
+export type CreateCommentForm = z.infer<typeof CommentSchema>;
 
 /* -------------------------------------------------------------------------- */
 /*                                Onboarding Form                             */

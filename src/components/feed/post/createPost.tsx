@@ -29,6 +29,7 @@ import { CreatePostForm } from "@/lib/types/types";
 import { useUser } from "@/hooks/use-user-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePostContext } from "@/app/context/post-context";
+import { GifPopover } from "@/app/utils/giphy";
 
 
 type MediaFile = {
@@ -36,6 +37,9 @@ type MediaFile = {
   previewUrl: string;
   type: "image" | "video";
 };
+
+
+const GIPHY_API_KEY = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
 
 const CreatePost: React.FC = () => {
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
@@ -101,6 +105,14 @@ const CreatePost: React.FC = () => {
       newArr.splice(index, 1);
       return newArr;
     });
+  };
+
+
+  // Fonction pour gérer la sélection de GIF
+  const handleGifSelect = (gif: { url: string }) => {
+    // Pour l'instant, on ajoute juste l'URL du GIF au commentaire
+    // Vous pourriez vouloir implémenter un système de média plus sophistiqué
+    setPostContent(prev => prev + ` ${gif.url}`);
   };
 
   // Ouverture du sélecteur de fichiers
@@ -343,6 +355,10 @@ const CreatePost: React.FC = () => {
                   </EmojiPicker>
                 </PopoverContent>
               </Popover>
+              <GifPopover
+                apiKey={GIPHY_API_KEY!} // Remplacez par votre clé API Giphy
+                onSelect={handleGifSelect}
+              />
             </div>
 
             <button

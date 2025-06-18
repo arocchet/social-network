@@ -17,8 +17,10 @@ import NavigationBar from "@/components/feed/navBar/navigationBar";
 import { useUser } from "@/hooks/use-user-data";
 import { formatDate } from "@/app/utils/dateFormat";
 import { useUserPosts } from "@/hooks/use-posts-by-user";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { PostProvider } from "@/app/context/post-context";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTrigger } from "@/components/ui/dialog";
+import { LoadingState, ErrorState, MediaSection, CommentsSection, PostHeader, PostFooter } from "@/components/feed/post/postDetails";
 
 const profileData = {
   username: "alice_photo",
@@ -37,21 +39,82 @@ const profileData = {
 };
 
 interface ProfilePageProps {
+  postId: string
   onBack?: () => void;
   onSettingsClick?: () => void;
 }
 
 type FilterType = 'all' | 'photos' | 'videos' | 'text';
 
-export default function ProfilePage({ }: ProfilePageProps) {
+export default function ProfilePage({ postId }: ProfilePageProps) {
+  const [hasReadToBottom, setHasReadToBottom] = useState(false);
   const { user } = useUser();
   const userId = user?.id;
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
-
-  const { posts, loading, error, hasMore, loadMore } = useUserPosts({
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<any>(null); // Nouvel état pour le post sélectionné
+  const [selectedPostDetails, setSelectedPostDetails] = useState<any>(null); // Détails du post sélectionné
+  const contentRef = useRef<HTMLDivElement>(null);
+  const { posts, hasMore, loadMore, setPosts } = useUserPosts({
     userId,
     limit: 12
   });
+
+  const handleScroll = () => {
+    const content = contentRef.current;
+    if (!content) return;
+
+    const scrollPercentage =
+      content.scrollTop / (content.scrollHeight - content.clientHeight);
+
+    if (scrollPercentage >= 0.99 && !hasReadToBottom) {
+      setHasReadToBottom(true);
+    }
+  };
+
+  const fetchPostDetails = async (targetPostId: string) => {
+    if (!targetPostId) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/private/post/${targetPostId}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch post details");
+      }
+
+      const data = await response.json();
+      setSelectedPostDetails(data.post);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction appelée quand un post est cliqué
+  const handlePostClick = (post: any) => {
+    setSelectedPost(post);
+    setSelectedPostDetails(post); // Utiliser les données de base du post en attendant les détails
+    setIsOpen(true);
+    fetchPostDetails(post.id); // Charger les détails complets
+  };
+
+  // Fonction pour fermer le dialogue
+  const handleCloseDialog = () => {
+    setIsOpen(false);
+    setSelectedPost(null);
+    setSelectedPostDetails(null);
+    setError(null);
+  };
 
   // Fonction pour détecter le type de média
   const getMediaType = (mediaUrl: string | null) => {
@@ -112,8 +175,7 @@ export default function ProfilePage({ }: ProfilePageProps) {
     };
   }, [posts]);
 
-
-  if (error) {
+  if (error && !selectedPost) {
     return (
       <div className="p-4 text-center text-red-600">
         Erreur lors du chargement des posts: {error}
@@ -151,7 +213,10 @@ export default function ProfilePage({ }: ProfilePageProps) {
     const mediaType = getMediaType(post.image);
 
     return (
-      <div className="aspect-square relative group cursor-pointer bg-[var(--bgLevel1)] rounded-lg overflow-hidden">
+      <div
+        className="aspect-square relative group cursor-pointer bg-[var(--bgLevel1)] rounded-lg overflow-hidden"
+        onClick={() => handlePostClick(post)} // Gérer le clic ici
+      >
         {mediaType === 'image' ? (
           <Image
             src={post.image || "https://i.pinimg.com/736x/ac/de/54/acde5463c760002ed97dc553eb8238ab.jpg"}
@@ -308,7 +373,6 @@ export default function ProfilePage({ }: ProfilePageProps) {
                             <>publication</>
                           )
                           }
-
                         </div>
                       </div>
                       <div className="flex flex-col items-center">
@@ -416,14 +480,13 @@ export default function ProfilePage({ }: ProfilePageProps) {
                   label="Vidéos"
                   count={postCounts.videos}
                 />
-
               </div>
             </div>
 
             {/* Posts Grid */}
             <div className="bg-[var(--bgLevel2)]">
               <div className="p-4">
-                {loading ? (
+                {loading && !selectedPost ? (
                   <div className="flex justify-center py-8">
                     <div className="text-[var(--textMinimal)]">Chargement...</div>
                   </div>
@@ -446,6 +509,50 @@ export default function ProfilePage({ }: ProfilePageProps) {
             </div>
           </div>
         </div>
+
+        {/* Dialog pour afficher les détails du post */}
+        <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
+          <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(840px,90vh)] sm:max-w-5xl [&>button:last-child]:top-3.5 [&>button:last-child]:z-50">
+            <DialogHeader className="contents space-y-0 text-left">
+              <DialogDescription asChild>
+                <div className="flex h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
+                  {loading ? (
+                    <LoadingState />
+                  ) : error ? (
+                    <ErrorState error={error} onRetry={() => selectedPost && fetchPostDetails(selectedPost.id)} />
+                  ) : selectedPostDetails ? (
+                    /* Layout Instagram avec média à gauche et commentaires à droite */
+                    <div className="flex w-full h-full">
+                      {/* Section média - gauche */}
+                      <MediaSection post={selectedPostDetails} />
+
+                      {/* Section commentaires - droite */}
+                      <div className="flex flex-col w-[500px] bg-[var(--bgLevel1)] border-l border-[var(--detailMinimal)]">
+                        {/* Header avec info du post */}
+                        <PostHeader post={selectedPostDetails} />
+
+                        {/* Liste des commentaires scrollable */}
+                        <div
+                          ref={contentRef}
+                          onScroll={handleScroll}
+                          className="flex-1 overflow-y-auto"
+                        >
+                          <CommentsSection comments={selectedPostDetails.comments || []} />
+                        </div>
+
+                        {/* Footer fixe */}
+                        <PostFooter
+                          postId={selectedPostDetails.id}
+                          onCommentAdded={() => fetchPostDetails(selectedPostDetails.id)}
+                        />
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+          </DialogContent>
+        </Dialog>
       </div>
     </PostProvider>
   );
