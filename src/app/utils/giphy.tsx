@@ -7,7 +7,7 @@ import { GiphyFetch } from "@giphy/js-fetch-api";
 import type { IGif } from "@giphy/js-types";
 import { Button } from "@/components/ui/button";
 
-const GIPHY_API_KEY = process.env.GIPHY_API_KEY;
+const GIPHY_API = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
 
 type GifPopoverProps = {
   onSelect: (gif: IGif) => void;
@@ -22,7 +22,7 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
   const [error, setError] = useState<string | null>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  const gf = new GiphyFetch(apiKey || GIPHY_API_KEY!);
+  const gf = new GiphyFetch(apiKey || GIPHY_API!);
 
   const searchGifs = async (q: string) => {
     if (!q.trim()) return;
@@ -31,7 +31,7 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
     setError(null);
 
     try {
-      const { data } = await gf.search(q, { limit: 9 });
+      const { data } = await gf.search(q, { limit: 300 });
       setResults(data);
     } catch (err) {
       console.error("Erreur lors de la recherche de GIFs:", err);
