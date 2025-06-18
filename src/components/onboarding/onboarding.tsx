@@ -8,67 +8,26 @@ import { useEffect, useState } from "react"
 import { cn, getGreetingMessage } from "@/lib/utils"
 import ReactMarkdown from "react-markdown"
 import rehypeSanitize from "rehype-sanitize"
+import { FormStep } from "@/lib/types/types"
+import { updateUserClient } from "@/lib/client/user/updateClientUser"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
-interface FormStep {
-    id: string
-    question: string
-    placeholder: string
-    type: string
-    value: string
-    editable: boolean,
-}
+type FormOnboardingPageProps = {
+    formSteps: FormStep[];
+} & React.ComponentPropsWithoutRef<"div">;
 
-const initialSteps: FormStep[] = [
-    {
-        id: "email",
-        question: "Confirm your email",
-        placeholder: "",
-        type: "email",
-        value: "Rokat.dev@gmail.com",
-        editable: false,
-    },
-    {
-        id: "name",
-        question: "What's your name?",
-        placeholder: "Your full name",
-        type: "text",
-        value: "",
-        editable: true,
-    },
-    {
-        id: "username",
-        question: "Pick a username",
-        placeholder: "e.g. rokat.dev",
-        type: "text",
-        value: "",
-        editable: true,
-    },
-    {
-        id: "birthDate",
-        question: "When were you born?",
-        placeholder: "YYYY-MM-DD",
-        type: "date",
-        value: "",
-        editable: true,
-    },
-    {
-        id: "bio",
-        question: "Tell us something about you",
-        placeholder: "Just a short bio",
-        type: "text",
-        value: "",
-        editable: true,
-    },
-]
-
-export default function FormOnboardingPage({ className, ...props }: React.ComponentPropsWithoutRef<"div">) {
+export default function FormOnboardingPage({ formSteps, className, ...props }: FormOnboardingPageProps) {
     const [hasStarted, setHasStarted] = useState(false)
     const [showTransition, setShowTransition] = useState(false)
     const [showForm, setShowForm] = useState(false)
-    const [steps, setSteps] = useState<FormStep[]>(initialSteps)
+    const [steps, setSteps] = useState<FormStep[]>(formSteps)
     const [currentStepIndex, setCurrentStepIndex] = useState(0)
     const [completedSteps, setCompletedSteps] = useState<FormStep[]>([])
     const [currentValue, setCurrentValue] = useState("")
+    const [isCompleted, setIsCompleted] = useState(false)
+
+    const router = useRouter();
 
     const currentStep = steps[currentStepIndex]
     const isLastStep = currentStepIndex === steps.length - 1
@@ -80,14 +39,22 @@ export default function FormOnboardingPage({ className, ...props }: React.Compon
         setTimeout(() => {
             setShowTransition(false)
             setShowForm(true)
-        }, 2000)
+        }, 2500)
+    }
+
+    const handleSuccess = () => {
+        setIsCompleted(true)
+        setTimeout(() => {
+            router.push('/')
+        }, 2500)
     }
 
     useEffect(() => {
+        if (!currentStep) return
         setCurrentValue(currentStep.value || "")
     }, [currentStep])
 
-    const handleSubmit = (e: React.FormEvent | React.KeyboardEvent) => {
+    const handleSubmit = async (e: React.FormEvent | React.KeyboardEvent) => {
         e.preventDefault()
         if (!currentValue.trim()) return
 
@@ -101,8 +68,19 @@ export default function FormOnboardingPage({ className, ...props }: React.Compon
         setCompletedSteps(updatedCompletedSteps)
 
         if (isLastStep) {
-            console.log("Form completed:", updatedCompletedSteps)
-            return
+            const values = [...updatedCompletedSteps, updatedStep].reduce((acc, step) => {
+                acc[step.id] = step.value
+                return acc
+            }, {} as Record<string, string>)
+
+            try {
+                const response = await updateUserClient(values);
+                if (response.status) handleSuccess()
+                toast.success("Your information has been updated successfully.");
+            } catch (err) {
+                console.error("Faile to update user's informations", err);
+                toast.error("Failed to update information. Please try again.");
+            }
         }
 
         setCurrentStepIndex((prev) => prev + 1)
@@ -114,7 +92,6 @@ export default function FormOnboardingPage({ className, ...props }: React.Compon
         }
     }
 
-    // Transition Screen
     if (hasStarted && showTransition) {
         return (
             <div
@@ -167,7 +144,7 @@ export default function FormOnboardingPage({ className, ...props }: React.Compon
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1.2 }}
+                    transition={{ duration: 1.5 }}
                     className="text-center max-w-lg sm:max-w-xl md:max-w-2xl w-full"
                 >
                     <motion.h1
@@ -198,6 +175,40 @@ export default function FormOnboardingPage({ className, ...props }: React.Compon
                             CONTINUE
                         </Button>
                     </motion.div>
+                </motion.div>
+            </div>
+        )
+    }
+
+    if (isCompleted) {
+        return (
+            <div
+                className={cn("bg-[var(--bgLevel2)] min-h-screen flex flex-col items-center justify-center px-4 py-8 sm:px-6 md:px-8", className)}
+                {...props}
+            >
+                <div className="flex justify-center gap-2 md:justify-start">
+                    <div className="flex items-center space-x-3 fixed top-5 left-5">
+                        <img
+                            src={"/konekt-logo-full.png"}
+                            className="w-32 h-auto block"
+                        />
+                    </div>
+                </div>
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                    className="text-center max-w-lg sm:max-w-xl md:max-w-2xl w-full"
+                >
+                    <motion.p
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-400 via-blue-500 to-fuchsia-500 leading-tight"
+                    >
+                        All done! Thank you for providing your information.
+                    </motion.p>
                 </motion.div>
             </div>
         )
@@ -341,7 +352,4 @@ export default function FormOnboardingPage({ className, ...props }: React.Compon
             </div>
         )
     }
-
-    // Fallback (should not happen)
-    return null
 }

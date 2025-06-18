@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { FormStep } from "./types/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -11,16 +12,8 @@ export function generateUsername(email: string): string {
   return `${base}${suffix}`;
 }
 
-interface FormStep {
-  id: string
-  question: string
-  placeholder: string
-  type: string
-  value: string
-}
-
 export function getGreetingMessage(step: FormStep) {
-  if (!step.value.trim()) return null
+  if (!step.value || !step.value.trim()) return null;
 
   switch (step.id) {
     case "name":

@@ -24,8 +24,11 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const payload = await verifyJwt(token);
-  if (!payload) {
+  let payload = null;
+  try {
+    payload = await verifyJwt(token);
+  } catch (error) {
+    console.warn('JWT error:', error);
     return NextResponse.redirect(new URL("/login", req.url));
   }
 

@@ -185,9 +185,9 @@ const PostCard = () => {
             )}
 
             {/* Commentaires */}
-            {post.comments?.length > 0 && (
+            {post._count.comments > 0 && (
               <div className="text-sm text-[var(--textMinimal)] mb-2">
-                Voir les {post.comments.length} commentaires
+                Voir les {post._count.comments} commentaires
               </div>
             )}
 
