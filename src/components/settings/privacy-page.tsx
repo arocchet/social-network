@@ -1,18 +1,75 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { ArrowLeft } from "lucide-react"
 
 interface PrivacyPageProps {
+  userId: string
   onBack?: () => void
 }
 
-export function PrivacyPage({ onBack }: PrivacyPageProps) {
+export function PrivacyPage({ userId, onBack }: PrivacyPageProps) {
   const [isPrivate, setIsPrivate] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [allowFollows, setAllowFollows] = useState<'everyone' | 'approved'>('everyone')
   const [showActivityStatus, setShowActivityStatus] = useState(true)
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const response = await fetch('/api/private/settings/privacy', {
+          headers: {
+            'x-user-id': userId,
+          },
+        })
+        const data = await response.json()
+        setIsPrivate(data.visibility === 'PRIVATE')
+        setAllowFollows(data.allowFollows || 'everyone')
+        setShowActivityStatus(data.showActivityStatus ?? true)
+      } catch (error) {
+        console.error('Erreur lors du chargement:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadSettings()
+  }, [userId])
+
+  const saveSettings = async (updated: Partial<{ visibility: string, allowFollows: string, showActivityStatus: boolean }>) => {
+    try {
+      const response = await fetch('/api/private/settings/privacy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-user-id': userId,
+        },
+        body: JSON.stringify(updated),
+      })
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la sauvegarde")
+      }
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  const handlePrivacyChange = (checked: boolean) => {
+    setIsPrivate(checked)
+    saveSettings({ visibility: checked ? 'PRIVATE' : 'PUBLIC' })
+  }
+
+  const handleAllowFollowsChange = (value: 'everyone' | 'approved') => {
+    setAllowFollows(value)
+    saveSettings({ allowFollows: value })
+  }
+
+  const handleActivityStatusChange = (checked: boolean) => {
+    setShowActivityStatus(checked)
+    saveSettings({ showActivityStatus: checked })
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bgLevel1)]">
@@ -28,9 +85,10 @@ export function PrivacyPage({ onBack }: PrivacyPageProps) {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-lg font-medium text-[var(--textMinimal)]">Compte privé</span>
-            <Switch 
+            <Switch
               checked={isPrivate}
-              onCheckedChange={setIsPrivate}
+              onCheckedChange={handlePrivacyChange}
+              disabled={isLoading}
             />
           </div>
           <p className="text-sm text-[var(--textNeutral)]">
@@ -42,49 +100,40 @@ export function PrivacyPage({ onBack }: PrivacyPageProps) {
         <div className="space-y-4">
           <h2 className="text-lg font-medium text-[var(--textMinimal)]">Qui peut vous suivre</h2>
           <div className="space-y-4">
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="allow-follows"
-                id="follows-everyone"
-                value="everyone"
-                checked={allowFollows === 'everyone'}
-                onChange={() => setAllowFollows('everyone')}
-                className="w-4 h-4 text-blue-500 bg-[var(--bgLevel2)] border-[var(--detailMinimal)]"
-              />
-              <label htmlFor="follows-everyone" className="ml-3 text-base text-[var(--textMinimal)]">
-                Tout le monde
-              </label>
-            </div>
-            <div className="flex items-center">
-              <input
-                type="radio"
-                name="allow-follows"
-                id="follows-approved"
-                value="approved"
-                checked={allowFollows === 'approved'}
-                onChange={() => setAllowFollows('approved')}
-                className="w-4 h-4 text-blue-500 bg-[var(--bgLevel2)] border-[var(--detailMinimal)]"
-              />
-              <label htmlFor="follows-approved" className="ml-3 text-base text-[var(--textMinimal)]">
-                Seulement les abonnés approuvés
-              </label>
-            </div>
+            {['everyone', 'approved'].map(value => (
+              <div className="flex items-center" key={value}>
+                <input
+                  type="radio"
+                  name="allow-follows"
+                  id={`follows-${value}`}
+                  value={value}
+                  checked={allowFollows === value}
+                  onChange={() => handleAllowFollowsChange(value as 'everyone' | 'approved')}
+                  className="w-4 h-4"
+                />
+                <label htmlFor={`follows-${value}`} className="ml-3 text-base text-[var(--textMinimal)]">
+                  {value === 'everyone' ? 'Tout le monde' : 'Seulement les abonnés approuvés'}
+                </label>
+              </div>
+            ))}
           </div>
           <p className="text-sm text-[var(--textNeutral)]">
             {allowFollows === 'everyone'
-              ? 'N\'importe qui peut vous envoyer des demandes d\'abonnement.'
-              : 'Seuls les utilisateurs que vous approuvez peuvent vous suivre.'}
+              ? "N'importe qui peut vous envoyer des demandes d'abonnement."
+              : "Seuls les utilisateurs que vous approuvez peuvent vous suivre."}
           </p>
         </div>
 
         {/* Statut d'activité */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-lg font-medium text-[var(--textMinimal)]">Afficher le statut d'activité</span>
-            <Switch 
+            <span className="text-lg font-medium text-[var(--textMinimal)]">
+              Afficher le statut d'activité
+            </span>
+            <Switch
               checked={showActivityStatus}
-              onCheckedChange={setShowActivityStatus}
+              onCheckedChange={handleActivityStatusChange}
+              disabled={isLoading}
             />
           </div>
           <p className="text-sm text-[var(--textNeutral)]">
@@ -95,3 +144,5 @@ export function PrivacyPage({ onBack }: PrivacyPageProps) {
     </div>
   )
 }
+
+export default PrivacyPage
