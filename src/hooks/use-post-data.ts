@@ -35,7 +35,6 @@ export function useAllPosts() {
             const data = await response.json();
 
             const allPosts = data.user || [];
-            console.log("ALLPOST", allPosts)
 
             // S'assurer que data est un tableau
             setPosts(Array.isArray(allPosts) ? allPosts : []);

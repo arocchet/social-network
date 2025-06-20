@@ -214,13 +214,12 @@ export function Stories() {
           >
             <div className="relative">
               <button
-                className={`p-0.5 rounded-full ${
-                  story.isOwn
-                    ? "bg-gray-300"
-                    : story.stories.length > 0
+                className={`p-0.5 rounded-full ${story.isOwn
+                  ? "bg-gray-300"
+                  : story.stories.length > 0
                     ? "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
                     : "bg-gray-300"
-                }`}
+                  }`}
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage
