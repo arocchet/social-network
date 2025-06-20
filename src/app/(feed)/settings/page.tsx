@@ -30,7 +30,6 @@ import {
 } from "lucide-react"
 
 // Import sub-pages
-import { EditProfilePage } from "@/components/settings/edit-profile-page"
 import { PrivacyPage } from "@/components/settings/privacy-page"
 import { NotificationsPage } from "@/components/settings/notifications-page"
 import { SecurityPage } from "@/components/settings/security-page"
@@ -41,6 +40,7 @@ import BlockedPage from "@/components/settings/blocked-page"
 import CloseFriendsPage from "@/components/settings/close-friends-page"
 import { AboutPage } from "@/components/settings/about-page"
 import { ModeToggle } from "@/components/toggle-theme"
+import { useUserContext } from "@/app/context/user-context"
 
 interface SettingsPageProps {
   onBack?: () => void
@@ -77,10 +77,9 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
     setCurrentView("main")
   }
 
+  const { user } = useUserContext();
+
   // Render sub-pages
-  if (currentView === "edit-profile") {
-    return <EditProfilePage onBack={handleBackToMain} />
-  }
   if (currentView === "privacy") {
     return <PrivacyPage onBack={handleBackToMain} />
   }
@@ -120,7 +119,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         </Button>
         <h1 className="font-semibold text-lg flex-1">Paramètres et confidentialité</h1>
         <div>
-          <ModeToggle/>
+          <ModeToggle />
         </div>
       </header>
 
@@ -129,7 +128,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         <div className="p-4 border-b-1 border-[var(--detailMinimal)] bg-[var(--bgLevel2)]">
           <div className="flex items-center gap-3" onClick={() => setCurrentView("edit-profile")}>
             <Avatar className="w-12 h-12">
-              <AvatarImage src={settingsData.user.avatar || "/placeholder.svg"} alt={settingsData.user.username} />
+              <AvatarImage src={user?.avatar || "/placeholder.svg"} alt={settingsData.user.username} />
               <AvatarFallback>{settingsData.user.username[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex-1">

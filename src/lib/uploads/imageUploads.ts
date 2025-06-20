@@ -8,6 +8,9 @@ export async function handleUploads(formData: FormData, userId: string) {
     let avatarUrl = fallbackAvatarUrl
     let bannerUrl = fallbackCoverUrl
 
+    let coverId = null
+    let bannerId = null
+
     if (!disableUpload && avatarFile) {
         const avatarBuffer = Buffer.from(await avatarFile.arrayBuffer())
         const upload = await cloudinaryService.uploadImage(avatarBuffer, {
@@ -15,6 +18,7 @@ export async function handleUploads(formData: FormData, userId: string) {
             filename: avatarFile.name
         })
         avatarUrl = upload?.secure_url ?? fallbackAvatarUrl
+        coverId = upload.public_id
     }
 
     if (!disableUpload && coverFile) {
@@ -24,7 +28,8 @@ export async function handleUploads(formData: FormData, userId: string) {
             filename: coverFile.name
         })
         bannerUrl = upload?.secure_url ?? fallbackCoverUrl
+        bannerId = upload.public_id
     }
 
-    return { avatarUrl, bannerUrl }
+    return { avatarUrl, bannerUrl, coverId, bannerId }
 }

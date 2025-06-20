@@ -1,18 +1,18 @@
 // hooks/useUser.ts - Hook pour récupérer les infos utilisateur
 'use client';
 
-import { PublicUserInfo } from '@/lib/validations/userValidation';
+import { UserInfoProfile } from '@/lib/types/types';
 import { useState, useEffect } from 'react';
 
 interface UseUserReturn {
-    user: PublicUserInfo | null;
+    user: UserInfoProfile | null;
     loading: boolean;
     error: string | null;
     refetch: () => void;
 }
 
 export function useUser(): UseUserReturn {
-    const [user, setUser] = useState<PublicUserInfo | null>(null);
+    const [user, setUser] = useState<UserInfoProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -32,8 +32,6 @@ export function useUser(): UseUserReturn {
             }
 
             const data = await response.json();
-            console.log("REFECTH", data)
-
             setUser(data.user);
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Unknown error');

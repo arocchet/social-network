@@ -3,6 +3,7 @@ import { disableUpload, fallbackAvatarUrl } from "./config"
 
 export async function handleImagePostUploads(image: File | null, userId: string) {
     let postImageUrl = fallbackAvatarUrl
+    let postImageId = null
 
     if (!disableUpload && image) {
         const avatarBuffer = Buffer.from(await image.arrayBuffer())
@@ -11,13 +12,16 @@ export async function handleImagePostUploads(image: File | null, userId: string)
             filename: image.name
         })
         postImageUrl = upload?.secure_url ?? fallbackAvatarUrl
+        postImageId = upload.public_id
     }
 
-    return { postImageUrl }
+    return { postImageUrl, postImageId }
 }
 
 export async function handleVideoPostUploads(video: File | null, userId: string) {
     let postVideoUrl = fallbackAvatarUrl
+    let postVideoId = null
+
 
     if (!disableUpload && video) {
         const avatarBuffer = Buffer.from(await video.arrayBuffer())
@@ -26,7 +30,8 @@ export async function handleVideoPostUploads(video: File | null, userId: string)
             filename: video.name
         })
         postVideoUrl = upload?.secure_url ?? fallbackAvatarUrl
+        postVideoId = upload.public_id
     }
 
-    return { postVideoUrl }
+    return { postVideoUrl, postVideoId }
 }

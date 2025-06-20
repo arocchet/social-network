@@ -1,31 +1,22 @@
-export async function updateUserClient(user: Record<string, string>) {
+import { fetcher } from "@/lib/api/fetcher";
+
+export async function updateUserClient(user: Record<string, any>) {
+    const formData = new FormData();
+
+    for (const [key, value] of Object.entries(user)) {
+        if (value !== undefined && value !== null) {
+            formData.append(key, value);
+        }
+    }
+
     try {
-        const res = await fetch("/api/private/user", {
+        const result = await fetcher<void>("/api/private/user", {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(user),
+            body: formData,
         });
 
-        if (!res.ok) {
-            let errorMessage = "Failed update user's informations.";
-            try {
-                const errorData = await res.json();
-                errorMessage = errorData.message || errorMessage;
-            } catch (err) {
-                console.warn("Failed to parse error response as JSON:", err);
-            }
-
-            throw new Error(errorMessage);
-        }
-
-        return await res.json();
+        return result;
     } catch (error) {
-        if (error instanceof Error) {
-            throw new Error(`Client error : ${error.message}`);
-        }
-
-        throw new Error("Unknow Error");
+        throw new Error(`Client error: ${(error instanceof Error) ? error.message : "Unknown error"}`);
     }
 }

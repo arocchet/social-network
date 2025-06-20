@@ -18,6 +18,9 @@ model User {
   biography           String?
   avatar              String?
   banner              String?
+  bannerId            String?
+  avatarId            String?
+  visibility          ProfileVisibility    @default(PUBLIC)
   comments            Comment[]
   conversationMembers ConversationMember[]
   friendsWithMe       Friendship[]         @relation("FriendOf")
@@ -58,6 +61,7 @@ model Post {
   datetime   DateTime   @default(now())
   image      String?
   visibility Visibility
+  mediaId    String?
   comments   Comment[]
   user       User       @relation(fields: [userId], references: [id])
   reactions  Reaction[]
@@ -69,6 +73,7 @@ model Story {
   datetime   DateTime   @default(now())
   media      String?
   visibility Visibility
+  mediaId    String?
   reactions  Reaction[]
   user       User       @relation(fields: [userId], references: [id])
 }
@@ -87,14 +92,15 @@ model Reaction {
   id       String       @id @default(cuid())
   type     ReactionType
   userId   String
-  postId   String
+  postId   String?
   datetime DateTime     @default(now())
   storyId  String?
-  post     Post         @relation(fields: [postId], references: [id])
+  post     Post?        @relation(fields: [postId], references: [id])
   story    Story?       @relation(fields: [storyId], references: [id])
   user     User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, postId])
+  @@unique([userId, storyId])
 }
 
 model Message {
@@ -186,4 +192,9 @@ enum ReactionType {
   LAUGH
   SAD
   ANGRY
+}
+
+enum ProfileVisibility {
+  PUBLIC
+  PRIVATE
 }

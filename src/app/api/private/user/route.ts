@@ -1,5 +1,8 @@
+import { cloudinaryService } from "@/lib/cloudinary/cloudinary";
+import { uploadIfFile } from "@/lib/cloudinary/uploadFile";
 import { getUserByIdServer } from "@/lib/server/user/getUser";
-import { updateUserServer } from "@/lib/server/user/updateClientUser";
+import { updateUserServer } from "@/lib/server/user/updateServerUser";
+import { ValidationError } from "@/lib/validations/validationError";
 // import { UserInfoSchema } from "@/lib/validations/userValidation";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -51,29 +54,53 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ message }, { status: 500 });
     }
 }
-
 export async function PUT(req: NextRequest) {
     const userId = req.headers.get("x-user-id");
     if (!userId) {
         return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
     }
 
-    const data = await req.json();
+    const formData = await req.formData();
+    const data: Record<string, any> = {};
+
+    for (const [key, value] of formData.entries()) {
+        if (typeof value === "string") {
+            data[key] = value;
+        }
+    }
 
     try {
+        const coverUpload = await uploadIfFile(formData.get("cover"), `users/${userId}`);
+        if (coverUpload) {
+            data.cover = coverUpload.url;
+            data.coverId = coverUpload.id;
+        }
+
+        const bannerUpload = await uploadIfFile(formData.get("banner"), `users/${userId}`);
+        if (bannerUpload) {
+            data.banner = bannerUpload.url;
+            data.bannerId = bannerUpload.id;
+        }
+
         await updateUserServer(userId, data);
+
         return NextResponse.json({ status: 200 });
+
     } catch (err) {
-        if (err instanceof Error) {
-            const isZodError = err.message === "Invalid payload";
+        if (err instanceof ValidationError) {
             return NextResponse.json(
-                { message: isZodError ? "Invalid Data." : err.message },
-                { status: isZodError ? 400 : 500 }
+                {
+                    message: "Validation error",
+                    fieldErrors: err.fieldErrors,
+                },
+                { status: 400 }
             );
         }
 
         return NextResponse.json(
-            { message: "Unexpected server error." },
+            {
+                message: err instanceof Error ? err.message : "Unexpected error",
+            },
             { status: 500 }
         );
     }
