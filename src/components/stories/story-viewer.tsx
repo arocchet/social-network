@@ -5,16 +5,19 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { X, Volume2, VolumeX, Heart } from "lucide-react";
+import { useStoryLikes } from "@/hooks/use-story-likes";
 
 interface StoryContent {
-  id: number;
+  id: string; // Changé de number à string pour correspondre à votre hook
   image: string;
   timeAgo: string;
-  mediaType?: "image" | "video"; // Nouveau champ pour différencier
+  mediaType?: "image" | "video";
+  likesCount?: number;
+  isLikedByCurrentUser?: boolean;
 }
 
 interface Story {
-  id: number;
+  id: string;
   username: string;
   avatar: string;
   stories: StoryContent[];
@@ -44,12 +47,11 @@ const getMediaType = (url: string): "image" | "video" => {
     return "image";
   }
 
-  // Par défaut, essayer de détecter via l'URL ou le contenu
   if (url.includes("video") || url.includes(".mp4") || url.includes(".webm")) {
     return "video";
   }
 
-  return "image"; // Par défaut
+  return "image";
 };
 
 // Fonction pour extraire la couleur dominante d'une image
@@ -65,7 +67,6 @@ const extractDominantColor = (
       return;
     }
 
-    // Gérer différemment selon le type d'élément
     let width: number, height: number;
 
     if (element instanceof HTMLVideoElement) {
@@ -84,9 +85,8 @@ const extractDominantColor = (
       const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
       const data = imageData.data;
 
-      // Échantillonner quelques pixels pour trouver la couleur dominante
       const colorMap: { [key: string]: number } = {};
-      const step = 4 * 10; // Échantillonner tous les 10 pixels
+      const step = 4 * 10;
 
       for (let i = 0; i < data.length; i += step) {
         const r = data[i];
@@ -94,10 +94,8 @@ const extractDominantColor = (
         const b = data[i + 2];
         const alpha = data[i + 3];
 
-        // Ignorer les pixels transparents
         if (alpha < 128) continue;
 
-        // Grouper les couleurs similaires
         const roundedR = Math.round(r / 10) * 10;
         const roundedG = Math.round(g / 10) * 10;
         const roundedB = Math.round(b / 10) * 10;
@@ -106,7 +104,6 @@ const extractDominantColor = (
         colorMap[colorKey] = (colorMap[colorKey] || 0) + 1;
       }
 
-      // Trouver la couleur la plus fréquente
       let dominantColor = "0,0,0";
       let maxCount = 0;
 
@@ -118,8 +115,6 @@ const extractDominantColor = (
       }
 
       const [r, g, b] = dominantColor.split(",").map(Number);
-
-      // Assombrir légèrement la couleur pour un meilleur contraste
       const darkenedR = Math.max(0, r - 40);
       const darkenedG = Math.max(0, g - 40);
       const darkenedB = Math.max(0, b - 40);
@@ -140,13 +135,14 @@ export function StoryViewer({
   onNext,
   onPrevious,
 }: StoryViewerProps) {
+  // Ajoutez ces logs au début de la fonction StoryViewer :
+
   const [progress, setProgress] = useState(0);
   const [dominantColor, setDominantColor] = useState<string>("#000000");
   const [mediaLoaded, setMediaLoaded] = useState(false);
   const [, setIsPaused] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(true);
-  const [isLiked, setIsLiked] = useState(false);
   const [flyingHearts, setFlyingHearts] = useState<
     Array<{ id: number; x: number; y: number }>
   >([]);
@@ -157,7 +153,7 @@ export function StoryViewer({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const progressRef = useRef(0);
 
-  // Vérifications de sécurité pour éviter les erreurs undefined
+  // Vérifications de sécurité
   const isValidUserIndex =
     currentUserIndex >= 0 && currentUserIndex < users.length;
   const currentUser = isValidUserIndex ? users[currentUserIndex] : null;
@@ -169,6 +165,18 @@ export function StoryViewer({
     isValidStoryIndex && currentUser
       ? currentUser.stories[currentStoryIndex]
       : null;
+
+  // Hook pour gérer les likes de la story actuelle
+  const {
+    isLiked,
+    likesCount,
+    loading: likeLoading,
+    toggleLike,
+  } = useStoryLikes({
+    storyId: currentStoryContent?.id || "",
+    initialLiked: currentStoryContent?.isLikedByCurrentUser || false,
+    initialCount: currentStoryContent?.likesCount || 0,
+  });
 
   // Déterminer le type de média
   const mediaType = currentStoryContent
@@ -186,27 +194,22 @@ export function StoryViewer({
   // Fonction pour démarrer le timer
   const startTimer = useCallback(
     (duration?: number) => {
-      clearTimer(); // S'assurer qu'aucun timer n'est déjà en cours
+      clearTimer();
 
-      // Déterminer la durée selon le type de média
       let totalDuration: number;
 
       if (duration && mediaType === "video") {
-        // Utiliser la durée réelle de la vidéo
-        totalDuration = duration * 1000; // Convertir en millisecondes
+        totalDuration = duration * 1000;
       } else {
-        // Durée fixe pour les images (5 secondes)
         totalDuration = 5000;
       }
 
-      // Calculer l'intervalle pour atteindre 100% dans la durée totale
       const interval = totalDuration / 100;
 
       timerRef.current = setInterval(() => {
-        progressRef.current += 1; // Incrémenter la référence
+        progressRef.current += 1;
         setProgress(progressRef.current);
 
-        // Si on atteint 100%, passer à la suivante
         if (progressRef.current >= 100) {
           clearTimer();
           setTimeout(() => {
@@ -248,22 +251,19 @@ export function StoryViewer({
   useEffect(() => {
     if (!currentStoryContent) return;
 
-    // ARRÊTER IMMÉDIATEMENT le timer
     clearTimer();
 
-    // Pause et reset de la vidéo précédente si elle existe
     if (videoRef.current) {
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
 
-    // Reset de tous les états
     setMediaLoaded(false);
     setDominantColor("#000000");
     setProgress(0);
     progressRef.current = 0;
     setIsPaused(true);
-    setIsMuted(true); // Reset du mute aussi
+    setIsMuted(true);
 
     console.log(
       "Reset pour nouvelle story:",
@@ -283,7 +283,6 @@ export function StoryViewer({
   const handleImageLoad = async () => {
     if (imageRef.current) {
       try {
-        // Vérifier que c'est bien la bonne image (éviter les callbacks obsolètes)
         const currentImageSrc = imageRef.current.src;
         const expectedSrc = currentStoryContent?.image;
 
@@ -303,7 +302,19 @@ export function StoryViewer({
 
             setTimeout(() => {
               setIsPaused(false);
-              startTimer(); // Pas de durée spécifique pour les images
+              console.log("=== TOUTES LES STORIES ===");
+              users.forEach((user, userIndex) => {
+                console.log(`Utilisateur ${userIndex}:`, user.username);
+                user.stories.forEach((story, storyIndex) => {
+                  console.log(`  Story ${storyIndex}:`, {
+                    id: story.id,
+                    image: story.image,
+                    timeAgo: story.timeAgo,
+                  });
+                });
+              });
+              console.log("=========================");
+              startTimer();
             }, 200);
           }
         }, 200);
@@ -323,7 +334,6 @@ export function StoryViewer({
   const handleVideoLoad = async () => {
     if (videoRef.current) {
       try {
-        // Vérifier que c'est bien la bonne vidéo (éviter les callbacks obsolètes)
         const currentVideoSrc = videoRef.current.src;
         const expectedSrc = currentStoryContent?.image;
 
@@ -335,27 +345,22 @@ export function StoryViewer({
           return;
         }
 
-        // Attendre que la vidéo soit prête
         setTimeout(async () => {
           if (videoRef.current && videoRef.current.readyState >= 2) {
-            // HAVE_CURRENT_DATA
             const color = await extractDominantColor(videoRef.current);
             setDominantColor(color);
             setMediaLoaded(true);
 
-            // Obtenir la durée de la vidéo
             const videoDuration = videoRef.current.duration;
             console.log("Durée de la vidéo:", videoDuration, "secondes");
 
-            // Pour les vidéos, utiliser leur durée réelle
             setTimeout(() => {
               setIsPaused(false);
               if (videoRef.current && !videoRef.current.paused) {
-                // La vidéo pourrait déjà être en cours de lecture
+                // Video is already playing
               } else if (videoRef.current) {
                 videoRef.current.play().catch(console.error);
               }
-              // Passer la durée de la vidéo au timer
               startTimer(videoDuration);
             }, 200);
           }
@@ -371,8 +376,7 @@ export function StoryViewer({
           setIsPaused(false);
           if (videoRef.current) {
             videoRef.current.play().catch(console.error);
-            // Utiliser une durée par défaut si on ne peut pas obtenir la vraie durée
-            const fallbackDuration = videoRef.current.duration || 10; // 10 secondes par défaut
+            const fallbackDuration = videoRef.current.duration || 10;
             startTimer(fallbackDuration);
           }
         }, 200);
@@ -386,7 +390,6 @@ export function StoryViewer({
     setMediaLoaded(true);
     setTimeout(() => {
       setIsPaused(false);
-      // Utiliser une durée par défaut en cas d'erreur
       startTimer(mediaType === "video" ? 10 : undefined);
     });
   };
@@ -396,7 +399,6 @@ export function StoryViewer({
     clearTimer();
     setIsPaused(true);
 
-    // Pause/play vidéo si applicable
     if (mediaType === "video" && videoRef.current) {
       videoRef.current.pause();
     }
@@ -421,6 +423,76 @@ export function StoryViewer({
     }
   };
 
+  // Gestion du toggle like
+  // Remplacez votre fonction handleToggleLike par celle-ci :
+
+  const handleToggleLike = async (
+    event: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    event.stopPropagation();
+
+    if (!currentStoryContent || likeLoading) {
+      console.log("Like bloqué:", {
+        currentStoryContent: !!currentStoryContent,
+        likeLoading,
+      });
+      return;
+    }
+
+    console.log("=== HANDLE TOGGLE LIKE ===");
+    console.log("Story content:", currentStoryContent);
+    console.log("Event target:", event.currentTarget);
+
+    // Vérifier que l'élément existe avant getBoundingClientRect
+    const target = event.currentTarget;
+    if (!target) {
+      console.error("Pas de target pour l'événement");
+      return;
+    }
+
+    // Récupérer la position AVANT le toggle
+    let heartPosition = { x: 0, y: 0 };
+    try {
+      const rect = target.getBoundingClientRect();
+      heartPosition = {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      };
+      console.log("Position du cœur:", heartPosition);
+    } catch (error) {
+      console.error("Erreur getBoundingClientRect:", error);
+    }
+
+    const wasLiked = isLiked; // Capturer l'état actuel
+
+    try {
+      console.log("Appel toggleLike...");
+      await toggleLike();
+      console.log("toggleLike terminé");
+
+      // Animation de cœur qui s'envole si on vient de liker
+      if (!wasLiked && heartPosition.x !== 0 && heartPosition.y !== 0) {
+        console.log("Animation du cœur");
+        const newHeart = {
+          id: heartId,
+          x: heartPosition.x,
+          y: heartPosition.y,
+        };
+
+        setFlyingHearts((prev) => [...prev, newHeart]);
+        setHeartId((prev) => prev + 1);
+
+        setTimeout(() => {
+          setFlyingHearts((prev) =>
+            prev.filter((heart) => heart.id !== newHeart.id)
+          );
+        }, 1000);
+      }
+    } catch (error) {
+      console.error("Erreur dans handleToggleLike:", error);
+    }
+  };
+
   // Nettoyer le timer au démontage du composant
   useEffect(() => {
     return () => {
@@ -428,7 +500,7 @@ export function StoryViewer({
     };
   }, [clearTimer]);
 
-  // Si on a une erreur ou pas de contenu valide, afficher un message d'erreur
+  // Si on a une erreur ou pas de contenu valide
   if (error || !currentUser || !currentStoryContent) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-black">
@@ -445,33 +517,28 @@ export function StoryViewer({
       </div>
     );
   }
-  const toggleLike = (event: React.MouseEvent<HTMLButtonElement>): void => {
-    event.stopPropagation();
-    setIsLiked(!isLiked);
-
-    // Animation de cœur qui s'envole
-    if (!isLiked) {
-      const rect = event.currentTarget.getBoundingClientRect();
-      const newHeart = {
-        id: heartId,
-        x: rect.left + rect.width / 2,
-        y: rect.top + rect.height / 2,
-      };
-
-      setFlyingHearts((prev) => [...prev, newHeart]);
-      setHeartId((prev) => prev + 1);
-
-      // Supprimer le cœur après 1 seconde
-      setTimeout(() => {
-        setFlyingHearts((prev) =>
-          prev.filter((heart) => heart.id !== newHeart.id)
-        );
-      }, 1000);
-    }
-  };
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col">
+      {/* CSS pour l'animation des cœurs */}
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
+          @keyframes heartFly {
+            0% {
+              transform: translateY(0) scale(1);
+              opacity: 1;
+            }
+            100% {
+              transform: translateY(-100px) scale(1.5);
+              opacity: 0;
+            }
+          }
+        `,
+        }}
+      />
+
+      {/* Cœurs qui s'envolent */}
       {flyingHearts.map((heart) => (
         <div
           key={heart.id}
@@ -485,6 +552,7 @@ export function StoryViewer({
           <Heart className="w-6 h-6 fill-red-500 text-red-500" />
         </div>
       ))}
+
       {/* Arrière-plan avec couleur dominante */}
       <div className="absolute inset-0 bg-black" />
       <div
@@ -542,18 +610,24 @@ export function StoryViewer({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {/* Bouton like */}
+            {/* Bouton like avec compteur */}
             <Button
               variant="ghost"
               size="icon"
-              className="text-white hover:bg-white/20"
-              onClick={toggleLike} // Changé de toggleMute à toggleLike
+              className="text-white hover:bg-white/20 relative"
+              onClick={handleToggleLike}
+              disabled={likeLoading}
             >
               <Heart
-                className={`w-5 h-5 ${
-                  isLiked ? "fill-red-500 text-red-500" : ""
+                className={`w-5 h-5 transition-all duration-200 ${
+                  isLiked ? "fill-red-500 text-red-500 scale-110" : "text-white"
                 }`}
               />
+              {likesCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full min-w-[16px] h-4 flex items-center justify-center px-1">
+                  {likesCount > 99 ? "99+" : likesCount}
+                </span>
+              )}
             </Button>
 
             {/* Bouton mute/unmute pour les vidéos */}
@@ -562,7 +636,7 @@ export function StoryViewer({
                 variant="ghost"
                 size="icon"
                 className="text-white hover:bg-white/20"
-                onClick={toggleMute} // Ajouté la fonction onClick
+                onClick={toggleMute}
               >
                 {isMuted ? (
                   <VolumeX className="w-5 h-5" />
@@ -590,7 +664,7 @@ export function StoryViewer({
               {mediaType === "image" ? (
                 <img
                   ref={imageRef}
-                  key={`${currentUserIndex}-${currentStoryIndex}`} // Clé unique pour forcer le remount
+                  key={`${currentUserIndex}-${currentStoryIndex}`}
                   src={currentStoryContent.image || "/placeholder.svg"}
                   alt="Story"
                   className="max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300 rounded-lg"
@@ -606,7 +680,7 @@ export function StoryViewer({
               ) : (
                 <video
                   ref={videoRef}
-                  key={`${currentUserIndex}-${currentStoryIndex}`} // Clé unique pour forcer le remount
+                  key={`${currentUserIndex}-${currentStoryIndex}`}
                   src={currentStoryContent.image}
                   className="max-w-full max-h-full w-auto h-auto object-contain transition-opacity duration-300 rounded-lg"
                   style={{
@@ -638,14 +712,6 @@ export function StoryViewer({
             <div className="flex-1 hover:bg-white/5 transition-colors rounded-r-lg" />
           </div>
         </div>
-
-        {/* Debug info */}
-        {/* <div className="absolute bottom-4 left-4 text-white/50 text-xs bg-black/20 px-2 py-1 rounded backdrop-blur-sm">
-          Type: {mediaType} | {isPaused ? "⏸️ Pause" : "▶️ Lecture"} | Progress: {Math.round(progress)}%
-          {mediaType === 'video' && videoRef.current && (
-            <> | Durée: {Math.round(videoRef.current.duration || 0)}s</>
-          )}
-        </div> */}
       </div>
     </div>
   );

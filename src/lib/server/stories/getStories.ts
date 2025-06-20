@@ -1,128 +1,96 @@
-// lib/server/stories/getStories.ts
-
 import { db } from "@/lib/db";
 
-export async function getStoriesByUserId(userId: string) {
-    return await db.story.findMany({
+export async function getAllStoriesGrouped(
+  currentUserId: string,
+  publicOnly: boolean = false
+) {
+  const stories = await db.story.findMany({
+    where: {
+      ...(publicOnly ? { visibility: "PUBLIC" } : {}),
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          avatar: true,
+        },
+      },
+      reactions: {
         where: {
-            userId: userId,
-            // Optionnel : filtrer les stories de moins de 24h
-            datetime: {
-                gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // 24 heures
-            }
+          type: "LIKE",
         },
         include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                    firstName: true,
-                    lastName: true,
-                    avatar: true
-                }
+          user: {
+            select: {
+              id: true,
+              username: true,
             },
-            reactions: {
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            username: true
-                        }
-                    }
-                }
-            }
+          },
         },
-        orderBy: {
-            datetime: 'desc'
-        }
+      },
+    },
+    orderBy: {
+      datetime: "asc",
+    },
+  });
+
+  // Enrichir chaque story avec les infos de likes
+  const enrichedStories = stories.map((story: any) => ({
+    ...story,
+    likesCount: story.reactions.length,
+    isLikedByCurrentUser: story.reactions.some(
+      (reaction: { userId: string }) => reaction.userId === currentUserId
+    ),
+  }));
+
+  // ✅ CORRECTION : Utiliser enrichedStories au lieu de stories
+  const groupedStories = enrichedStories.reduce((acc, story) => {
+    const userId = story.user.id;
+
+    if (!acc[userId]) {
+      acc[userId] = {
+        user: story.user,
+        stories: [],
+        hasUnviewed: true,
+      };
+    }
+
+    // ✅ IMPORTANT : Pousser la story enrichie avec le bon format
+    acc[userId].stories.push({
+      id: story.id, // ✅ Vrai ID de la DB
+      image: story.media, // ✅ URL de l'image/vidéo
+      timeAgo: getTimeAgo(story.datetime), // ✅ Formaté correctement
+      mediaType: story.media.includes(".mp4") ? "video" : "image",
+      likesCount: story.likesCount,
+      isLikedByCurrentUser: story.isLikedByCurrentUser,
     });
+
+    return acc;
+  }, {} as Record<string, any>);
+
+  // Convertir en array et trier par story la plus récente
+  return Object.values(groupedStories).sort((a: any, b: any) => {
+    const latestA = Math.max(
+      ...a.stories.map((s: any) => new Date(s.datetime || 0).getTime())
+    );
+    const latestB = Math.max(
+      ...b.stories.map((s: any) => new Date(s.datetime || 0).getTime())
+    );
+    return latestB - latestA;
+  });
 }
 
-export async function getAllStoriesGrouped(currentUserId: string, publicOnly: boolean = false) {
-    const stories = await db.story.findMany({
-        where: {
-            // Filtrer selon la visibilité
-            ...(publicOnly ? { visibility: 'PUBLIC' } : {}),
-            // Exclure les stories de l'utilisateur actuel si souhaité
-            // userId: { not: currentUserId },
-            // Stories de moins de 24h
-            // datetime: {
-            //     gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
-            // }
-        },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                    firstName: true,
-                    lastName: true,
-                    avatar: true
-                }
-            },
-            reactions: {
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            username: true
-                        }
-                    }
-                }
-            }
-        },
-        orderBy: {
-            datetime: 'asc'
-        }
-    });
+// ✅ Fonction helper pour formater le temps
+function getTimeAgo(datetime: Date): string {
+  const now = new Date();
+  const diffInHours = Math.floor(
+    (now.getTime() - datetime.getTime()) / (1000 * 60 * 60)
+  );
 
-    // Grouper les stories par utilisateur
-    const groupedStories = stories.reduce((acc, story) => {
-        const userId = story.user.id;
-
-        if (!acc[userId]) {
-            acc[userId] = {
-                user: story.user,
-                stories: [],
-                hasUnviewed: true // À implémenter avec un système de vues
-            };
-        }
-
-        acc[userId].stories.push(story);
-        return acc;
-    }, {} as Record<string, any>);
-
-    // Convertir en array et trier par story la plus récente
-    return Object.values(groupedStories).sort((a: any, b: any) => {
-        const latestA = Math.max(...a.stories.map((s: any) => new Date(s.datetime).getTime()));
-        const latestB = Math.max(...b.stories.map((s: any) => new Date(s.datetime).getTime()));
-        return latestB - latestA;
-    });
-}
-
-export async function getStoryById(storyId: string) {
-    return await db.story.findUnique({
-        where: { id: storyId },
-        include: {
-            user: {
-                select: {
-                    id: true,
-                    username: true,
-                    firstName: true,
-                    lastName: true,
-                    avatar: true
-                }
-            },
-            reactions: {
-                include: {
-                    user: {
-                        select: {
-                            id: true,
-                            username: true
-                        }
-                    }
-                }
-            }
-        }
-    });
+  if (diffInHours < 1) return "maintenant";
+  if (diffInHours < 24) return `${diffInHours}h`;
+  return `${Math.floor(diffInHours / 24)}j`;
 }
