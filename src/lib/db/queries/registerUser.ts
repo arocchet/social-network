@@ -18,7 +18,9 @@ export async function register(input: RegisterUserInput) {
         birthDate,
         biography,
         avatar,
-        banner
+        banner,
+        bannerId,
+        avatarId
     } = input;
 
     if (!email) throw new Error("Email is required");
@@ -53,7 +55,9 @@ export async function register(input: RegisterUserInput) {
             birthDate,
             biography,
             avatar,
-            banner
+            avatarId,
+            banner,
+            bannerId
         }
     });
 

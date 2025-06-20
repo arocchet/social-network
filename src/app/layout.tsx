@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "../../config/site";
 import { geistMono, geistSans } from "../../config/font";
 import { Toaster } from "@/components/ui/sonner";
+import { UserProvider } from "./context/user-context";
 
 export const metadata: Metadata = {
   title: {
@@ -27,7 +28,9 @@ export default function RootLayout({
     >
       <body suppressHydrationWarning className="antialiased bg-[var(--bgLevel1)]">
         <ThemeProvider attribute="class" defaultTheme="light">
-          {children}
+          <UserProvider>
+            {children}
+          </UserProvider>
           <Toaster richColors closeButton />
         </ThemeProvider>
       </body>
