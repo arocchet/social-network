@@ -12,7 +12,7 @@ export async function middleware(req: NextRequest) {
   const isPublicApi = pathname.startsWith('/api/public');
 
   // Extensions d'images
-  const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.ico', '.bmp'];
+  const imageExtensions = ['.avif', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp', '.ico', '.bmp'];
   const isImageRequest = imageExtensions.some(ext => pathname.toLowerCase().endsWith(ext));
 
   if (isPublicRoute || isPublicApi || isImageRequest) {

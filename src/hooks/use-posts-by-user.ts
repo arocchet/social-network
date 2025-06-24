@@ -18,6 +18,7 @@ interface UseUserPostsReturn {
     error: string | null;
     hasMore: boolean;
     total: number;
+    setPosts: React.Dispatch<React.SetStateAction<PostWithDetails[]>>
     refetch: () => void;
     loadMore: () => void;
 }
@@ -26,7 +27,7 @@ export function useUserPosts({
     userId,
     publicOnly = false,
     page = 1,
-    limit = 10
+    limit = 10,
 }: UseUserPostsParams = {}): UseUserPostsReturn {
     const [posts, setPosts] = useState<PostWithDetails[]>([]);
     const [loading, setLoading] = useState(true);
@@ -104,5 +105,6 @@ export function useUserPosts({
         total,
         refetch,
         loadMore,
+        setPosts,
     };
 }
