@@ -1,8 +1,7 @@
+import { UserSchemas } from "@/lib/schemas/user";
+import { UserPublic } from "@/lib/schemas/user/public";
 import { getUserByIdServer } from "@/lib/server/user/getUser";
-import { updateUserServer } from "@/lib/server/user/updateClientUser";
-// import { UserInfoSchema } from "@/lib/validations/userValidation";
 import { NextRequest, NextResponse } from "next/server";
-
 
 export async function GET(req: NextRequest) {
     try {
@@ -14,8 +13,7 @@ export async function GET(req: NextRequest) {
         }
 
         // Récupérer les données utilisateur depuis la base de données
-        const userData = await getUserByIdServer(userId);
-
+        const userData = await getUserByIdServer<UserPublic>(userId, UserSchemas.Public);
 
 
         if (!userData) {
@@ -39,7 +37,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            user: userData
+            data: userData
         }, { status: 200 });
 
     } catch (error) {
@@ -49,32 +47,5 @@ export async function GET(req: NextRequest) {
             error instanceof Error ? error.message : "Unknown server error.";
 
         return NextResponse.json({ message }, { status: 500 });
-    }
-}
-
-export async function PUT(req: NextRequest) {
-    const userId = req.headers.get("x-user-id");
-    if (!userId) {
-        return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
-    }
-
-    const data = await req.json();
-
-    try {
-        await updateUserServer(userId, data);
-        return NextResponse.json({ status: 200 });
-    } catch (err) {
-        if (err instanceof Error) {
-            const isZodError = err.message === "Invalid payload";
-            return NextResponse.json(
-                { message: isZodError ? "Invalid Data." : err.message },
-                { status: isZodError ? 400 : 500 }
-            );
-        }
-
-        return NextResponse.json(
-            { message: "Unexpected server error." },
-            { status: 500 }
-        );
     }
 }

@@ -60,6 +60,7 @@ export function Stories() {
         storyId: story.id,
         image: story.media || "/placeholder.svg",
         timeAgo: getTimeAgo(story.datetime),
+        storyId: story.id
       })),
     }));
   };
@@ -75,7 +76,6 @@ export function Stories() {
     },
     ...adaptStoryData(storiesGroups),
   ];
-
   const viewableStories = adaptedStories.filter((story) => !story.isOwn);
 
   // Vérifier que les indices sont valides avant de rendre le StoryViewer
@@ -216,13 +216,12 @@ export function Stories() {
           >
             <div className="relative">
               <button
-                className={`p-0.5 rounded-full ${
-                  story.isOwn
-                    ? "bg-gray-300"
-                    : story.stories.length > 0
+                className={`p-0.5 rounded-full ${story.isOwn
+                  ? "bg-gray-300"
+                  : story.stories.length > 0
                     ? "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
                     : "bg-gray-300"
-                }`}
+                  }`}
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage

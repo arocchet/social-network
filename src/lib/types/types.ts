@@ -55,7 +55,9 @@ export type RegistrationSource = "credentials" | "google" | "discord";
 
 export interface RegisterUserInput {
     avatar?: string;
+    avatarId?: string | null;
     banner?: string;
+    bannerId?: string | null;
     biography?: string;
     birthDate?: Date;
     email: string;

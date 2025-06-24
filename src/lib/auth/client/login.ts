@@ -1,6 +1,6 @@
-import { Credentials_Login } from "@/lib/types/types";
+import type { CredentialsLogin } from "@/lib/schemas/user/auth";
 
-export async function login(data: Credentials_Login) {
+export async function login(data: CredentialsLogin) {
 
     const res = await fetch("/api/public/auth/login", {
         method: "POST",

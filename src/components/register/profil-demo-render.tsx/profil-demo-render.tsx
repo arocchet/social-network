@@ -17,7 +17,7 @@ import { FaImage } from "react-icons/fa6";
 import { FaBirthdayCake } from "react-icons/fa";
 import { useIsMounted } from "@/hooks/use-is-mounted";
 
-const ProfilDemoRender = () => {
+const ProfileDemoRender = () => {
   const { userInfo } = useUserForm();
 
   const currentAvatarImage = userInfo.avatar?.previewUrl || "";
@@ -146,4 +146,4 @@ const ProfilDemoRender = () => {
   );
 };
 
-export default ProfilDemoRender;
+export default ProfileDemoRender;

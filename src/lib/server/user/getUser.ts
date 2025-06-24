@@ -1,9 +1,11 @@
-// lib/server/user/getUserById.ts
 import { db } from "@/lib/db";
-import { UserInfoProfile } from "@/lib/types/types";
-import { UserInfoProfileSchema } from "@/lib/validations/userValidation";
 
-export async function getUserByIdServer(userId: string): Promise<UserInfoProfile | null> {
+import { ZodSchema, z } from "zod";
+
+export async function getUserByIdServer<T>(
+    userId: string,
+    schema: ZodSchema<T>
+): Promise<T | null> {
     try {
         const user = await db.user.findUnique({
             where: { id: userId },
@@ -17,20 +19,23 @@ export async function getUserByIdServer(userId: string): Promise<UserInfoProfile
                 lastName: true,
                 birthDate: true,
                 firstName: true,
+                visibility: true,
             },
         });
 
         if (!user) return null;
 
-        const userWithStringDate = {
+        const parsed = schema.parse({
             ...user,
             birthDate: user.birthDate ? user.birthDate.toISOString() : null,
-        };
+        });
 
-        return UserInfoProfileSchema.parse(userWithStringDate);
-
+        return parsed;
     } catch (error) {
         console.error("Database error in getUserByIdServer:", error);
         throw new Error("Failed to fetch user data");
     }
 }
+
+
+//TODO

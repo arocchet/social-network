@@ -411,7 +411,7 @@ export default function ProfilePage({ postId }: ProfilePageProps) {
                   <div className="text-sm whitespace-pre-line text-[var(--textMinimal)] mb-2">
                     {user?.biography || "Aucune bio pour le moment"}
                   </div>
-                  {user?.website && (
+                  {/* {user?.website && (
                     <a
                       href={`https://${user.website}`}
                       className="text-sm text-[var(--blue)] hover:underline"
@@ -420,7 +420,7 @@ export default function ProfilePage({ postId }: ProfilePageProps) {
                     >
                       {user.website}
                     </a>
-                  )}
+                  )} */}
                 </div>
 
                 {/* Action Buttons */}

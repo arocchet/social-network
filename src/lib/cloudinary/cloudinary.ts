@@ -46,14 +46,14 @@ class CloudinaryService {
         })
     }
 
-    async deleteImage(publicId: string): Promise<void> {
+    async deleteImage(publicId: string): Promise<boolean> {
         return new Promise((resolve, reject) => {
             cloudinary.uploader.destroy(publicId, (error, result) => {
                 if (error) return reject(error)
                 if (result.result !== 'ok' && result.result !== 'not found') {
                     return reject(new Error(`Failed to delete image: ${result.result}`))
                 }
-                resolve()
+                resolve(true)
             })
         })
     }
