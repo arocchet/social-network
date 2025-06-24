@@ -8,6 +8,7 @@ import CreateStory from "./createStory";
 // Interface pour adapter vos données aux composants existants
 interface AdaptedStory {
   id: number;
+  storyId: string;
   image: string;
   timeAgo: string;
 }
@@ -56,6 +57,7 @@ export function Stories() {
       avatar: group.user.avatar || "/placeholder.svg",
       stories: group.stories.map((story, storyIndex) => ({
         id: storyIndex + 1,
+        storyId: story.id,
         image: story.media || "/placeholder.svg",
         timeAgo: getTimeAgo(story.datetime),
       })),
@@ -214,12 +216,13 @@ export function Stories() {
           >
             <div className="relative">
               <button
-                className={`p-0.5 rounded-full ${story.isOwn
-                  ? "bg-gray-300"
-                  : story.stories.length > 0
+                className={`p-0.5 rounded-full ${
+                  story.isOwn
+                    ? "bg-gray-300"
+                    : story.stories.length > 0
                     ? "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
                     : "bg-gray-300"
-                  }`}
+                }`}
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage
@@ -247,7 +250,7 @@ export function Stories() {
       {/* Ne rendre le StoryViewer que si toutes les conditions sont remplies */}
       {viewingStory && isValidUserIndex && isValidStoryIndex && (
         <StoryViewer
-          users={viewableStories}
+          stories={viewableStories}
           currentUserIndex={currentUserIndex}
           currentStoryIndex={currentStoryIndex}
           onClose={handleClose}
