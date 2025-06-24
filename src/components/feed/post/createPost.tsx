@@ -26,9 +26,10 @@ import { toast } from "sonner"
 import { PostSchema } from "@/lib/validations/createPostSchemaZod";
 import { createPostClient } from "@/lib/client/post/createPost";
 import { CreatePostForm } from "@/lib/types/types";
-import { useUser } from "@/hooks/use-user-data";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePostContext } from "@/app/context/post-context";
+import { useUserContext } from "@/app/context/user-context";
+import AppLoader from "@/components/ui/app-loader";
 
 
 type MediaFile = {
@@ -42,8 +43,8 @@ const CreatePost: React.FC = () => {
   const [postContent, setPostContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { user } = useUser();
-  const { setPosts, posts } = usePostContext();
+  const { user, loading } = useUserContext();
+  const { setAllPosts, allposts } = usePostContext();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -159,7 +160,7 @@ const CreatePost: React.FC = () => {
 
       console.log("optimisticPost", optimisticPost)
 
-      setPosts([optimisticPost, ...posts]);
+      setAllPosts([optimisticPost, ...allposts]);
       setPostContent("");
       setMediaFiles([]);
       setIsDialogOpen(false);
@@ -180,6 +181,8 @@ const CreatePost: React.FC = () => {
     }
   }
 
+  if (loading) return <AppLoader />
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
@@ -199,10 +202,10 @@ const CreatePost: React.FC = () => {
               <Avatar className="w-10 h-10 md:w-14 md:h-14 border-4 border-[var(--bgLevel2)]">
                 <AvatarImage
                   src={user?.avatar || "/placeholder.svg"}
-                  alt={user?.username}
+                  alt={user?.username!}
                 />
                 <AvatarFallback className="bg-[var(--greyFill)] text-[var(--textNeutral)]">
-                  {user?.username![0].toUpperCase() || "U"}
+                  {user?.username?.toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
               <div>

@@ -51,7 +51,7 @@ export async function fetcher<T>(url: string, options: FetchOptions = {}): Promi
         }
 
         return {
-            data: payload as T,
+            data: payload.data as T,
             error: null,
             status: res.status,
         };

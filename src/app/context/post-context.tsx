@@ -1,24 +1,30 @@
 // context/PostContext.tsx
-import React, { createContext, useContext } from "react";
-import { Post } from "@/lib/types/types";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAllPosts } from "@/hooks/use-post-data";
+import { Post } from "@/lib/types/post";
 
 interface PostContextProps {
-    posts: Post[];
-    setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+    allposts: Post[];
+    setAllPosts: React.Dispatch<React.SetStateAction<Post[]>>;
     loading: boolean;
-    error: string | null;
-    refetch: () => void;
+    error: any;
+    refetch: () => Promise<Post[] | undefined>;
+
 }
 
 const PostContext = createContext<PostContextProps | undefined>(undefined);
 
 export const PostProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const { posts, setPosts, loading, error, refetch: fetchAllPosts } = useAllPosts()
+    const { posts, loading, error, refetch } = useAllPosts()
+    const [allposts, setAllPosts] = useState<Post[]>(posts ?? []);
+
+    useEffect(() => {
+        setAllPosts(posts ?? [])
+    }, [posts])
 
     return (
-        <PostContext.Provider value={{ posts, setPosts, loading, error, refetch: fetchAllPosts }}>
+        <PostContext.Provider value={{ allposts, setAllPosts, loading, error, refetch }}>
             {children}
         </PostContext.Provider>
     );

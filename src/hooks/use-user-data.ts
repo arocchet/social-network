@@ -1,54 +1,14 @@
-// hooks/useUser.ts - Hook pour récupérer les infos utilisateur
-'use client';
+import { swrFetcher } from "@/lib/api/swrFetcher";
+import { UserPublic } from "@/lib/schemas/user/public";
+import useSWR from "swr";
 
-import { UserInfoProfile } from '@/lib/types/types';
-import { useState, useEffect } from 'react';
-
-interface UseUserReturn {
-    user: UserInfoProfile | null;
-    loading: boolean;
-    error: string | null;
-    refetch: () => void;
-}
-
-export function useUser(): UseUserReturn {
-    const [user, setUser] = useState<UserInfoProfile | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchUser = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const response = await fetch('/api/private/user', {
-                method: 'GET',
-                credentials: 'include', // Pour inclure les cookies
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch user');
-            }
-
-            const data = await response.json();
-            setUser(data.user);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-            setUser(null);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchUser();
-    }, []);
+export function useUser() {
+    const { data, error, isLoading, mutate } = useSWR<UserPublic>("/api/private/user", swrFetcher);
 
     return {
-        user,
-        loading,
+        user: data,
+        loading: isLoading,
         error,
-        refetch: fetchUser,
+        refetch: mutate,
     };
 }

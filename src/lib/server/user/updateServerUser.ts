@@ -1,9 +1,9 @@
 import { db } from "@/lib/db"
-import { UserUpdateSchema } from "@/lib/validations/user"
+import { UserSchemas } from "@/lib/schemas/user";
 import { ValidationError } from "@/lib/validations/validationError";
 
 export async function updateUserServer(userId: string, data: unknown) {
-    const parsed = UserUpdateSchema.safeParse(data)
+    const parsed = UserSchemas.Update.safeParse(data)
 
     if (!parsed.success) {
         const fieldErrors = Object.fromEntries(

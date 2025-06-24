@@ -1,20 +1,23 @@
 'use client';
 import React, { createContext, useContext } from "react";
-import { UserInfoProfile } from "@/lib/types/types";
 import { useUser } from "@/hooks/use-user-data";
+import { UserPublic } from "@/lib/schemas/user/public";
 
 interface UserContextType {
-    user: UserInfoProfile | null;
+    user: UserPublic | undefined;
+    loading: boolean;
+    error: any;
+    refetch: () => Promise<UserPublic | undefined>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const { user } = useUser()
+    const { user, loading, error, refetch } = useUser()
 
     return (
-        <UserContext.Provider value={{ user }}>
+        <UserContext.Provider value={{ user, loading, error, refetch }}>
             {children}
         </UserContext.Provider>
     );
@@ -23,7 +26,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
 export const useUserContext = () => {
     const context = useContext(UserContext);
     if (!context) {
-        throw new Error("usePostContext doit être utilisé dans PostProvider");
+        throw new Error("useUserContext doit être utilisé dans UserProvider");
     }
     return context;
 };

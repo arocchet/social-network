@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 import { hashPassword } from '@/lib/security/hash';
-import { RegisterUserInput } from '@/lib/types/types';
 import { generateUsername } from '@/lib/utils';
+import { RegisterUserInput } from '@/lib/validations/auth';
 import { Prisma } from '@prisma/client';
 
 export async function register(input: RegisterUserInput) {
@@ -23,6 +23,8 @@ export async function register(input: RegisterUserInput) {
         avatarId
     } = input;
 
+    if (avatar && typeof avatar !== "string") throw new Error("Invalid avatar format; must be a string URL.");
+    if (banner && typeof banner !== "string") throw new Error("Invalid banner format; must be a string URL.");
     if (!email) throw new Error("Email is required");
     if (source === 'credentials' && !password) throw new Error("Password is required for credentials");
     if (source !== 'credentials') {

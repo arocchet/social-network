@@ -4,7 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { siteConfig } from "../../config/site";
 import { geistMono, geistSans } from "../../config/font";
 import { Toaster } from "@/components/ui/sonner";
-import { UserProvider } from "./context/user-context";
+import { ThemeScript } from "@/components/theme-script";
 
 export const metadata: Metadata = {
   title: {
@@ -19,6 +19,7 @@ export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
+
 }>) {
   return (
     <html
@@ -26,11 +27,17 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable}`}
     >
-      <body suppressHydrationWarning className="antialiased bg-[var(--bgLevel1)]">
-        <ThemeProvider attribute="class" defaultTheme="light">
-          <UserProvider>
-            {children}
-          </UserProvider>
+      <head>
+        <ThemeScript />
+      </head>
+      <body suppressHydrationWarning className="antialiased bg-[var(--bgLevel1)] min-h-screen min-w-full">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
           <Toaster richColors closeButton />
         </ThemeProvider>
       </body>

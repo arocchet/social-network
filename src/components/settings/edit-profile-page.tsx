@@ -7,15 +7,16 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, Camera } from "lucide-react"
 import { useUserContext } from "@/app/context/user-context"
-import { UserInfoProfile } from "@/lib/types/types"
 import EditProfileSkeleton from "../skeletons/EditProfileSkeleton"
 import { updateUserClient } from "@/lib/client/user/updateClientUser"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { UserEditable, UserEditableSchema } from "@/lib/validations/user"
+import { UserEditable } from "@/lib/schemas/user/editable"
+import { UserSchemas } from "@/lib/schemas/user"
+import { useUserPrivate } from "@/hooks/use-user-private-data"
 
 function EditProfilePage() {
-  const { user } = useUserContext()
+  const { user } = useUserPrivate()
   const router = useRouter();
   const [formData, setFormData] = useState<UserEditable | null>(null)
 
@@ -36,7 +37,7 @@ function EditProfilePage() {
   }, [user])
 
 
-  const handleInputChange = (field: keyof UserInfoProfile, value: string) => {
+  const handleInputChange = (field: keyof UserEditable, value: string) => {
     if (!formData) return
     setFormData((prev) => prev && { ...prev, [field]: value })
   }
@@ -46,7 +47,7 @@ function EditProfilePage() {
   }
 
   const handleSubmit = async () => {
-    const result = UserEditableSchema.safeParse(formData);
+    const result = UserSchemas.Editable.safeParse(formData);
 
     if (!result.success) {
       const [_, firstMessage] = Object.entries(result.error.errors)[0];
@@ -57,18 +58,18 @@ function EditProfilePage() {
     const values = formData as Record<string, any>;
 
     const response = await updateUserClient(values);
-    if (response.error) {
-      if (response.fieldErrors) {
-        const [firstField, firstMessage] = Object.entries(response.fieldErrors)[0];
-        toast.error(`${firstField}: ${firstMessage}`);
-      } else {
-        toast.error(response.error);
-      }
-      return;
-    }
+    if (response.error && response.fieldErrors) {
+      const [firstField, firstMessage] = Object.entries(response.fieldErrors)[0];
+      toast.error(`${firstField}: ${firstMessage}`);
 
-    toast.success("Your information has been updated successfully.");
-  };
+    } else {
+      toast.error(response.error);
+    }
+    return;
+  }
+
+  toast.success("Your information has been updated successfully.");
+
 
   if (!formData) return <EditProfileSkeleton />
 

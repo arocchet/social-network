@@ -10,7 +10,7 @@ export async function updateUserClient(user: Record<string, any>) {
     }
 
     try {
-        const result = await fetcher<void>("/api/private/user", {
+        const result = await fetcher<void>("/api/private/me", {
             method: "PUT",
             body: formData,
         });

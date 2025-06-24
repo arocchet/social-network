@@ -76,7 +76,7 @@ export function ImageSwiper({ images, className, ...props }: ImageSwiperProps) {
         dragConstraints={{ left: 0, right: 0 }}
         dragMomentum={false}
         style={{ x: dragX }}
-        animate={{ translateX: `-${imgIndex * 100}%` }}
+        animate={{ translate: `-${imgIndex * 100}%` }}
         onDragEnd={onDragEnd}
         transition={{
           damping: 18,

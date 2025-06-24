@@ -11,8 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Plus, X, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { StorySchema } from "@/lib/validations/createStorySchemaZod";
-import { CreateStoryForm } from "@/lib/types/types";
 import { createStoryClient } from "@/lib/client/stories/createStory";
+import { CreateStoryForm } from "@/lib/types/post";
 
 type MediaFile = {
   file: File;

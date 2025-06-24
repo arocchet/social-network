@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
         return NextResponse.json({
             success: true,
-            user: allPosts
+            data: allPosts
         }, { status: 200 });
 
     } catch (error) {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PostSchema } from "@/lib/validations/createPostSchemaZod";
-import type { User } from "./user";
+import { StorySchema } from "../validations/createStorySchemaZod";
+import { UserPublic } from "../schemas/user/public";
 
 export interface Post {
     _count: {
@@ -13,10 +14,14 @@ export interface Post {
     id: string;
     image: string;
     message: string;
-    user: User;
+    user: UserPublic;
     userId: string;
     username: string;
     visibility: "PUBLIC" | "PRIVATE";
 }
 
 export type CreatePostForm = z.infer<typeof PostSchema>;
+export type CreateStoryForm = z.infer<typeof StorySchema>;
+// export type CreateStoryForm = z.infer<typeof StorySchema>;
+
+// TODO
