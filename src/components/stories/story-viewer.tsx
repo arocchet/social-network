@@ -82,6 +82,8 @@ export function StoryViewer({
     setDominantColor,
   });
 
+  console.log('stories: ', stories)
+
   useEffect(() => {
     if (!isValidUserIndex || !isValidStoryIndex) {
       onClose();
@@ -99,6 +101,8 @@ export function StoryViewer({
   const toggleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
 
+    const rect = event.currentTarget.getBoundingClientRect();
+
     const currentStory = stories
       .flatMap((group) => group.stories)
       .find((story) => story.id === currentStoryIndex + 1);
@@ -108,15 +112,13 @@ export function StoryViewer({
     try {
       const response = await storiesReaction({
         type: isLiked ? "DISLIKE" : "LIKE",
-        storyId: currentStoryContent?.storyId,
+        storyId: currentStory?.storyId,
       });
 
-      console.log("response: ", response);
       if (response && response.status === 200) {
         setIsLiked((prev) => !prev);
 
         if (!isLiked) {
-          const rect = event.currentTarget.getBoundingClientRect();
           const newHeart = {
             id: heartId,
             x: rect.left + rect.width / 2,
@@ -191,8 +193,8 @@ export function StoryViewer({
                     index < currentStoryIndex
                       ? "100%"
                       : index === currentStoryIndex
-                      ? `${progress}%`
-                      : "0%",
+                        ? `${progress}%`
+                        : "0%",
                 }}
               />
             </div>
@@ -227,9 +229,8 @@ export function StoryViewer({
               onClick={toggleLike}
             >
               <Heart
-                className={`w-5 h-5 ${
-                  isLiked ? "fill-red-500 text-red-500" : ""
-                }`}
+                className={`w-5 h-5 ${isLiked ? "fill-red-500 text-red-500" : ""
+                  }`}
               />
             </Button>
             {mediaType === "video" && (

@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StoryViewer } from "./story-viewer";
-import { UserStoriesGroup, useUserStories } from "@/hooks/use-user-stories";
 import CreateStory from "./createStory";
+import AppLoader from "../ui/app-loader";
+import { useUserStories } from "@/hooks/use-user-stories";
+import { UserStoriesGroup } from "@/lib/schemas/stories/group";
 // Interface pour adapter vos données aux composants existants
 interface AdaptedStory {
   id: number;
@@ -60,7 +62,6 @@ export function Stories() {
         storyId: story.id,
         image: story.media || "/placeholder.svg",
         timeAgo: getTimeAgo(story.datetime),
-        storyId: story.id
       })),
     }));
   };
@@ -74,8 +75,10 @@ export function Stories() {
       isOwn: true,
       stories: [],
     },
-    ...adaptStoryData(storiesGroups),
+    ...adaptStoryData(storiesGroups ?? [])
+
   ];
+
   const viewableStories = adaptedStories.filter((story) => !story.isOwn);
 
   // Vérifier que les indices sont valides avant de rendre le StoryViewer
@@ -174,29 +177,14 @@ export function Stories() {
     setViewingStory(null);
   };
 
-  if (loading) {
-    return (
-      <div className="flex gap-4 p-4 overflow-x-auto">
-        {/* Skeleton pour le chargement */}
-        {[...Array(5)].map((_, index) => (
-          <div
-            key={index}
-            className="flex flex-col items-center gap-1 min-w-fit"
-          >
-            <div className="w-14 h-14 bg-gray-200 rounded-full animate-pulse" />
-            <div className="w-12 h-3 bg-gray-200 rounded animate-pulse" />
-          </div>
-        ))}
-      </div>
-    );
-  }
+  if (loading) return <AppLoader />
 
   if (error) {
     return (
       <div className="p-4 text-center">
         <p className="text-red-500">Erreur: {error}</p>
         <button
-          onClick={refetch}
+          onClick={() => refetch()}
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Réessayer

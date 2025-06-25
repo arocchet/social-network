@@ -1,7 +1,7 @@
 // context/PostContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAllPosts } from "@/hooks/use-post-data";
-import { Post } from "@/lib/types/post";
+import { Post } from "@/lib/schemas/post/base";
 
 interface PostContextProps {
     allposts: Post[];

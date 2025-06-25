@@ -1,11 +1,17 @@
 'use client';
-import { swrFetcher } from '@/lib/api/swrFetcher';
-import { Post } from '@/lib/types/post';
-import useSWR from 'swr';
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/api/swrFetcher";
+import { PostSchema } from "@/lib/schemas/post/base";
+import { z } from "zod";
+
+const PostsArraySchema = z.array(PostSchema);
 
 export function useAllPosts() {
-    const { data, error, isLoading, mutate } = useSWR<Post[]>("/api/private/post/getAllPosts", swrFetcher);
-    console.log('data: ', data)
+    const { data, error, isLoading, mutate } = useSWR(
+        "/api/private/post/getAllPosts",
+        (url) => swrFetcher(url, PostsArraySchema)
+    );
+
     return {
         posts: data,
         loading: isLoading,

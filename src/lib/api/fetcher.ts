@@ -1,17 +1,14 @@
+import { APIResponse } from "../schemas/api";
+
 type FetchOptions = Omit<RequestInit, "body" | "headers"> & {
     body?: Record<string, any> | FormData;
     headers?: Record<string, string>;
     timeout?: number;
 }
 
-type FetchResponse<T> = {
-    data: T | null;
-    error: string | null;
-    fieldErrors?: Record<string, string>;
-    status: number;
-}
 
-export async function fetcher<T>(url: string, options: FetchOptions = {}): Promise<FetchResponse<T>> {
+
+export async function fetcher<T>(url: string, options: FetchOptions = {}): Promise<APIResponse<T>> {
     const { body, headers: customHeaders, timeout, ...restOptions } = options;
     const headers: Record<string, string> = { ...customHeaders };
     let bodyToSend: BodyInit | null = null;
@@ -42,32 +39,28 @@ export async function fetcher<T>(url: string, options: FetchOptions = {}): Promi
         const payload = isJson ? await res.json().catch(() => ({})) : null;
 
         if (!res.ok) {
+            // Retour uniforme pour une erreur dans l'enveloppe APIResponse
             return {
+                success: false,
                 data: null,
-                error: payload?.message || `Request failed with status ${res.status}`,
-                fieldErrors: payload?.fieldErrors || null,
-                status: res.status,
+                message: payload?.message || `Request failed with status ${res.status}`,
             };
         }
 
-        return {
-            data: payload.data as T,
-            error: null,
-            status: res.status,
-        };
+        return payload as APIResponse<T>;
     } catch (err) {
         if (timeoutId) clearTimeout(timeoutId);
         if (err instanceof DOMException && err.name === "AbortError") {
             return {
+                success: false,
                 data: null,
-                error: "Request timed out",
-                status: 0,
+                message: "Request timed out",
             };
         }
         return {
+            success: false,
             data: null,
-            error: err instanceof Error ? err.message : "Unknown error",
-            status: 0,
+            message: err instanceof Error ? err.message : "Unknown error",
         };
     }
 }

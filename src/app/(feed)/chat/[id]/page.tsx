@@ -8,15 +8,11 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ArrowLeft,
-  Phone,
-  Video,
   Info,
   Camera,
   ImageIcon,
-  Heart,
   Send,
 } from "lucide-react";
-import { useParams } from "next/navigation";
 import { ModeToggle } from "@/components/toggle-theme";
 import {
   EmojiPicker,
@@ -85,7 +81,7 @@ const chatData = {
   },
 };
 
-export default function ChatPage({}: ChatPageProps) {
+export default function ChatPage({ }: ChatPageProps) {
   const [message, setMessage] = useState("");
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
 
@@ -238,11 +234,10 @@ export default function ChatPage({}: ChatPageProps) {
           <Button
             onClick={handleSendMessage}
             disabled={!message.trim()}
-            className={`${
-              message.trim()
+            className={`${message.trim()
                 ? "bg-[var(--blue)] hover:bg-blue-700 text-[var(--white10)]"
                 : "bg-[var(--bgLevel2)] text-[var(--textNeutral)]"
-            }`}
+              }`}
           >
             <Send className="w-4 h-4" />
           </Button>
@@ -266,9 +261,8 @@ interface MessageBubbleProps {
 function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
   return (
     <div
-      className={`flex gap-2 ${
-        message.isFromMe ? "justify-end" : "justify-start"
-      }`}
+      className={`flex gap-2 ${message.isFromMe ? "justify-end" : "justify-start"
+        }`}
     >
       {!message.isFromMe && (
         <Avatar className="w-8 h-8 border-1 border-[var(--detailMinimal)]">
@@ -278,11 +272,10 @@ function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
       )}
       <div className={`max-w-xs lg:max-w-md`}>
         <div
-          className={`relative inline-block px-4 py-2 rounded-2xl ${
-            message.isFromMe
+          className={`relative inline-block px-4 py-2 rounded-2xl ${message.isFromMe
               ? "bg-[var(--pink20)] text-[var(--white10)] rounded-br-md"
               : "bg-[var(--white)] text-[var(--grey80)] rounded-bl-md"
-          }`}
+            }`}
           style={{ maxWidth: "70vw", wordBreak: "break-word" }}
         >
           <p className="text-sm">{message.text}</p>
@@ -291,11 +284,10 @@ function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
           <span
             className={`
     absolute
-    ${
-      message.isFromMe
-        ? "rotate-65 -right-1 bottom"
-        : "-rotate-65 -left-1 bottom"
-    }
+    ${message.isFromMe
+                ? "rotate-65 -right-1 bottom"
+                : "-rotate-65 -left-1 bottom"
+              }
     w-0 h-0
     border-l-11 border-l-transparent
     border-r-11 border-r-transparent
@@ -306,9 +298,8 @@ function MessageBubble({ message, userAvatar }: MessageBubbleProps) {
           ></span>
         </div>
         <div
-          className={`text-xs text-gray-500 mt-2 ${
-            message.isFromMe ? "text-right" : "text-left"
-          }`}
+          className={`text-xs text-gray-500 mt-2 ${message.isFromMe ? "text-right" : "text-left"
+            }`}
         >
           {message.timestamp}
           {message.isFromMe && (

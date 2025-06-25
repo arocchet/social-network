@@ -282,7 +282,7 @@ export default function ProfilePage({ postId }: ProfilePageProps) {
 
         <div className="flex-1 flex flex-col overflow-auto">
           {/* Header */}
-          <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-50">
+          <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-30">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"

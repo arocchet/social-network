@@ -1,9 +1,13 @@
-import { swrFetcher } from "@/lib/api/swrFetcher";
-import { UserPublic } from "@/lib/schemas/user/public";
 import useSWR from "swr";
+import { swrFetcher } from "@/lib/api/swrFetcher";
+import { UserPublicSchema } from "@/lib/schemas/user/public";
+
 
 export function useUser() {
-    const { data, error, isLoading, mutate } = useSWR<UserPublic>("/api/private/user", swrFetcher);
+    const { data, error, isLoading, mutate } = useSWR(
+        "/api/private/user",
+        (url) => swrFetcher(url, UserPublicSchema)
+    );
 
     return {
         user: data,

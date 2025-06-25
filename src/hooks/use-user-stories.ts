@@ -1,110 +1,81 @@
-// hooks/useUserStories.ts
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { swrFetcher } from '@/lib/api/swrFetcher';
+import { StorySchemas } from '@/lib/schemas/stories';
+import { UserStoriesGroup, UserStoriesGroupSchema } from '@/lib/schemas/stories/group';
+import useSWR from 'swr';
+import { z } from 'zod';
 
-export interface StoryWithDetails {
-    id: string;
-    media: string;
-    datetime: string;
-    visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
-    user: {
-        id: string;
-        username: string;
-        firstName: string;
-        lastName: string;
-        avatar: string;
-    };
-    reactions: Array<{
-        id: string;
-        type: 'LIKE' | 'DISLIKE' | 'LOVE' | 'LAUGH' | 'SAD' | 'ANGRY';
-        user: {
-            id: string;
-            username: string;
-        };
-    }>;
-}
+// export interface StoryWithDetails {
+//     id: string;
+//     media: string;
+//     datetime: string;
+//     visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
+//     user: {
+//         id: string;
+//         username: string;
+//         firstName: string;
+//         lastName: string;
+//         avatar: string;
+//     };
+//     reactions: Array<{
+//         id: string;
+//         type: 'LIKE' | 'DISLIKE' | 'LOVE' | 'LAUGH' | 'SAD' | 'ANGRY';
+//         user: {
+//             id: string;
+//             username: string;
+//         };
+//     }>;
+// }
 
-export interface UserStoriesGroup {
-    user: {
-        id: string;
-        username: string;
-        firstName: string;
-        lastName: string;
-        avatar: string;
-    };
-    stories: StoryWithDetails[];
-    hasUnviewed: boolean;
-}
+// export interface UserStoriesGroup {
+//     user: {
+//         id: string;
+//         username: string;
+//         firstName: string;
+//         lastName: string;
+//         avatar: string;
+//     };
+//     stories: StoryWithDetails[];
+//     hasUnviewed: boolean;
+// }
 
 interface UseUserStoriesParams {
-    userId?: string; // Si non fourni, récupère toutes les stories visibles
+    userId?: string;
     publicOnly?: boolean;
-    includeExpired?: boolean; // Stories de plus de 24h
+    includeExpired?: boolean;
 }
 
-interface UseUserStoriesReturn {
-    storiesGroups: UserStoriesGroup[];
-    loading: boolean;
-    error: string | null;
-    refetch: () => void;
-}
+// interface UseUserStoriesReturn {
+//     storiesGroups: UserStoriesGroup[];
+//     loading: boolean;
+//     error: string | null;
+//     refetch: () => void;
+// }
+
+
+const StoriesArraySchema = z.array(UserStoriesGroupSchema);
+
 
 export function useUserStories({
     userId,
     publicOnly = false,
     includeExpired = false
-}: UseUserStoriesParams = {}): UseUserStoriesReturn {
-    const [storiesGroups, setStoriesGroups] = useState<UserStoriesGroup[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+}: UseUserStoriesParams = {}) {
+    const params = new URLSearchParams();
+    if (publicOnly) params.append('publicOnly', 'true');
+    if (includeExpired) params.append('includeExpired', 'true');
+    if (userId) params.append('userId', userId);
 
-    const fetchStories = useCallback(async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const params = new URLSearchParams({
-                publicOnly: publicOnly.toString(),
-                includeExpired: includeExpired.toString(),
-            });
-
-            if (userId) {
-                params.append('userId', userId);
-            }
-
-            const response = await fetch(`/api/private/stories?${params}`, {
-                method: 'GET',
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch stories');
-            }
-
-            const data = await response.json();
-
-            setStoriesGroups(data.storiesGroups || []);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-        } finally {
-            setLoading(false);
-        }
-    }, [userId, publicOnly, includeExpired]);
-
-    const refetch = useCallback(() => {
-        fetchStories();
-    }, [fetchStories]);
-
-    useEffect(() => {
-        fetchStories();
-    }, [fetchStories]);
+    const { data, error, isLoading, mutate } = useSWR(
+        `/api/private/stories?${params.toString()}`,
+        (url) => swrFetcher(url, StoriesArraySchema)
+    );
 
     return {
-        storiesGroups,
-        loading,
+        storiesGroups: data,
+        loading: isLoading,
         error,
-        refetch,
+        refetch: mutate,
     };
 }
