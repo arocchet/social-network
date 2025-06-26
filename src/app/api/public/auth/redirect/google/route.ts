@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import crypto from 'crypto'
-import { GOOGLE_SCOPES, oauth2Client } from '@/lib/auth/server/oauth/google/client';
+import { GOOGLE_SCOPES, oauth2Client } from '@/lib/server/oauth/google/client';
 
 export async function GET() {
     const cookieStore = await cookies();

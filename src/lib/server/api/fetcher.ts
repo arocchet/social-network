@@ -1,4 +1,4 @@
-import { APIResponse } from "../schemas/api";
+import { APIResponse } from "../../schemas/api";
 
 type FetchOptions = Omit<RequestInit, "body" | "headers"> & {
     body?: Record<string, any> | FormData;
@@ -39,7 +39,6 @@ export async function fetcher<T>(url: string, options: FetchOptions = {}): Promi
         const payload = isJson ? await res.json().catch(() => ({})) : null;
 
         if (!res.ok) {
-            // Retour uniforme pour une erreur dans l'enveloppe APIResponse
             return {
                 success: false,
                 data: null,

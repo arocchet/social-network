@@ -2,22 +2,19 @@ import { UseUserStoriesParamsSchema } from "./params";
 import { UserStoriesGroupSchema } from "./group";
 import { ReactionSchema } from "./reaction";
 import { StoryWithDetailsSchema } from "./story";
+import { CreateStorySchema } from "./create";
 
-import type { UseUserStoriesParams } from "./params";
-import type { UserStoriesGroup } from "./group";
-import type { StoryReaction } from "./reaction";
-import type { StoryWithDetails } from "./story";
+export * from "./create"
+export * from "./group"
+export * from "./reaction"
+export * from "./story"
+export * from "./params"
+
 
 export const StorySchemas = {
     StoryWithDetails: StoryWithDetailsSchema,
     UserStoriesGroup: UserStoriesGroupSchema,
     Reaction: ReactionSchema,
     Params: UseUserStoriesParamsSchema,
-};
-
-export type StorySchemas = {
-    StoryWithDetails: StoryWithDetails;
-    UserStoriesGroup: UserStoriesGroup;
-    Reaction: StoryReaction;
-    Params: UseUserStoriesParams;
+    Create: CreateStorySchema
 };

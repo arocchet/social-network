@@ -1,6 +1,6 @@
 'use client';
 
-import { swrFetcher } from '@/lib/api/swrFetcher';
+import { swrFetcher } from '@/lib/server/api/swrFetcher';
 import { StorySchemas } from '@/lib/schemas/stories';
 import { UserStoriesGroup, UserStoriesGroupSchema } from '@/lib/schemas/stories/group';
 import useSWR from 'swr';

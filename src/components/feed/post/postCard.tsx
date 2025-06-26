@@ -9,7 +9,7 @@ import { Heart, Send, Bookmark, Play, Video } from "lucide-react";
 import { PostDetails } from "./postDetails";
 import Link from "next/link";
 import { usePostContext } from "@/app/context/post-context";
-import { Post } from "@/lib/types/post";
+import { Post } from "@/lib/schemas/post/post";
 
 const PostCard = () => {
   const { allposts, loading } = usePostContext();
@@ -52,7 +52,7 @@ const PostCard = () => {
       }
     };
 
-    if (mediaType === 'video') {
+    if (mediaType === 'video' && post.image) {
       return (
         <div className="relative aspect-square border-b border-[var(--detailMinimal)]">
           <video
@@ -101,7 +101,7 @@ const PostCard = () => {
       <div className="relative min-h-[200px] border-b border-[var(--detailMinimal)] bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-900">
         <div className="flex items-center justify-center h-full p-6">
           <p className="text-center text-lg font-medium text-[var(--textNeutral)] leading-relaxed">
-            {post.content || "Post sans contenu"}
+            {post.message || "Post sans contenu"}
           </p>
         </div>
       </div>
@@ -126,17 +126,17 @@ const PostCard = () => {
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10">
                   <AvatarImage
-                    src={post.user?.avatar || post.avatar}
-                    alt={post.user?.username || post.username}
+                    src={post.user?.avatar || post.user.avatar}
+                    alt={post.user?.username || post.user.username}
                     className="object-cover"
                   />
                   <AvatarFallback className="bg-[var(--greyFill)] text-[var(--textNeutral)]">
-                    {(post.user?.username || post.username || 'U')[0].toUpperCase()}
+                    {(post.user?.username || post.user.username || 'U')[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
                   <span className="font-semibold text-sm text-[var(--textNeutral)]">
-                    {post.user?.username || post.username || 'Utilisateur'}
+                    {post.user?.username || post.user.username || 'Utilisateur'}
                   </span>
                   {post.user?.firstName && post.user?.lastName && (
                     <span className="text-xs text-[var(--textMinimal)]">
@@ -178,7 +178,7 @@ const PostCard = () => {
             {post.image && (
               <div className="text-sm text-[var(--textNeutral)] mb-2">
                 <span className="font-semibold mr-2">
-                  {post.user?.username || post.username}
+                  {post.user?.username || post.user.username}
                 </span>
                 {post.message || "Une belle publication partagée !"}
               </div>

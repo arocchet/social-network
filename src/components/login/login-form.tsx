@@ -14,12 +14,11 @@ import { Label } from "@/components/ui/label";
 import { siteConfig } from "../../../config/site";
 import Link from "next/link";
 import { useState } from "react";
-import { Credentials_Schema_Login } from "@/lib/validations/authSchemaZod";
-import { login } from "@/lib/auth/client/login";
+import { login } from "@/lib/client/user/login";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { OAuthLoginButton } from "../auth/OAuthLoginButton";
-import { CredentialsLogin } from "@/lib/validations/auth";
+import { CredentialsLogin, UserSchemas } from "@/lib/schemas/user";
 
 type LoginFormErrors = Partial<CredentialsLogin> & {
   general?: string;
@@ -39,7 +38,7 @@ export default function LoginForm({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    const result = Credentials_Schema_Login.safeParse(credentials);
+    const result = UserSchemas.Auth.CredentialsLogin.safeParse(credentials);
 
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;

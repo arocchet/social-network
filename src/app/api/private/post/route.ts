@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseCreatePost } from "@/lib/validations/parseFormData/postValidation";
 import { createPostServer } from "@/lib/server/post/createPost";
-import { PostSchema } from "@/lib/validations/createPostSchemaZod";
 import { getPostsByUserIdServer } from "@/lib/server/post/getPost";
+import { PostSchemas } from "@/lib/schemas/post";
+import { parseCreatePost } from "@/lib/parsers/formParsers";
 
 export async function POST(req: NextRequest) {
     try {
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         const formData = await req.formData();
         const post = parseCreatePost(formData);
 
-        const parsed = PostSchema.safeParse(post);
+        const parsed = PostSchemas.create.safeParse(post);
 
         if (!parsed.success) {
             const errors = parsed.error.flatten().fieldErrors;

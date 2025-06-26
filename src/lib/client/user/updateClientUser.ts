@@ -1,4 +1,4 @@
-import { fetcher } from "@/lib/api/fetcher";
+import { fetcher } from "@/lib/server/api/fetcher";
 
 export async function updateUserClient(user: Record<string, any>) {
     const formData = new FormData();

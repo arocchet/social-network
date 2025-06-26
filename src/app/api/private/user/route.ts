@@ -1,5 +1,4 @@
-import { UserSchemas } from "@/lib/schemas/user";
-import { UserPublic } from "@/lib/schemas/user/public";
+import { UserPublic, UserSchemas } from "@/lib/schemas/user";
 import { getUserByIdServer } from "@/lib/server/user/getUser";
 import { NextRequest, NextResponse } from "next/server";
 

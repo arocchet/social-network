@@ -1,6 +1,6 @@
-import { register } from "@/lib/db/queries/registerUser"
+import { register } from "@/lib/db/queries/user/registerUser"
 import { signJwt } from "@/lib/jwt/signJwt"
-import { mapRegisterFormToInput } from "@/lib/mappers/authMapper"
+import { mapRegisterFormToInput } from "@/lib/parsers/formParsers"
 import { handleUploads } from "@/lib/uploads/imageUploads"
 import { NextRequest, NextResponse } from "next/server"
 

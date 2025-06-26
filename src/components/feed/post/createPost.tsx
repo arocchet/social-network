@@ -23,14 +23,14 @@ import {
 } from "@/components/reaction/emojiPicker";
 
 import { toast } from "sonner"
-import { PostSchema } from "@/lib/validations/createPostSchemaZod";
 import { createPostClient } from "@/lib/client/post/createPost";
-import { CreatePostForm } from "@/lib/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePostContext } from "@/app/context/post-context";
 import { useUserContext } from "@/app/context/user-context";
 import AppLoader from "@/components/ui/app-loader";
 import { GifPopover } from "@/app/utils/giphy";
+import { CreatePost as CreatePostType } from "@/lib/schemas/post/";
+import { PostSchemas } from "@/lib/schemas/post";
 
 
 type MediaFile = {
@@ -122,7 +122,7 @@ const CreatePost: React.FC = () => {
   };
 
   async function handlePostSubmit() {
-    let media: CreatePostForm["media"] | undefined = undefined;
+    let media: CreatePostType['media'] | undefined = undefined;
     if (mediaFiles.length > 0) {
       media = mediaFiles[0].file;
     }
@@ -134,7 +134,7 @@ const CreatePost: React.FC = () => {
 
     console.log('type', media instanceof File);
 
-    const result = PostSchema.safeParse(data);
+    const result = PostSchemas.create.safeParse(data);
 
 
     if (!result.success) {

@@ -1,6 +1,6 @@
 import { db } from "@/lib/db"
 import { UserSchemas } from "@/lib/schemas/user";
-import { ValidationError } from "@/lib/validations/validationError";
+import { ValidationError } from "@/lib/utils/";
 
 export async function updateUserServer(userId: string, data: unknown) {
     const parsed = UserSchemas.Update.safeParse(data)

@@ -11,10 +11,10 @@ import {
   EmojiPickerSearch,
 } from "../reaction/emojiPicker";
 import { GifPopover } from "@/app/utils/giphy";
-import { CommentSchema } from "@/lib/validations/createCommentSchemaZod";
 import { toast } from "sonner";
 import { createCommentClient } from "@/lib/client/comment/createComment";
 import { useUser } from "@/hooks/use-user-data";
+import { PostSchemas } from "@/lib/schemas/post";
 
 interface InputCommentProps {
   postId: string;
@@ -50,7 +50,7 @@ const InputComment = ({ postId, onCommentAdded }: InputCommentProps) => {
       content: commentContent.trim(),
     };
 
-    const result = CommentSchema.safeParse(data);
+    const result = PostSchemas.create.safeParse(data);
 
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;

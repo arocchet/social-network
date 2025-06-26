@@ -7,6 +7,7 @@ export type APIResponse<T> = {
     success: boolean;
     data: T | null;
     message?: string;
+    fieldErrors?: Record<string, string>;
 };
 
 /**
@@ -18,6 +19,7 @@ export const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
         success: z.boolean(),
         data: schema,
         message: z.string().optional(),
+        fieldErrors: z.record(z.string()).optional(),
     });
 
 /**
@@ -27,4 +29,5 @@ export const apiErrorResponseSchema = z.object({
     success: z.literal(false),
     data: z.null(),
     message: z.string(),
+    fieldErrors: z.record(z.string()).optional(),
 });

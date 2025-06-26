@@ -14,7 +14,7 @@ export const ACCEPTED_FILE_TYPES = [
     "video/quicktime",
 ];
 
-export const CommentSchema = z.object({
+export const CreatePostSchema = z.object({
     content: z.string().min(1, "Content is required"),
     media: z
         .instanceof(File)
@@ -27,3 +27,5 @@ export const CommentSchema = z.object({
                 "Unsupported file format. Allowed: GIF, AVIF, JPEG, PNG, WEBP, MP4, WEBM, OGG, MOV.",
         }),
 });
+
+export type CreatePost = z.infer<typeof CreatePostSchema>

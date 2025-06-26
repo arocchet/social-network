@@ -1,16 +1,17 @@
-import { findUserByEmail } from '@/lib/db/queries/findUserByEmail';
-import { findGoogleAccount } from '@/lib/db/queries/findGoogleAccount';
+import { findUserByEmail } from '@/lib/db/queries/user/findUserByEmail';
+import { findGoogleAccount } from '@/lib/db/queries/user/findGoogleAccount';
 import { signJwt } from '@/lib/jwt/signJwt';
 import { registerGoogleOAuthUser } from './registerGoogleUser';
-import { GoogleOAuth, GoogleToken } from '@/lib/validations/auth';
 import { JWT_EXPIRATION } from '@/config/auth';
+import { fetchGoogleUserInfo } from './fetchGoogleUserInfo';
+import { getGoogleTokens } from './getTokens';
 
 
 type ResolveGoogleParams = {
-    userInfo: GoogleOAuth;
-    tokens: GoogleToken;
+    userInfo: Awaited<ReturnType<typeof fetchGoogleUserInfo>>;
+    tokens: Awaited<ReturnType<typeof getGoogleTokens>>;
     origin: string;
-}
+};
 
 export async function resolveGoogleFlow({ userInfo, tokens, origin }: ResolveGoogleParams) {
     const email = userInfo.email;

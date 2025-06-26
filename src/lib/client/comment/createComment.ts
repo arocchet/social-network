@@ -1,7 +1,6 @@
-// lib/client/comment/createComment.ts
-import { CreateCommentForm } from "@/lib/types/types";
+import { CreatePost } from "@/lib/schemas/post/create";
 
-export async function createCommentClient(postId: string, comment: CreateCommentForm) {
+export async function createCommentClient(postId: string, comment: CreatePost) {
     try {
         const formData = new FormData();
         formData.append('content', comment.content);

@@ -1,10 +1,13 @@
 import { db } from '@/lib/db';
+import { UserSchemas } from '@/lib/schemas/user';
+import { RegisterUserInput } from '@/lib/schemas/user/auth';
+import { UserPublic } from '@/lib/schemas/user/public';
 import { hashPassword } from '@/lib/security/hash';
-import { generateUsername } from '@/lib/utils';
-import { RegisterUserInput } from '@/lib/validations/auth';
+import { generateUsername } from '@/lib/utils/';
+import { parseOrThrow } from '@/lib/utils/';
 import { Prisma } from '@prisma/client';
 
-export async function register(input: RegisterUserInput) {
+export async function register(input: RegisterUserInput): Promise<UserPublic> {
     const {
         email,
         username,
@@ -59,7 +62,21 @@ export async function register(input: RegisterUserInput) {
             avatar,
             avatarId,
             banner,
-            bannerId
+            bannerId,
+
+        },
+        select: {
+            id: true,
+            username: true,
+            firstName: true,
+            lastName: true,
+            birthDate: true,
+            biography: true,
+            avatar: true,
+            avatarId: true,
+            banner: true,
+            bannerId: true,
+            visibility: true,
         }
     });
 
@@ -79,8 +96,12 @@ export async function register(input: RegisterUserInput) {
         });
     }
 
-    return {
+    const userWithVisibility: UserPublic = {
         ...newUser,
-        providerAccountId,
-    }
+        username: newUser.username ?? undefined,
+        birthDate: newUser.birthDate?.toISOString(),
+    };
+
+    return parseOrThrow(UserSchemas.Public, userWithVisibility);
+
 }

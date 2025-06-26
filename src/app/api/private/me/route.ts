@@ -1,11 +1,10 @@
 import { uploadIfFile } from "@/lib/cloudinary/uploadFile";
-import { UserSchemas } from "@/lib/schemas/user";
-import { UserPrivate } from "@/lib/schemas/user/private";
+import { UserPrivate, UserSchemas } from "@/lib/schemas/user";
 import { getUserByIdServer } from "@/lib/server/user/getUser";
 import { updateUserServer } from "@/lib/server/user/updateServerUser";
-import { ValidationError } from "@/lib/validations/validationError";
-// import { UserInfoSchema } from "@/lib/validations/userValidation";
 import { NextRequest, NextResponse } from "next/server";
+import { respondSuccess, respondError } from "@/lib/server/api/response";
+import { ValidationError } from "@/lib/utils/";
 
 
 export async function GET(req: NextRequest) {
@@ -14,50 +13,32 @@ export async function GET(req: NextRequest) {
 
 
         if (!userId) {
-            return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+            return NextResponse.json(respondError("Invalid user ID"), { status: 401 });
         }
 
-        // Récupérer les données utilisateur depuis la base de données
         const userData = await getUserByIdServer<UserPrivate>(userId, UserSchemas.Private);
 
-
         if (!userData) {
-            return NextResponse.json({ message: "User not found." }, { status: 404 });
+            return NextResponse.json(respondError("User not found."), { status: 404 });
         }
 
-        // Valider les données avec Zod (optionnel)
-        // const validatedUserData = UserInfoSchema.safeParse(userData);
-
-        // if (!validatedUserData.success) {
-        //     const errors = validatedUserData.error.flatten().fieldErrors;
-        //     return NextResponse.json(
-        //         { message: "Data validation failed", errors },
-        //         { status: 500 }
-        //     );
-        // }
-
-        // Retourner les données utilisateur (sans informations sensibles)
-        // const { ...safeUserData } = validatedUserData.data;
+        return NextResponse.json(respondSuccess(userData));
 
 
-        return NextResponse.json({
-            success: true,
-            data: userData
-        }, { status: 200 });
+    } catch (err) {
+        console.error("Failed to fetch user info:", err);
 
-    } catch (error) {
-        console.error("Failed to fetch user info:", error);
-
-        const message =
-            error instanceof Error ? error.message : "Unknown server error.";
-
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json(
+            respondError(err instanceof Error ? err.message : "Unexpected error"),
+            { status: 500 }
+        );
     }
 }
+
 export async function PUT(req: NextRequest) {
     const userId = req.headers.get("x-user-id");
     if (!userId) {
-        return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+        return NextResponse.json(respondError("Invalid user ID"), { status: 401 });
     }
 
     const formData = await req.formData();
@@ -84,23 +65,17 @@ export async function PUT(req: NextRequest) {
 
         await updateUserServer(userId, data);
 
-        return NextResponse.json({ status: 200 });
-
+        return NextResponse.json(respondSuccess(null, "User updated successfully"));
     } catch (err) {
         if (err instanceof ValidationError) {
             return NextResponse.json(
-                {
-                    message: "Validation error",
-                    fieldErrors: err.fieldErrors,
-                },
+                respondError("Validation error", err.fieldErrors),
                 { status: 400 }
             );
         }
 
         return NextResponse.json(
-            {
-                message: err instanceof Error ? err.message : "Unexpected error",
-            },
+            respondError(err instanceof Error ? err.message : "Unexpected error"),
             { status: 500 }
         );
     }

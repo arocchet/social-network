@@ -1,4 +1,4 @@
-import { swrFetcher } from "@/lib/api/swrFetcher";
+import { swrFetcher } from "@/lib/server/api/swrFetcher";
 import { UserPrivateSchema } from "@/lib/schemas/user/private";
 import useSWR from "swr";
 

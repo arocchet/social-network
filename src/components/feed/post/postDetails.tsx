@@ -13,8 +13,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { MessageCircle, Loader2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import InputComment from "../../comments/InputComment";
-import { Post } from "@/lib/types/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Post } from "@/lib/schemas/post/post";
 
 interface PostDetailsProps {
   postId: string;

@@ -1,8 +1,8 @@
 import { createCommentInDb } from "@/lib/db/queries/comment/createCommentInDb";
-import { CreateCommentForm } from "@/lib/types/types";
+import { CreatePost } from "@/lib/schemas/post/create";
 import { handleImagePostUploads, handleVideoPostUploads } from "@/lib/uploads/postUploads";
 
-export async function createCommentServer(postId: string, comment: CreateCommentForm, userId: string) {
+export async function createCommentServer(postId: string, comment: CreatePost, userId: string) {
     try {
         const { content, media } = comment;
         let commentMediaUrl: string | undefined;

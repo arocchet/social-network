@@ -1,6 +1,6 @@
-import { CreateStoryForm } from "@/lib/types/types";
+import { CreateStory } from "@/lib/schemas/stories/create";
 
-export async function createStoryClient(story: CreateStoryForm) {
+export async function createStoryClient(story: CreateStory) {
     const formData = new FormData();
 
     if (story.media) {

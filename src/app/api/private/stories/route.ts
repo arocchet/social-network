@@ -1,9 +1,8 @@
-// app/api/private/stories/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllStoriesGrouped, getStoriesByUserId } from '@/lib/server/stories/getStories';
-import { parseCreateStory } from '@/lib/validations/parseFormData/storyValidation';
-import { StorySchema } from '@/lib/validations/createStorySchemaZod';
 import { createStoriesServer } from '@/lib/server/stories/createStories';
+import { StorySchemas } from '@/lib/schemas/stories';
+import { parseCreateStory } from '@/lib/parsers/formParsers';
 
 export async function GET(req: NextRequest) {
     try {
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
         const formData = await req.formData();
         const story = parseCreateStory(formData);
 
-        const parsed = StorySchema.safeParse(story);
+        const parsed = StorySchemas.Create.safeParse(story);
 
         if (!parsed.success) {
             const errors = parsed.error.flatten().fieldErrors;

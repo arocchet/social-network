@@ -1,12 +1,13 @@
-import { register } from "@/lib/db/queries/registerUser";
-import { GoogleOAuth, GoogleToken, RegistrationSource, UserInfo } from "@/lib/types/types";
+import { register } from "@/lib/db/queries/user/registerUser";
+import { GoogleOAuth, GoogleToken } from "@/lib/schemas/oauth/";
+import { SourceEnum } from "@/lib/schemas/user/auth";
 import { encryptValue } from "@/lib/security/encryptToken";
 
 type Params = {
     userInfo: GoogleOAuth;
     tokens: GoogleToken;
     origin: string;
-    source: RegistrationSource;
+    source: SourceEnum;
 }
 
 export async function registerGoogleOAuthUser({ userInfo, tokens, source }: Params) {
@@ -22,7 +23,7 @@ export async function registerGoogleOAuthUser({ userInfo, tokens, source }: Para
         ? await encryptValue(tokens.refresh_token)
         : null;
 
-    const user: UserInfo = await register({
+    const user = await register({
         email: userInfo.email,
         lastName: userInfo.family_name ?? undefined,
         avatar: userInfo.picture ?? undefined,
@@ -30,12 +31,12 @@ export async function registerGoogleOAuthUser({ userInfo, tokens, source }: Para
         providerAccountId: userInfo.googleId,
         firstName: userInfo.given_name ?? undefined,
         tokens: {
-            access_token: encryptedAccessToken,
-            refresh_token: encryptedRefreshToken,
+            access_token: encryptedAccessToken ?? undefined,
+            refresh_token: encryptedRefreshToken ?? undefined,
             scope: tokens.scope,
-            id_token: tokens.id_token,
-            expiry_date: tokens.expiry_date,
-            token_type: tokens.token_type,
+            id_token: tokens.id_token ?? undefined,
+            expiry_date: tokens.expiry_date ?? undefined,
+            token_type: tokens.token_type ?? undefined,
         },
     });
 

@@ -1,8 +1,7 @@
-// app/api/private/post/[id]/comments/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { parseCreateComment } from "@/lib/validations/parseFormData/commentValidation";
-import { CommentSchema } from "@/lib/validations/createCommentSchemaZod";
 import { createCommentServer } from "@/lib/server/comment/createComment";
+import { PostSchemas } from "@/lib/schemas/post";
+import { parseCreateComment } from "@/lib/parsers/formParsers";
 
 export async function POST(
     req: NextRequest,
@@ -26,7 +25,7 @@ export async function POST(
         const formData = await req.formData();
         const comment = parseCreateComment(formData);
 
-        const parsed = CommentSchema.safeParse(comment);
+        const parsed = PostSchemas.create.safeParse(comment);
 
         if (!parsed.success) {
             const errors = parsed.error.flatten().fieldErrors;

@@ -40,3 +40,6 @@ commit-msg.txt
 
 # script
 /scripts
+
+#Vscode
+.vscode

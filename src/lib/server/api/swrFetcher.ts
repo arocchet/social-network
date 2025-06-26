@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { fetcher as customFetcher } from "./fetcher";
-import { apiResponseSchema } from "../schemas/api";
+import { apiResponseSchema } from "../../schemas/api";
 
 export async function swrFetcher<T>(url: string, schema: z.ZodType<T>) {
     const res = await customFetcher(url);

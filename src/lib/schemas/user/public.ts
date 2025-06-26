@@ -7,8 +7,6 @@ import { UserSchema } from "./base";
 export const UserPublicSchema = UserSchema.omit({
     email: true,
     password: true,
-    createdAt: true,
-    updatedAt: true,
 });
 
 export type UserPublic = z.infer<typeof UserPublicSchema>;

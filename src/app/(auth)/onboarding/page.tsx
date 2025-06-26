@@ -1,11 +1,10 @@
 import { getFormSteps } from "@/app/utils/formStep";
-import { UserSchemas } from "@/lib/schemas/user";
+import { UserSchemas, UserEditable } from "@/lib/schemas/user";
 import { getUserByIdServer } from "@/lib/server/user/getUser";
 
 import dynamic from "next/dynamic";
 import { headers } from "next/headers";
 
-import type { UserEditable } from "@/lib/schemas/user/editable";
 import AppLoader from "@/components/ui/app-loader";
 
 

@@ -1,6 +1,6 @@
-import { CreatePostForm } from "@/lib/types/types";
+import { CreatePost } from "@/lib/schemas/post/create";
 
-export async function createPostClient(post: CreatePostForm) {
+export async function createPostClient(post: CreatePost) {
     const formData = new FormData();
     formData.append("content", post.content);
 

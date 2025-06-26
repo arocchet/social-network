@@ -1,7 +1,8 @@
-import { FormStep, UserInfoProfile } from "@/lib/types/types";
+import { FormStep, UserEditable } from "@/lib/schemas/user";
 
-export function getFormSteps(user: UserInfoProfile): FormStep[] {
-    const allSteps = [
+
+export function getFormSteps(user: UserEditable): FormStep[] {
+    const allSteps: FormStep[] = [
         {
             id: "email",
             question: "You are signed as",
@@ -53,5 +54,5 @@ export function getFormSteps(user: UserInfoProfile): FormStep[] {
         },
     ];
 
-    return allSteps.filter(step => step.visible !== false) as FormStep[];
+    return allSteps.filter(step => step.visible !== false);
 }

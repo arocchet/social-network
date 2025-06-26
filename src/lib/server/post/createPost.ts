@@ -1,8 +1,8 @@
 import { createPostInDb } from "@/lib/db/queries/post/createPostInDb";
-import { CreatePostForm } from "@/lib/types/types";
+import { CreatePost } from "@/lib/schemas/post/create";
 import { handleImagePostUploads, handleVideoPostUploads } from "@/lib/uploads/postUploads";
 
-export async function createPostServer(post: CreatePostForm, userId: string) {
+export async function createPostServer(post: CreatePost, userId: string) {
     try {
         const { content, media } = post;
         let postMediaUrl: string | undefined;

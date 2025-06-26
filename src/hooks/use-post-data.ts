@@ -1,7 +1,7 @@
 'use client';
 import useSWR from "swr";
-import { swrFetcher } from "@/lib/api/swrFetcher";
-import { PostSchema } from "@/lib/schemas/post/base";
+import { swrFetcher } from "@/lib/server/api/swrFetcher";
+import { PostSchema } from "@/lib/schemas/post/post";
 import { z } from "zod";
 
 const PostsArraySchema = z.array(PostSchema);

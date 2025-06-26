@@ -10,9 +10,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Plus, X, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
-import { StorySchema } from "@/lib/validations/createStorySchemaZod";
 import { createStoryClient } from "@/lib/client/stories/createStory";
-import { CreateStoryForm } from "@/lib/types/post";
+import { CreateStory as CreateStoryType } from "@/lib/schemas/stories/";
+import { StorySchemas } from "@/lib/schemas/stories";
 
 type MediaFile = {
   file: File;
@@ -104,11 +104,11 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onStoryCreated }) => {
       return;
     }
 
-    const data: CreateStoryForm = {
+    const data: CreateStoryType = {
       media: mediaFile.file,
     };
 
-    const result = StorySchema.safeParse(data);
+    const result = StorySchemas.Create.safeParse(data);
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
       const errorMessages = Object.entries(fieldErrors)

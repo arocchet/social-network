@@ -1,8 +1,8 @@
 import { createStoriesIndb } from "@/lib/db/queries/stories/createStoryInDb";
-import { CreateStoryForm } from "@/lib/types/types";
+import { CreateStory } from "@/lib/schemas/stories/create";
 import { handleImagePostUploads, handleVideoPostUploads } from "@/lib/uploads/postUploads";
 
-export async function createStoriesServer(story: CreateStoryForm, userId: string) {
+export async function createStoriesServer(story: CreateStory, userId: string) {
     try {
         const { media } = story;
         let storyMediaUrl: string | undefined;

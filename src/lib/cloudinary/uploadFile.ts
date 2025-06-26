@@ -1,4 +1,4 @@
-import { isFile } from "../utils";
+import { isFile } from "../utils/";
 import { cloudinaryService } from "./cloudinary";
 
 export async function uploadIfFile(field: FormDataEntryValue | null, folder: string): Promise<{ url: string, id: string } | null> {
