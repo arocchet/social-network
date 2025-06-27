@@ -1,10 +1,10 @@
 'use client';
 import useSWR from "swr";
 import { swrFetcher } from "@/lib/server/api/swrFetcher";
-import { PostSchema } from "@/lib/schemas/post/post";
 import { z } from "zod";
+import { PostSchemas } from "@/lib/schemas/post";
 
-const PostsArraySchema = z.array(PostSchema);
+const PostsArraySchema = z.array(PostSchemas.full);
 
 export function useAllPosts() {
     const { data, error, isLoading, mutate } = useSWR(

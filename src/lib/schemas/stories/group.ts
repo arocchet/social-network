@@ -6,6 +6,6 @@ export const UserStoriesGroupSchema = z.object({
     user: StoryUserSchema,
     stories: z.array(StoryWithDetailsSchema),
     hasUnviewed: z.boolean(),
-});
+}).describe('UserStoriesGroupSchema');
 
 export type UserStoriesGroup = z.infer<typeof UserStoriesGroupSchema>;

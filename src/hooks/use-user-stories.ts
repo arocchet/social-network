@@ -1,8 +1,7 @@
 'use client';
 
 import { swrFetcher } from '@/lib/server/api/swrFetcher';
-import { StorySchemas } from '@/lib/schemas/stories';
-import { UserStoriesGroup, UserStoriesGroupSchema } from '@/lib/schemas/stories/group';
+import { UserStoriesGroupSchema } from '@/lib/schemas/stories/group';
 import useSWR from 'swr';
 import { z } from 'zod';
 
@@ -54,8 +53,7 @@ interface UseUserStoriesParams {
 // }
 
 
-const StoriesArraySchema = z.array(UserStoriesGroupSchema);
-
+const StoriesArraySchema = z.array(UserStoriesGroupSchema).describe("StoriesArraySchema");
 
 export function useUserStories({
     userId,

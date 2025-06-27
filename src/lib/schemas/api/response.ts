@@ -20,7 +20,7 @@ export const apiResponseSchema = <T extends z.ZodTypeAny>(schema: T) =>
         data: schema,
         message: z.string().optional(),
         fieldErrors: z.record(z.string()).optional(),
-    });
+    }).describe(`API Response<${(schema._def.description ?? "Unnamed schema")}>`);
 
 /**
  * Schéma standardisé pour une réponse d'erreur (avec data = null)
@@ -30,4 +30,4 @@ export const apiErrorResponseSchema = z.object({
     data: z.null(),
     message: z.string(),
     fieldErrors: z.record(z.string()).optional(),
-});
+}).describe('apiErrorResponseSchema');

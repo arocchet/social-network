@@ -3,6 +3,7 @@ import { getAllStoriesGrouped, getStoriesByUserId } from '@/lib/server/stories/g
 import { createStoriesServer } from '@/lib/server/stories/createStories';
 import { StorySchemas } from '@/lib/schemas/stories';
 import { parseCreateStory } from '@/lib/parsers/formParsers';
+import { respondSuccess } from '@/lib/server/api/response';
 
 export async function GET(req: NextRequest) {
     try {
@@ -22,24 +23,20 @@ export async function GET(req: NextRequest) {
             // Récupérer les stories d'un utilisateur spécifique
             storiesData = await getStoriesByUserId(userId);
 
-
-
-            return NextResponse.json({
-                success: true,
-                data: [{
-                    user: storiesData[0]?.user || null,
-                    stories: storiesData,
-                    hasUnviewed: true
-                }]
-            }, { status: 200 });
+            // console.log('Story renvoyé: ', storiesData)
+            return NextResponse.json(respondSuccess([{
+                user: storiesData[0]?.user || null,
+                stories: storiesData,
+                hasUnviewed: true
+            }]), { status: 200 });
         } else {
             // Récupérer toutes les stories groupées par utilisateur
             const storiesGroups = await getAllStoriesGrouped(currentUserId, publicOnly);
 
-            return NextResponse.json({
-                success: true,
-                data: storiesGroups
-            }, { status: 200 });
+            // console.dir({ 'All stories renvoyé': storiesGroups }, { depth: null });
+
+
+            return NextResponse.json(respondSuccess(storiesGroups), { status: 200 })
         }
 
     } catch (error) {

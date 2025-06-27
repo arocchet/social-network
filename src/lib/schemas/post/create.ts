@@ -26,6 +26,6 @@ export const CreatePostSchema = z.object({
             message:
                 "Unsupported file format. Allowed: GIF, AVIF, JPEG, PNG, WEBP, MP4, WEBM, OGG, MOV.",
         }),
-});
+}).describe('CreatePostSchema');
 
 export type CreatePost = z.infer<typeof CreatePostSchema>

@@ -6,6 +6,6 @@ import { UserSchema } from "./base";
  */
 export const UserPrivateSchema = UserSchema.omit({
     password: true,
-});
+}).describe('UserPrivateSchema');
 
 export type UserPrivate = z.infer<typeof UserPrivateSchema>;

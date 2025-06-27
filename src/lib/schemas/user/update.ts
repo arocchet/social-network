@@ -19,7 +19,7 @@ export const UserUpdateSchema = UserEditableSchema.partial().extend({
         .optional(),
     avatarId: z.string().optional(),
     bannerId: z.string().optional(),
-});
+}).describe('UserUpdateSchema');
 
 export type UserUpdate = z.infer<typeof UserUpdateSchema>
 

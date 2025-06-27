@@ -61,7 +61,7 @@ export const RegisterUserInputSchema = UserBaseSchema
                 path: ["tokens"],
             });
         }
-    });
+    }).describe('RegisterUserInputSchema');
 
 
 // Schéma simplifié pour formulaire inscription côté client (avec fichiers, dates en string etc)
@@ -83,7 +83,7 @@ export const RegisterUserFormSchema = z.object({
         fileName: z.string().nullable(),
         file: z.instanceof(File).nullable(),
     }).optional(),
-});
+}).describe('RegisterUserFormSchema');
 
 export const FormStepSchema = z.object({
     editable: z.boolean(),
@@ -93,7 +93,7 @@ export const FormStepSchema = z.object({
     type: z.enum(["text", "email", "date", "textarea", "select"]),
     value: z.string(),
     visible: z.boolean().optional(),
-});
+}).describe('FormStepSchema');
 
 export type RegisterUserFormData = z.infer<typeof RegisterUserFormSchema>;
 export type CredentialsLogin = z.infer<typeof CredentialsLoginSchema>;

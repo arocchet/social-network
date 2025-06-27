@@ -1,12 +1,13 @@
 import { CreatePostSchema } from "./create";
-import { PostSchema } from "./post";
+import { PostSchema } from "./base";
+import { PostWithDetailsSchema } from "./postWithDetails";
 
-export * from "./post";
+export * from "./postWithDetails";
 export * from "./create";
-
+export * from "./base";
 
 export const PostSchemas = {
     full: PostSchema,
     create: CreatePostSchema,
-    //   update: UpdatePostSchema,  // futur schéma si besoin
+    Details: PostWithDetailsSchema
 };

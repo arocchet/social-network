@@ -1,20 +1,6 @@
 import { db } from "@/lib/db";
-import { Post, Reaction, User } from "@prisma/client";
-
-export type PostWithDetails = Post & {
-    user: Pick<User, 'id' | 'username' | 'firstName' | 'lastName' | 'avatar'>;
-    comments: (Comment & {
-        user: Pick<User, 'id' | 'username' | 'firstName' | 'lastName' | 'avatar'>;
-    })[];
-    reactions: (Reaction & {
-        user: Pick<User, 'id' | 'username'>;
-    })[];
-    _count: {
-        comments: number;
-        reactions: number;
-    };
-};
-
+import { PostWithDetails } from "@/lib/schemas/post";
+import { serializeDates } from "@/lib/utils/serializeDates";
 
 export async function getPostsByUserIdServer(userId: string): Promise<PostWithDetails[]> {
     try {
@@ -70,7 +56,7 @@ export async function getPostsByUserIdServer(userId: string): Promise<PostWithDe
             }
         });
 
-        return posts;
+        return serializeDates(posts);
     } catch (error) {
         console.error("Database error in getPostsByUserIdServer:", error);
         throw new Error("Failed to fetch user posts");

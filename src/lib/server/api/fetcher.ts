@@ -43,6 +43,7 @@ export async function fetcher<T>(url: string, options: FetchOptions = {}): Promi
                 success: false,
                 data: null,
                 message: payload?.message || `Request failed with status ${res.status}`,
+                fieldErrors: payload?.fieldErrors || undefined,
             };
         }
 

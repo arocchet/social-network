@@ -9,7 +9,7 @@ export const UserMinimalSchema = UserSchema.pick({
     id: true,
     username: true,
     avatar: true,
-});
+}).describe('UserMinimalSchema');
 
 
 export type UserMinimal = z.infer<typeof UserMinimalSchema>;

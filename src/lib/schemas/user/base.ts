@@ -12,6 +12,6 @@ export const UserSchema = z.object({
     banner: z.string().url().nullable().optional(),
     biography: z.string().max(500, "Bio must be less than 500 characters").nullable().optional(),
     visibility: z.enum(["PRIVATE", "PUBLIC"]).default("PUBLIC").optional(),
-});
+}).describe('UserSchema');
 
 export type User = z.infer<typeof UserSchema>;
