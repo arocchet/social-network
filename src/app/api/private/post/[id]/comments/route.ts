@@ -11,7 +11,7 @@ export async function POST(
 ) {
     try {
         const userId = req.headers.get("x-user-id");
-        const postId = params.id;
+        const { id: postId } = await params;
 
         if (!userId) {
             return NextResponse.json(respondError("Missing or invalid user ID"), { status: 401 });

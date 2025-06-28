@@ -3,7 +3,6 @@ import { UserForPostSchema } from "./user";
 
 export const PostSchema = z.object({
     id: z.string(),
-    userId: z.string(),
     message: z.string(),
     image: z.string().url().nullable(),
     datetime: z.string(),

@@ -10,7 +10,7 @@ import { usePostContext } from "@/app/context/post-context";
 import { Post } from "@/lib/schemas/post";
 
 const PostCard = () => {
-  const { allposts, loading } = usePostContext();
+  const { allposts } = usePostContext();
 
   // Etat pour gérer quel post a ses détails ouverts
   const [openPostId, setOpenPostId] = useState<string | null>(null);
@@ -98,14 +98,6 @@ const PostCard = () => {
       </div>
     );
   };
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center py-8">
-        <p className="text-[var(--textMinimal)]">Aucun post à afficher</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col space-y-6">

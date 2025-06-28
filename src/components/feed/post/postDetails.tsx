@@ -52,7 +52,7 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
       prev
         ? {
           ...prev,
-          comments: [...prev.comments, newComment],
+          comments: [newComment, ...prev.comments],
         }
         : prev
     );

@@ -1,7 +1,5 @@
 import { db } from '@/lib/db';
-import { UserSchemas } from '@/lib/schemas/user';
-import { RegisterUserInput } from '@/lib/schemas/user/auth';
-import { UserPublic } from '@/lib/schemas/user/public';
+import { RegisterUserInput, UserPublic, UserSchemas } from '@/lib/schemas/user';
 import { hashPassword } from '@/lib/security/hash';
 import { generateUsername } from '@/lib/utils/';
 import { parseOrThrow } from '@/lib/utils/';

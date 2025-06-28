@@ -81,10 +81,6 @@ const InputComment = ({ postId, onCommentAdded }: InputCommentProps) => {
       onCommentAdded?.(response.data!);
       setCommentContent("");
 
-      toast.success("Succès", {
-        description: "Commentaire publié avec succès !",
-      });
-
     } catch (error) {
       toast.error("Erreur critique", {
         description:
