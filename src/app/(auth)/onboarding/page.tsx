@@ -1,8 +1,16 @@
 import { getFormSteps } from "@/app/utils/formStep";
-import { LoginGridPhoto } from "@/components/login/login-grid-photo";
-import FormOnboardingPage from "@/components/onboarding/onboarding";
+import { UserSchemas } from "@/lib/schemas/user";
 import { getUserByIdServer } from "@/lib/server/user/getUser";
+
+import dynamic from "next/dynamic";
 import { headers } from "next/headers";
+
+import type { UserEditable } from "@/lib/schemas/user/editable";
+import AppLoader from "@/components/ui/app-loader";
+
+
+const LoginGridPhoto = dynamic(() => import("@/components/login/login-grid-photo"), { loading: () => <AppLoader /> })
+const FormOnboardingPage = dynamic(() => import("@/components/onboarding/onboarding"))
 
 export default async function OnboardingPag() {
     const headersList = await headers();
@@ -12,7 +20,7 @@ export default async function OnboardingPag() {
         throw new Error("User ID missing in headers");
     }
 
-    const user = await getUserByIdServer(userId);
+    const user = await getUserByIdServer<UserEditable>(userId, UserSchemas.Editable);
 
     if (!user) {
         return <div>User not found</div>;

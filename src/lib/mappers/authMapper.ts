@@ -1,7 +1,7 @@
 import cuid from "cuid"
-import { RegisterUserInput } from "../types/types"
+import { RegisterUserInput } from "../validations/auth"
 
-export async function parseRegisterFormData(formData: FormData): Promise<RegisterUserInput> {
+export async function mapRegisterFormToInput(formData: FormData): Promise<RegisterUserInput> {
     const userId = cuid()
 
     const email = formData.get('email') as string

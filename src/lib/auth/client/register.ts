@@ -1,6 +1,7 @@
-import { Credentials_Register } from "@/lib/types/types";
+import type { RegisterUserFormData } from "@/lib/schemas/user/auth";
 
-export async function register(data: Credentials_Register) {
+
+export async function register(data: RegisterUserFormData) {
     const formData = new FormData();
 
     formData.append("username", data.username);
@@ -13,8 +14,8 @@ export async function register(data: Credentials_Register) {
     if (data.avatar?.file) {
         formData.append("avatar", data.avatar.file);
     }
-    if (data.cover?.file) {
-        formData.append("cover", data.cover.file);
+    if (data.banner?.file) {
+        formData.append("banner", data.banner.file);
     }
     if (data.biography) {
         formData.append("biography", data.biography);

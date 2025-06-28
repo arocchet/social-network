@@ -8,11 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Heart, Send, Bookmark, Play, Video } from "lucide-react";
 import { PostDetails } from "./postDetails";
 import Link from "next/link";
-import { Post } from "@/lib/types/types";
 import { usePostContext } from "@/app/context/post-context";
+import { Post } from "@/lib/types/post";
 
 const PostCard = () => {
-  const { posts } = usePostContext();
+  const { allposts, loading } = usePostContext();
 
   // Fonction pour détecter le type de média
   const getMediaType = (mediaUrl: string | null) => {
@@ -108,7 +108,7 @@ const PostCard = () => {
     );
   };
 
-  if (!posts || posts.length === 0) {
+  if (loading) {
     return (
       <div className="flex justify-center items-center py-8">
         <p className="text-[var(--textMinimal)]">Aucun post à afficher</p>
@@ -118,11 +118,11 @@ const PostCard = () => {
 
   return (
     <div className="flex flex-col space-y-6">
-      {posts.map((post, index) => (
+      {allposts.map((post, index) => (
         <div key={post.id || index} className="self-center w-[95%] max-w-lg bg-[var(--bgLevel2)] border rounded-2xl border-[var(--detailMinimal)]">
           {/* Header du post */}
           <div className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)]">
-            <Link href={`/profile/${post.user.userId}`}>
+            <Link href={`/profile/${post.user.id}`}>
               <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10">
                   <AvatarImage

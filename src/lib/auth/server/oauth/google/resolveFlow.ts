@@ -1,8 +1,9 @@
 import { findUserByEmail } from '@/lib/db/queries/findUserByEmail';
 import { findGoogleAccount } from '@/lib/db/queries/findGoogleAccount';
-import { GoogleOAuth, GoogleToken, JWT_EXPIRATION } from '@/lib/types/types';
 import { signJwt } from '@/lib/jwt/signJwt';
 import { registerGoogleOAuthUser } from './registerGoogleUser';
+import { GoogleOAuth, GoogleToken } from '@/lib/validations/auth';
+import { JWT_EXPIRATION } from '@/config/auth';
 
 
 type ResolveGoogleParams = {

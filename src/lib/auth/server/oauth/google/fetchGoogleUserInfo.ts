@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { oauth2Client } from './client';
-import { GoogleOAuth } from '@/lib/types/types';
+import { GoogleOAuth } from '@/lib/validations/auth';
 
 export async function fetchGoogleUserInfo(): Promise<GoogleOAuth> {
     const oauth2 = google.oauth2({ auth: oauth2Client, version: 'v2' });

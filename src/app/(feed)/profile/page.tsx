@@ -282,7 +282,7 @@ export default function ProfilePage({ postId }: ProfilePageProps) {
 
         <div className="flex-1 flex flex-col overflow-auto">
           {/* Header */}
-          <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-50">
+          <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-30">
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -411,7 +411,7 @@ export default function ProfilePage({ postId }: ProfilePageProps) {
                   <div className="text-sm whitespace-pre-line text-[var(--textMinimal)] mb-2">
                     {user?.biography || "Aucune bio pour le moment"}
                   </div>
-                  {user?.website && (
+                  {/* {user?.website && (
                     <a
                       href={`https://${user.website}`}
                       className="text-sm text-[var(--blue)] hover:underline"
@@ -420,7 +420,7 @@ export default function ProfilePage({ postId }: ProfilePageProps) {
                     >
                       {user.website}
                     </a>
-                  )}
+                  )} */}
                 </div>
 
                 {/* Action Buttons */}

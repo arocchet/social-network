@@ -1,61 +1,21 @@
-// hooks/useUser.ts - Hook pour récupérer les infos utilisateur
 'use client';
+import useSWR from "swr";
+import { swrFetcher } from "@/lib/api/swrFetcher";
+import { PostSchema } from "@/lib/schemas/post/base";
+import { z } from "zod";
 
-import { Post } from '@/lib/types/types';
-// import { PublicUserInfo } from '@/lib/validations/userValidation';
-import { useState, useEffect } from 'react';
-
-// interface UseUserReturn {
-//     user: PublicUserInfo | null;
-//     loading: boolean;
-//     error: string | null;
-//     refetch: () => void;
-// }
+const PostsArraySchema = z.array(PostSchema);
 
 export function useAllPosts() {
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchAllPosts = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const response = await fetch('/api/private/post/getAllPosts', {
-                method: 'GET',
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch posts');
-            }
-
-            const data = await response.json();
-
-            const allPosts = data.user || [];
-            console.log("ALLPOST", allPosts)
-
-            // S'assurer que data est un tableau
-            setPosts(Array.isArray(allPosts) ? allPosts : []);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-            setPosts([]);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchAllPosts();
-    }, []);
+    const { data, error, isLoading, mutate } = useSWR(
+        "/api/private/post/getAllPosts",
+        (url) => swrFetcher(url, PostsArraySchema)
+    );
 
     return {
-        posts,
-        loading,
+        posts: data,
+        loading: isLoading,
         error,
-        refetch: fetchAllPosts,
-        setPosts
+        refetch: mutate,
     };
 }

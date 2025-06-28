@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import type { IGif } from "@giphy/js-types";
 import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/toggle-theme";
 
 const GIPHY_API = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
 
@@ -78,25 +79,32 @@ export const GifPopover: React.FC<GifPopoverProps> = ({ onSelect, apiKey }) => {
         GIF
       </Button>
       {isOpen && (
-        <div className="absolute bottom-full  mb-2 right-0 z-[99999] w-80 bg-white border shadow-lg rounded-lg p-4">
+        <div className="absolute bottom-full mb-2 right-0 z-[99999] w-80 bg-[var(--bgLevel1)] border border-[var(--detailMinimal)] shadow-lg rounded-lg p-4">
+          {/* En-tête avec toggle theme */}
+          <div className="flex items-center justify-end mb-3"></div>
+
           <input
             type="text"
             placeholder="Rechercher des GIFs (min 3 caractères)"
             value={query}
             onChange={handleSearchChange}
-            className="w-full p-2 border rounded-md mb-2"
+            className="w-full p-2 border border-[var(--detailMinimal)] bg-[var(--bgLevel2)] text-[var(--textNeutral)] rounded-md mb-2"
             onClick={(e) => e.stopPropagation()}
           />
+
           {error && <p className="text-center text-red-500 text-sm">{error}</p>}
+
           {loading ? (
             <div className="text-center py-4">
-              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-              <p className="mt-2 text-sm">Chargement...</p>
+              <div className="inline-block animate-spin rounded-full h-6 w-6 border-b-2 border-[var(--blueFill)]"></div>
+              <p className="mt-2 text-sm text-[var(--textNeutral)]">
+                Chargement...
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
               {results.length === 0 && query.length > 2 && !loading && (
-                <div className="col-span-3 text-center py-4 text-gray-500">
+                <div className="col-span-3 text-center py-4 text-[var(--textMinimal)]">
                   Aucun GIF trouvé
                 </div>
               )}

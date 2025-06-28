@@ -1,5 +1,4 @@
 'use client'
-
 import PostCard from "@/components/feed/post/postCard"
 import { Button } from "@/components/ui/button"
 import { MessageCircle } from "lucide-react"
@@ -18,7 +17,7 @@ export default function HomePage() {
         <NavigationBar />
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-50">
+          <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] bg-[var(--bgLevel1)] sticky top-0 z-30">
             <Image
               src="/konekt-logo-full.png"
               alt="Konekt Logo"

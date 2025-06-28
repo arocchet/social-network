@@ -23,10 +23,11 @@ export async function GET(req: NextRequest) {
             // Récupérer les stories d'un utilisateur spécifique
             storiesData = await getStoriesByUserId(userId);
 
+
+
             return NextResponse.json({
                 success: true,
-                stories: storiesData,
-                storiesGroups: [{
+                data: [{
                     user: storiesData[0]?.user || null,
                     stories: storiesData,
                     hasUnviewed: true
@@ -38,7 +39,7 @@ export async function GET(req: NextRequest) {
 
             return NextResponse.json({
                 success: true,
-                storiesGroups: storiesGroups
+                data: storiesGroups
             }, { status: 200 });
         }
 

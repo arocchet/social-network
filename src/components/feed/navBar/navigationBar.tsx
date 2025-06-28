@@ -3,10 +3,13 @@ import { Search, Home, SettingsIcon, User } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import CreatePost from "../post/createPost";
 import Link from "next/link";
-import { useUser } from "@/hooks/use-user-data";
+import { useUserContext } from "@/app/context/user-context";
+import AppLoader from "@/components/ui/app-loader";
 
 export default function NavigationBar() {
-  const { user } = useUser();
+  const { user, loading } = useUserContext();
+
+  if (loading) return <AppLoader />
   return (
     <>
       {/* PC Navigation - Left bar */}
