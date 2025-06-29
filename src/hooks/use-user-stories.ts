@@ -5,53 +5,11 @@ import { UserStoriesGroupSchema } from '@/lib/schemas/stories/group';
 import useSWR from 'swr';
 import { z } from 'zod';
 
-// export interface StoryWithDetails {
-//     id: string;
-//     media: string;
-//     datetime: string;
-//     visibility: 'PUBLIC' | 'PRIVATE' | 'FRIENDS';
-//     user: {
-//         id: string;
-//         username: string;
-//         firstName: string;
-//         lastName: string;
-//         avatar: string;
-//     };
-//     reactions: Array<{
-//         id: string;
-//         type: 'LIKE' | 'DISLIKE' | 'LOVE' | 'LAUGH' | 'SAD' | 'ANGRY';
-//         user: {
-//             id: string;
-//             username: string;
-//         };
-//     }>;
-// }
-
-// export interface UserStoriesGroup {
-//     user: {
-//         id: string;
-//         username: string;
-//         firstName: string;
-//         lastName: string;
-//         avatar: string;
-//     };
-//     stories: StoryWithDetails[];
-//     hasUnviewed: boolean;
-// }
-
 interface UseUserStoriesParams {
     userId?: string;
     publicOnly?: boolean;
     includeExpired?: boolean;
 }
-
-// interface UseUserStoriesReturn {
-//     storiesGroups: UserStoriesGroup[];
-//     loading: boolean;
-//     error: string | null;
-//     refetch: () => void;
-// }
-
 
 const StoriesArraySchema = z.array(UserStoriesGroupSchema).describe("StoriesArraySchema");
 

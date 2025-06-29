@@ -123,16 +123,18 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onStoryCreated }) => {
 
     setIsUploading(true);
     try {
-      await createStoryClient(result.data);
+      const response = await createStoryClient(result.data);
+      if (!response.success) {
+        toast.error('Error please try again later')
+        return
+      }
+
       onStoryCreated?.();
 
       // Nettoyage
       removeMedia();
       setIsDialogOpen(false);
 
-      toast.success("Story publiée !", {
-        description: "Votre story a été publiée avec succès.",
-      });
     } catch (error) {
       toast.error("Erreur de publication", {
         description:

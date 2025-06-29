@@ -1,11 +1,10 @@
-export async function storiesReaction(data: Record<string, any>) {
+import { fetcher } from "@/lib/server/api/fetcher";
+
+export async function updatedReaction(data: Record<string, any>) {
   try {
-    const reponse = await fetch("api/private/reaction", {
-      headers: {
-        "Content-Type": "application/json",
-      },
+    const reponse = await fetcher<void>("api/private/reaction", {
       method: "PUT",
-      body: JSON.stringify(data),
+      body: data,
     });
 
     return reponse;

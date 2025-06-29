@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllStoriesGrouped, getStoriesByUserId } from '@/lib/server/stories/getStories';
 import { createStoriesServer } from '@/lib/server/stories/createStories';
-import { StorySchemas } from '@/lib/schemas/stories';
+import { CreateStory, StorySchemas } from '@/lib/schemas/stories';
+import { respondError, respondSuccess } from '@/lib/server/api/response';
+import { parseOrThrow, ValidationError } from '@/lib/utils/validation';
 import { parseCreateStory } from '@/lib/parsers/formParsers';
-import { respondSuccess } from '@/lib/server/api/response';
 
 export async function GET(req: NextRequest) {
     try {
@@ -53,31 +54,35 @@ export async function POST(req: NextRequest) {
         const userId = req.headers.get("x-user-id");
 
         if (!userId) {
-            return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+            return NextResponse.json(respondError("Invalid user ID"), { status: 401 });
         }
 
-        const formData = await req.formData();
-        const story = parseCreateStory(formData);
-
-        const parsed = StorySchemas.Create.safeParse(story);
-
-        if (!parsed.success) {
-            const errors = parsed.error.flatten().fieldErrors;
+        let parsedData: CreateStory;
+        try {
+            parsedData = parseOrThrow(StorySchemas.Create, parseCreateStory(await req.formData()));
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                return NextResponse.json(respondError("Invalid body", error.fieldErrors), { status: 400 });
+            }
             return NextResponse.json(
-                { message: "Validation failed", errors },
-                { status: 400 }
+                respondError(
+                    error instanceof Error ? error.message : "Unexpected server error."
+                ),
+                { status: 500 }
             );
         }
 
-        await createStoriesServer(story, userId);
+        await createStoriesServer(parsedData, userId);
 
-        return NextResponse.json({ success: true }, { status: 201 });
+        return NextResponse.json(respondSuccess(null), { status: 200 });
     } catch (error) {
-        console.error("Post creation failed:", error);
+        console.error("❌ Failed to updated reaction:", error);
 
-        const message =
-            error instanceof Error ? error.message : "Unknown server error.";
-
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json(
+            respondError(
+                error instanceof Error ? error.message : "Unexpected server error."
+            ),
+            { status: 500 }
+        );
     }
 }

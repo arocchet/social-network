@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { serializeDates } from "@/lib/utils/serializeDates";
 
 import { ZodSchema, z } from "zod";
 
@@ -25,12 +26,8 @@ export async function getUserByIdServer<T>(
 
         if (!user) return null;
 
-        const parsed = schema.parse({
-            ...user,
-            birthDate: user.birthDate ? user.birthDate.toISOString() : null,
-        });
 
-        return parsed;
+        return serializeDates(user);
     } catch (error) {
         console.error("Database error in getUserByIdServer:", error);
         throw new Error("Failed to fetch user data");

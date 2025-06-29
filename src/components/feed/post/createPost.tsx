@@ -151,36 +151,19 @@ const CreatePost: React.FC = () => {
 
 
     try {
-      const newPost = await createPostClient(result.data);
+      const response = await createPostClient(result.data);
 
-      const optimisticPost = {
-        ...newPost,
-        id: newPost.id ?? crypto.randomUUID(),
-        content: postContent,
-        media: mediaFiles[0]?.previewUrl ?? null,
-        _count: { reactions: 0 },
-        comments: [],
-        user: {
-          userId: user?.id || "inconnu",
-          username: user?.username || "Anonyme",
-          avatar: user?.avatar || null,
-          firstName: user?.firstName || "",
-          lastName: user?.lastName || "",
-        },
-        datetime: new Date().toISOString(),
-      };
+      if (!response.success || !response.data) {
+        toast.error('failed to create post please try again later')
+        return
+      }
 
-      console.log("optimisticPost", optimisticPost)
+      const newPost = response.data
 
-      setAllPosts([optimisticPost, ...allposts]);
+      setAllPosts([newPost, ...allposts]);
       setPostContent("");
       setMediaFiles([]);
       setIsDialogOpen(false);
-
-      toast.success("Succès", {
-        description: "Post publié avec succès !",
-      });
-
     } catch (error) {
       toast.error("Erreur critique", {
         description:

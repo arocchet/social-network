@@ -3,38 +3,31 @@ import { createPostServer } from "@/lib/server/post/createPost";
 import { getPostsByUserIdServer } from "@/lib/server/post/getPost";
 import { PostSchemas } from "@/lib/schemas/post";
 import { parseCreatePost } from "@/lib/parsers/formParsers";
+import { parseOrThrow } from "@/lib/utils/validation";
+import { respondError, respondSuccess } from "@/lib/server/api/response";
 
 export async function POST(req: NextRequest) {
     try {
         const userId = req.headers.get("x-user-id");
 
         if (!userId) {
-            return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+            return NextResponse.json(respondError("Missing user ID"), { status: 401 });
         }
 
         const formData = await req.formData();
-        const post = parseCreatePost(formData);
+        const rawPost = parseCreatePost(formData);
+        const parsedData = parseOrThrow(PostSchemas.create, rawPost);
 
-        const parsed = PostSchemas.create.safeParse(post);
+        const createdPost = await createPostServer(parsedData, userId);
 
-        if (!parsed.success) {
-            const errors = parsed.error.flatten().fieldErrors;
-            return NextResponse.json(
-                { message: "Validation failed", errors },
-                { status: 400 }
-            );
-        }
+        return NextResponse.json(respondSuccess(createdPost), { status: 201 });
+    } catch (err) {
+        console.error("POST /api/private/post — Creation failed:", err);
 
-        const createdPost = await createPostServer(post, userId);
-
-        return NextResponse.json(createdPost, { status: 201 });
-    } catch (error) {
-        console.error("Post creation failed:", error);
-
-        const message =
-            error instanceof Error ? error.message : "Unknown server error.";
-
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json(
+            respondError(err instanceof Error ? err.message : "Unexpected error"),
+            { status: 500 }
+        );
     }
 }
 
@@ -42,31 +35,22 @@ export async function GET(req: NextRequest) {
     try {
         const userId = req.headers.get("x-user-id");
 
-
         if (!userId) {
-            return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+            return NextResponse.json(respondError("Missing user ID"), { status: 401 });
         }
 
-        // Récupérer les données utilisateur depuis la base de données
-        const postData = await getPostsByUserIdServer(userId);
+        const posts = await getPostsByUserIdServer(userId);
 
-        if (!postData) {
-            return NextResponse.json({ message: "User not found." }, { status: 404 });
-        }
+        return NextResponse.json(
+            respondSuccess(posts, posts.length === 0 ? "No posts available yet." : undefined),
+            { status: 200 }
+        );
+    } catch (err) {
+        console.error("GET /api/private/post — Retrieval failed:", err);
 
-
-        return NextResponse.json({
-            success: true,
-            user: postData
-        }, { status: 200 });
-
-    } catch (error) {
-        console.error("Failed to fetch user info:", error);
-
-        const message =
-            error instanceof Error ? error.message : "Unknown server error.";
-
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json(
+            respondError(err instanceof Error ? err.message : "Unexpected error"),
+            { status: 500 }
+        );
     }
 }
-

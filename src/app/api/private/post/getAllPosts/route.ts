@@ -28,7 +28,6 @@ export async function GET(req: NextRequest) {
 
         const posts = await getPaginatedPosts(skip, take);
 
-
         return NextResponse.json(
             respondSuccess(posts, posts.length === 0 ? "No posts available yet." : undefined),
             { status: 200 }
