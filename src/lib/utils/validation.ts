@@ -1,20 +1,27 @@
 import { z } from "zod";
 
-export function validateSchema<T>(
-    schema: z.ZodType<T>,
-    data: unknown
-): { success: true; data: T } | { success: false; errors: Record<string, string> } {
+export function parseOrThrow<T>(schema: z.ZodType<T>, data: unknown): T {
     const result = schema.safeParse(data);
 
     if (!result.success) {
-        const flat: Record<string, string[] | undefined> = result.error.flatten().fieldErrors;
-        return {
-            success: false,
-            errors: Object.fromEntries(
-                Object.entries(flat).map(([k, v]) => [k, v?.[0] ?? "Invalid value"])
-            ),
-        };
-    }
+        const fieldErrors = Object.fromEntries(
+            Object.entries(result.error.flatten().fieldErrors).map(
+                ([field, errors]) => [field, (errors as string[])[0] ?? "Invalid value"]
+            )
+        );
 
-    return { success: true, data: result.data };
+        console.error("❌ Zod validation failed:", fieldErrors);
+        throw new ValidationError(fieldErrors);
+    }
+    return result.data;
+}
+
+export class ValidationError extends Error {
+    fieldErrors: Record<string, string>;
+
+    constructor(fieldErrors: Record<string, string>) {
+        super("Invalid data");
+        this.name = "ValidationError";
+        this.fieldErrors = fieldErrors;
+    }
 }

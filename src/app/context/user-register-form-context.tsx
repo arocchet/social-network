@@ -1,7 +1,6 @@
 'use client';
-import { register } from "@/lib/auth/client/register";
-import { Credentials_Register } from "@/lib/types/types";
-import { Credentials_Schema_Register } from "@/lib/validations/authSchemaZod";
+import { register } from "@/lib/client/user/register";
+import { RegisterUserFormData, UserSchemas } from "@/lib/schemas/user";
 import { useRouter } from "next/navigation";
 import {
   createContext,
@@ -12,16 +11,16 @@ import {
   useState,
 } from "react";
 
-type ImageKey = "avatar" | "cover";
+type ImageKey = "avatar" | "banner";
 type ImageRefs = {
   avatar: React.RefObject<HTMLInputElement | null>;
-  cover: React.RefObject<HTMLInputElement | null>;
+  banner: React.RefObject<HTMLInputElement | null>;
 }
 
 type UserFormContextType = {
-  userInfo: Credentials_Register;
+  userInfo: RegisterUserFormData;
   inputRefs: ImageRefs;
-  errors: Partial<Credentials_Register>;
+  errors: Partial<RegisterUserFormData>;
   handleSubmit: (e: React.FormEvent) => void;
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
   handleThumbnailClick: (key: ImageKey) => void;
@@ -41,7 +40,7 @@ export const UserFormProvider = ({ children }: { children: React.ReactNode }) =>
     file: null
   };
 
-  const [userInfo, setUserInfo] = useState<Credentials_Register>({
+  const [userInfo, setUserInfo] = useState<RegisterUserFormData>({
     username: "",
     firstname: "",
     lastname: "",
@@ -50,14 +49,14 @@ export const UserFormProvider = ({ children }: { children: React.ReactNode }) =>
     password: "",
     email: "",
     avatar: initialImageData,
-    cover: initialImageData,
+    banner: initialImageData,
   });
 
-  const [errors, setErrors] = useState<Partial<Credentials_Register>>({});
+  const [errors, setErrors] = useState<Partial<RegisterUserFormData>>({});
 
   const inputRefs = {
     avatar: useRef<HTMLInputElement | null>(null),
-    cover: useRef<HTMLInputElement | null>(null),
+    banner: useRef<HTMLInputElement | null>(null),
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -70,7 +69,7 @@ export const UserFormProvider = ({ children }: { children: React.ReactNode }) =>
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const result = Credentials_Schema_Register.safeParse(userInfo);
+    const result = UserSchemas.Auth.RegisterUserForm.safeParse(userInfo);
 
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;

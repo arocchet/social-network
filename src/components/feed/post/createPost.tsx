@@ -23,14 +23,14 @@ import {
 } from "@/components/reaction/emojiPicker";
 
 import { toast } from "sonner"
-import { PostSchema } from "@/lib/validations/createPostSchemaZod";
 import { createPostClient } from "@/lib/client/post/createPost";
-import { CreatePostForm } from "@/lib/types/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePostContext } from "@/app/context/post-context";
 import { useUserContext } from "@/app/context/user-context";
 import AppLoader from "@/components/ui/app-loader";
 import { GifPopover } from "@/app/utils/giphy";
+import { CreatePost as CreatePostType } from "@/lib/schemas/post/";
+import { PostSchemas } from "@/lib/schemas/post";
 
 
 type MediaFile = {
@@ -122,7 +122,7 @@ const CreatePost: React.FC = () => {
   };
 
   async function handlePostSubmit() {
-    let media: CreatePostForm["media"] | undefined = undefined;
+    let media: CreatePostType['media'] | undefined = undefined;
     if (mediaFiles.length > 0) {
       media = mediaFiles[0].file;
     }
@@ -134,7 +134,7 @@ const CreatePost: React.FC = () => {
 
     console.log('type', media instanceof File);
 
-    const result = PostSchema.safeParse(data);
+    const result = PostSchemas.create.safeParse(data);
 
 
     if (!result.success) {
@@ -151,36 +151,19 @@ const CreatePost: React.FC = () => {
 
 
     try {
-      const newPost = await createPostClient(result.data);
+      const response = await createPostClient(result.data);
 
-      const optimisticPost = {
-        ...newPost,
-        id: newPost.id ?? crypto.randomUUID(),
-        content: postContent,
-        media: mediaFiles[0]?.previewUrl ?? null,
-        _count: { reactions: 0 },
-        comments: [],
-        user: {
-          userId: user?.id || "inconnu",
-          username: user?.username || "Anonyme",
-          avatar: user?.avatar || null,
-          firstName: user?.firstName || "",
-          lastName: user?.lastName || "",
-        },
-        datetime: new Date().toISOString(),
-      };
+      if (!response.success || !response.data) {
+        toast.error('failed to create post please try again later')
+        return
+      }
 
-      console.log("optimisticPost", optimisticPost)
+      const newPost = response.data
 
-      setAllPosts([optimisticPost, ...allposts]);
+      setAllPosts([newPost, ...allposts]);
       setPostContent("");
       setMediaFiles([]);
       setIsDialogOpen(false);
-
-      toast.success("Succès", {
-        description: "Post publié avec succès !",
-      });
-
     } catch (error) {
       toast.error("Erreur critique", {
         description:

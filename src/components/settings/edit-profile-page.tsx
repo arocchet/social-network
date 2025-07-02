@@ -11,8 +11,7 @@ import EditProfileSkeleton from "../skeletons/EditProfileSkeleton"
 import { updateUserClient } from "@/lib/client/user/updateClientUser"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
-import { UserEditable } from "@/lib/schemas/user/editable"
-import { UserSchemas } from "@/lib/schemas/user"
+import { UserEditable, UserSchemas } from "@/lib/schemas/user"
 import { useUserPrivate } from "@/hooks/use-user-private-data"
 
 function EditProfilePage() {
@@ -58,17 +57,23 @@ function EditProfilePage() {
     const values = formData as Record<string, any>;
 
     const response = await updateUserClient(values);
-    if (response.error && response.fieldErrors) {
-      const [firstField, firstMessage] = Object.entries(response.fieldErrors)[0];
-      toast.error(`${firstField}: ${firstMessage}`);
 
+    if (!response.success) {
+      if (response.fieldErrors && Object.keys(response.fieldErrors).length > 0) {
+        // Affiche la première erreur de champ
+        const [firstField, firstMessage] = Object.entries(response.fieldErrors)[0];
+        toast.error(`${firstField}: ${firstMessage}`);
+      } else if (response.message) {
+        // Message d'erreur générique
+        toast.error(response.message);
+      } else {
+        toast.error("Unknown error occurred");
+      }
+      return;
     } else {
-      toast.error(response.error);
+      toast.success(response.message)
     }
-    return;
   }
-
-  toast.success("Your information has been updated successfully.");
 
 
   if (!formData) return <EditProfileSkeleton />

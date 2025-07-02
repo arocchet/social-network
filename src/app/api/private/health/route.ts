@@ -1,3 +1,4 @@
+import { respondError, respondSuccess } from '@/lib/server/api/response';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
@@ -9,16 +10,10 @@ export async function GET(req: NextRequest) {
         // Par exemple, vérifier la connexion à la base de données, etc.
 
         // Répondre avec un statut 200 si tout est OK
-        return NextResponse.json({
-            status: 'ok',
-            message: 'Service is healthy',
-            userId: userId || 'No user ID provided'
-        });
+        return NextResponse.json(respondSuccess({ userId }, "Service is healthy"));
     } catch (error) {
         // En cas d'erreur, répondre avec un statut 500
-        return NextResponse.json(
-            { status: 'error', message: 'Service is unhealthy' },
-            { status: 500 }
+        return NextResponse.json(respondError('Service is unhealthy')
         );
     }
 }

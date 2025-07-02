@@ -8,15 +8,17 @@ import {
     CredentialsLoginSchema,
     RegisterUserFormSchema,
     RegisterUserInputSchema,
+    FormStepSchema,
 } from "./auth";
 
-import type { UserPublic } from "./public";
-import type { UserPrivate } from "./private";
-import type { UserEditable } from "./editable";
-import type { UserUpdate } from "./update";
-import type { UserMinimal } from "./minimal";
+export * from "./auth"
+export * from "./base"
+export * from "./editable"
+export * from "./minimal"
+export * from "./private"
+export * from "./public"
+export * from "./update"
 
-import type { CredentialsLogin, RegisterUserFormData, RegisterUserInput } from "./auth";
 
 export const UserSchemas = {
     Public: UserPublicSchema,
@@ -29,19 +31,6 @@ export const UserSchemas = {
         CredentialsLogin: CredentialsLoginSchema,
         RegisterUserForm: RegisterUserFormSchema,
         RegisterUserInput: RegisterUserInputSchema,
+        FormStep: FormStepSchema
     },
-};
-
-export type UserSchemas = {
-    Public: UserPublic;
-    Private: UserPrivate;
-    Editable: UserEditable;
-    Update: UserUpdate;
-    Minimal: UserMinimal;
-
-    Auth: {
-        CredentialsLogin: CredentialsLogin;
-        RegisterUserForm: RegisterUserFormData;
-        RegisterUserInput: RegisterUserInput;
-    };
 };

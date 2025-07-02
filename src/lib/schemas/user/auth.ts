@@ -1,5 +1,6 @@
 import { z } from "zod"; // ta base complète utilisateur
 import { UserSchema } from "./base";
+import { TokensSchema } from "../oauth/base";
 
 // 1. Base partielle commune à utiliser pour inscription/mise à jour
 const UserBaseSchema = UserSchema.pick({
@@ -24,15 +25,6 @@ export const CredentialsLoginSchema = z.object({
 // Enum pour source d’inscription
 export const RegistrationSourceEnum = z.enum(["credentials", "google", "discord"]);
 
-// 4. Schéma tokens OAuth simplifié (tu peux étendre)
-export const TokensSchema = z.object({
-    access_token: z.string().optional(),
-    refresh_token: z.string().optional(),
-    id_token: z.string().optional(),
-    expiry_date: z.number().optional(),
-    scope: z.string().optional(),
-    token_type: z.string().optional(),
-}).partial();
 
 // Schéma inscription / mise à jour, basé sur UserBaseSchema, avec logique spécifique auth
 export const RegisterUserInputSchema = UserBaseSchema
@@ -42,6 +34,7 @@ export const RegisterUserInputSchema = UserBaseSchema
         avatar: z.union([z.instanceof(File), z.string()]).optional(),
         banner: z.union([z.instanceof(File), z.string()]).optional(),
         avatarId: z.string().nullable().optional(),
+        birthDate: z.union([z.string(), z.date()]).optional().nullable(),
         bannerId: z.string().nullable().optional(),
         providerAccountId: z.string().optional(),
         id: z.string().optional(),
@@ -68,7 +61,7 @@ export const RegisterUserInputSchema = UserBaseSchema
                 path: ["tokens"],
             });
         }
-    });
+    }).describe('RegisterUserInputSchema');
 
 
 // Schéma simplifié pour formulaire inscription côté client (avec fichiers, dates en string etc)
@@ -90,8 +83,20 @@ export const RegisterUserFormSchema = z.object({
         fileName: z.string().nullable(),
         file: z.instanceof(File).nullable(),
     }).optional(),
-});
+}).describe('RegisterUserFormSchema');
+
+export const FormStepSchema = z.object({
+    editable: z.boolean(),
+    id: z.string(),
+    placeholder: z.string(),
+    question: z.string(),
+    type: z.enum(["text", "email", "date", "textarea", "select"]),
+    value: z.string(),
+    visible: z.boolean().optional(),
+}).describe('FormStepSchema');
 
 export type RegisterUserFormData = z.infer<typeof RegisterUserFormSchema>;
 export type CredentialsLogin = z.infer<typeof CredentialsLoginSchema>;
 export type RegisterUserInput = z.infer<typeof RegisterUserInputSchema>;
+export type FormStep = z.infer<typeof FormStepSchema>
+export type SourceEnum = z.infer<typeof RegistrationSourceEnum>

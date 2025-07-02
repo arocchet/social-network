@@ -5,13 +5,14 @@ import { motion, AnimatePresence } from "motion/react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useEffect, useState } from "react"
-import { cn, getGreetingMessage } from "@/lib/utils"
+import { getGreetingMessage } from "@/lib/utils/"
 import ReactMarkdown from "react-markdown"
 import rehypeSanitize from "rehype-sanitize"
-import { FormStep } from "@/lib/types/types"
 import { updateUserClient } from "@/lib/client/user/updateClientUser"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
+import { FormStep } from "@/lib/schemas/user"
 
 type FormOnboardingPageProps = {
     formSteps: FormStep[];
@@ -75,7 +76,7 @@ export default function FormOnboardingPage({ formSteps, className, ...props }: F
 
             try {
                 const response = await updateUserClient(values);
-                if (response.status) handleSuccess()
+                if (response.success) handleSuccess()
                 toast.success("Your information has been updated successfully.");
             } catch (err) {
                 console.error("Faile to update user's informations", err);

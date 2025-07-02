@@ -1,20 +1,45 @@
-import { updateStoryReaction } from "@/lib/db/queries/stories/updateStoryReaction";
+
+import { updatedReaction } from "@/lib/db/queries/reaction/updatedReaction";
+import { CreateReaction, ReactionSchemas } from "@/lib/schemas/reaction";
+import { respondError, respondSuccess } from "@/lib/server/api/response";
+import { parseOrThrow, ValidationError } from "@/lib/utils/validation";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {
   const userId = req.headers.get("x-user-id");
 
   if (!userId) {
-    return NextResponse.json({ message: "invalid user ID" }, { status: 401 });
+    return NextResponse.json(respondError("Invalid user ID"), { status: 401 });
   }
 
-  const data = await req.json();
+  let parsedData: CreateReaction;
+  try {
+    parsedData = parseOrThrow(ReactionSchemas.Create, await req.json());
+  } catch (error) {
+    if (error instanceof ValidationError) {
+      return NextResponse.json(respondError("Invalid body", error.fieldErrors), { status: 400 });
+    }
+    return NextResponse.json(
+      respondError(
+        error instanceof Error ? error.message : "Unexpected server error."
+      ),
+      { status: 500 }
+    );
+  }
+
 
   try {
-    await updateStoryReaction(userId, data);
+    await updatedReaction(userId, parsedData);
 
-    return NextResponse.json({ status: 200 });
+    return NextResponse.json(respondSuccess(null), { status: 200 });
   } catch (error) {
-    throw new Error("Error updating reaction");
+    console.error("❌ Failed to updated reaction:", error);
+
+    return NextResponse.json(
+      respondError(
+        error instanceof Error ? error.message : "Unexpected server error."
+      ),
+      { status: 500 }
+    );
   }
 }

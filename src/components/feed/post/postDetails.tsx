@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -7,90 +6,60 @@ import {
   DialogContent,
   DialogDescription,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { MessageCircle, Loader2 } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import InputComment from "../../comments/InputComment";
-import { Post } from "@/lib/types/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { PostWithDetails } from "@/lib/schemas/post/";
+import { Comment } from "@/lib/schemas/comment";
+import { usePostById } from "@/hooks/use-post-by-id";
+
 
 interface PostDetailsProps {
   postId: string;
   trigger?: React.ReactNode;
+  onClose: () => void;
 }
 
-interface Comment {
-  id: string;
-  message: string;
-  datetime: string;
-  user: {
-    id: string;
-    username: string;
-    avatar?: string;
-  };
-}
-
-interface PostWithDetails extends Post {
-  comments: Comment[];
-  reactions: any[];
-}
-
-function PostDetails({ postId, trigger }: PostDetailsProps) {
+function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
   const [hasReadToBottom, setHasReadToBottom] = useState(false);
-  const [post, setPost] = useState<PostWithDetails | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isOpen, setIsOpen] = useState(false);
+  const [updatedPost, setUpdatedPost] = useState<PostWithDetails>();
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const fetchPostDetails = async () => {
-    if (!postId) return;
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch(`/api/private/post/${postId}`, {
-        method: "GET",
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to fetch post details");
-      }
-
-      const data = await response.json();
-      setPost(data.post);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { post, loading } = usePostById(postId);
 
   useEffect(() => {
-    if (isOpen && postId) {
-      fetchPostDetails();
-    }
-  }, [isOpen, postId]);
+    setUpdatedPost(post)
+    console.log('post: ', post)
+  }, [post])
 
   const handleScroll = () => {
     const content = contentRef.current;
     if (!content) return;
-
     const scrollPercentage =
       content.scrollTop / (content.scrollHeight - content.clientHeight);
-
     if (scrollPercentage >= 0.99 && !hasReadToBottom) {
       setHasReadToBottom(true);
     }
   };
 
+  const handleNewComment = (newComment: Comment) => {
+    setUpdatedPost((prev) =>
+      prev
+        ? {
+          ...prev,
+          comments: [newComment, ...prev.comments],
+        }
+        : prev
+    );
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="icon" className="p-0 relative">
@@ -106,22 +75,19 @@ function PostDetails({ postId, trigger }: PostDetailsProps) {
 
       <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(840px,90vh)] sm:max-w-5xl [&>button:last-child]:top-3.5 [&>button:last-child]:z-50">
         <DialogHeader className="contents space-y-0 text-left">
+          <DialogTitle className="sr-only">Commentaires du post</DialogTitle>
           <DialogDescription asChild>
             <div className="flex h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
-              {loading ? (
-                <LoadingState />
-              ) : error ? (
-                <ErrorState error={error} onRetry={fetchPostDetails} />
-              ) : post ? (
+              {!loading && updatedPost ? (
                 /* Layout Instagram avec média à gauche et commentaires à droite */
                 <div className="flex w-full h-full">
                   {/* Section média - gauche */}
-                  <MediaSection post={post} />
+                  <MediaSection post={updatedPost} />
 
                   {/* Section commentaires - droite */}
                   <div className="flex flex-col w-[500px] bg-[var(--bgLevel1)] border-l border-[var(--detailMinimal)]">
                     {/* Header avec info du post */}
-                    <PostHeader post={post} />
+                    <PostHeader post={updatedPost} />
 
                     {/* Liste des commentaires scrollable */}
                     <div
@@ -129,13 +95,13 @@ function PostDetails({ postId, trigger }: PostDetailsProps) {
                       onScroll={handleScroll}
                       className="flex-1 overflow-y-auto "
                     >
-                      <CommentsSection comments={post.comments} />
+                      <CommentsSection comments={updatedPost?.comments} />
                     </div>
 
                     {/* Footer fixe */}
                     <PostFooter
                       postId={postId}
-                      onCommentAdded={fetchPostDetails}
+                      onCommentAdded={handleNewComment}
                     />
                   </div>
                 </div>
@@ -442,7 +408,7 @@ function CommentItem({
   comment: Comment;
   isLast?: boolean;
 }) {
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInMinutes = Math.floor(
@@ -544,7 +510,7 @@ export function PostFooter({
   onCommentAdded,
 }: {
   postId: string;
-  onCommentAdded: () => void;
+  onCommentAdded: (newComment: Comment) => void;
 }) {
   return (
     <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)]">

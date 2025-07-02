@@ -1,7 +1,8 @@
-// lib/client/comment/createComment.ts
-import { CreateCommentForm } from "@/lib/types/types";
+import { Comment } from "@/lib/schemas/comment/";
+import { CreatePost } from "@/lib/schemas/post/create";
+import { fetcher } from "@/lib/server/api/fetcher";
 
-export async function createCommentClient(postId: string, comment: CreateCommentForm) {
+export async function createCommentClient(postId: string, comment: CreatePost) {
     try {
         const formData = new FormData();
         formData.append('content', comment.content);
@@ -13,26 +14,14 @@ export async function createCommentClient(postId: string, comment: CreateComment
             throw new Error("PostId non trouvé")
         }
 
-        console.log("POSTID", postId)
-
-        const response = await fetch(`/api/private/post/${postId}/comments`, {
+        const response = await fetcher<Comment>(`/api/private/post/${postId}/comments`, {
             method: 'POST',
-            credentials: 'include',
-            body: formData,
-        });
+            body: formData
+        })
 
-        if (!response.ok) {
-            const text = await response.text();
-            console.error("Erreur brute de la réponse :", text);
-            throw new Error('Failed to create comment');
-        }
-
-        const data = await response.json();
-
-        console.log("Comment Data", data)
-        return data;
+        return response;
     } catch (error) {
-        console.error('Error creating comment:', error);
-        throw error;
+        throw new Error(`Client error: ${(error instanceof Error) ? error.message : "Unknown error"}`);
+
     }
 }

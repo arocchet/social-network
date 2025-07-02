@@ -14,6 +14,6 @@ export const UserEditableSchema = UserSchema.pick({
     birthDate: true,
     firstName: true,
     lastName: true,
-});
+}).describe('UserEditableSchema');
 
 export type UserEditable = z.infer<typeof UserEditableSchema>;

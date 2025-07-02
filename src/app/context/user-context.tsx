@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext } from "react";
 import { useUser } from "@/hooks/use-user-data";
-import { UserPublic } from "@/lib/schemas/user/public";
+import { UserPublic } from "@/lib/schemas/user";
 
 interface UserContextType {
     user: UserPublic | undefined;

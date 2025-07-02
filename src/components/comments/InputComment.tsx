@@ -11,14 +11,15 @@ import {
   EmojiPickerSearch,
 } from "../reaction/emojiPicker";
 import { GifPopover } from "@/app/utils/giphy";
-import { CommentSchema } from "@/lib/validations/createCommentSchemaZod";
 import { toast } from "sonner";
 import { createCommentClient } from "@/lib/client/comment/createComment";
 import { useUser } from "@/hooks/use-user-data";
+import { PostSchemas } from "@/lib/schemas/post";
+import { Comment } from "@/lib/schemas/comment";
 
 interface InputCommentProps {
   postId: string;
-  onCommentAdded?: () => void;
+  onCommentAdded?: (newComment: Comment) => void;
 }
 
 const GIPHY_API_KEY = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
@@ -50,7 +51,7 @@ const InputComment = ({ postId, onCommentAdded }: InputCommentProps) => {
       content: commentContent.trim(),
     };
 
-    const result = CommentSchema.safeParse(data);
+    const result = PostSchemas.create.safeParse(data);
 
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
@@ -63,25 +64,22 @@ const InputComment = ({ postId, onCommentAdded }: InputCommentProps) => {
       });
       return;
     }
+    setIsSubmitting(true);
 
     try {
-      setIsSubmitting(true);
+      const response = await createCommentClient(postId, result.data);
 
-      const newComment = await createCommentClient(postId, result.data);
+      if (!response.success) {
+        const errorMessage = response.fieldErrors
+          ? Object.values(response.fieldErrors).join(", ")
+          : response.message || "Erreur inconnue";
 
-      console.log("newComment", newComment);
-
-      // Réinitialiser le formulaire
-      setCommentContent("");
-
-      // Callback pour rafraîchir les commentaires
-      if (onCommentAdded) {
-        onCommentAdded();
+        toast.error(errorMessage);
+        return;
       }
 
-      toast.success("Succès", {
-        description: "Commentaire publié avec succès !",
-      });
+      onCommentAdded?.(response.data!);
+      setCommentContent("");
 
     } catch (error) {
       toast.error("Erreur critique", {
@@ -96,6 +94,7 @@ const InputComment = ({ postId, onCommentAdded }: InputCommentProps) => {
       setIsSubmitting(false);
     }
   }
+
 
   // Fonction pour gérer la sélection d'emoji
   const handleEmojiSelect = (emoji: string) => {

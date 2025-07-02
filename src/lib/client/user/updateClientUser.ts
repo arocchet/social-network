@@ -1,4 +1,4 @@
-import { fetcher } from "@/lib/api/fetcher";
+import { fetcher } from "@/lib/server/api/fetcher";
 
 export async function updateUserClient(user: Record<string, any>) {
     const formData = new FormData();
@@ -10,12 +10,12 @@ export async function updateUserClient(user: Record<string, any>) {
     }
 
     try {
-        const result = await fetcher<void>("/api/private/me", {
+        const response = await fetcher<void>("/api/private/me", {
             method: "PUT",
             body: formData,
         });
 
-        return result;
+        return response;
     } catch (error) {
         throw new Error(`Client error: ${(error instanceof Error) ? error.message : "Unknown error"}`);
     }

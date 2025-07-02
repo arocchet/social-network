@@ -6,12 +6,12 @@ export const StoryUserSchema = z.object({
     firstName: z.string(),
     lastName: z.string(),
     avatar: z.string().url(),
-});
+}).describe('StoryUserSchema');
 
 export const ReactionUserSchema = z.object({
     id: z.string(),
     username: z.string(),
-});
+}).describe('ReactionUserSchema');
 
 export type StoryUser = z.infer<typeof StoryUserSchema>;
 export type ReactionUser = z.infer<typeof ReactionUserSchema>;

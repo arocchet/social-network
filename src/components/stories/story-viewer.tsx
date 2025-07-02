@@ -7,7 +7,7 @@ import { X, Volume2, VolumeX, Heart } from "lucide-react";
 import { getMediaType } from "@/app/utils/media";
 import { StoryMedia } from "./storyMedia";
 import { useStoryPlayback } from "@/hooks/use-story-playback";
-import { storiesReaction } from "@/lib/client/stories/storiesReaction";
+import { updatedReaction } from "@/lib/client/stories/storiesReaction";
 
 interface StoryContent {
   id: number;
@@ -82,8 +82,6 @@ export function StoryViewer({
     setDominantColor,
   });
 
-  console.log('stories: ', stories)
-
   useEffect(() => {
     if (!isValidUserIndex || !isValidStoryIndex) {
       onClose();
@@ -110,12 +108,13 @@ export function StoryViewer({
     if (!currentStoryContent) return;
 
     try {
-      const response = await storiesReaction({
+      const response = await updatedReaction({
         type: isLiked ? "DISLIKE" : "LIKE",
-        storyId: currentStory?.storyId,
+        mediaId: currentStory?.storyId,
+        contentType: "stories"
       });
 
-      if (response && response.status === 200) {
+      if (response && response.success) {
         setIsLiked((prev) => !prev);
 
         if (!isLiked) {
