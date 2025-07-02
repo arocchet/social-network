@@ -1,28 +1,43 @@
 import { db } from "../..";
 
 
-export async function getAllPosts() {
+// export async function getAllPosts() {
+//   return await db.post.findMany({
+//     include: {
+//       user: {
+//         select: {
+//           id: true,
+//           firstName: true,
+//           lastName: true,
+//           username: true,
+//           avatar: true,
+//         }
+//       },
+//       _count: {
+//         select: {
+//           reactions: true,
+//           comments: true
+//         }
+//       }
+//     },
+//     orderBy: {
+//       datetime: 'desc'
+//     }
+//   });
+// };
+
+export async function getPaginatedPosts(skip: number, take: number = 10) {
   return await db.post.findMany({
+    skip,
+    take,
+    orderBy: { datetime: "desc" },
     include: {
       user: {
         select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          username: true,
-          email: true,
-          avatar: true,
+          id: true, username: true, avatar: true, lastName: true, firstName: true
         }
       },
-      _count: {
-        select: {
-          reactions: true,
-          comments: true
-        }
-      }
+      _count: { select: { reactions: true, comments: true } }
     },
-    orderBy: {
-      datetime: 'desc'
-    }
   });
-};
+}

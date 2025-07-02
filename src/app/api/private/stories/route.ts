@@ -1,9 +1,10 @@
-// app/api/private/stories/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllStoriesGrouped, getStoriesByUserId } from '@/lib/server/stories/getStories';
-import { parseCreateStory } from '@/lib/validations/parseFormData/storyValidation';
-import { StorySchema } from '@/lib/validations/createStorySchemaZod';
 import { createStoriesServer } from '@/lib/server/stories/createStories';
+import { CreateStory, StorySchemas } from '@/lib/schemas/stories';
+import { respondError, respondSuccess } from '@/lib/server/api/response';
+import { parseOrThrow, ValidationError } from '@/lib/utils/validation';
+import { parseCreateStory } from '@/lib/parsers/formParsers';
 
 export async function GET(req: NextRequest) {
     try {
@@ -23,23 +24,20 @@ export async function GET(req: NextRequest) {
             // Récupérer les stories d'un utilisateur spécifique
             storiesData = await getStoriesByUserId(userId);
 
-            return NextResponse.json({
-                success: true,
+            // console.log('Story renvoyé: ', storiesData)
+            return NextResponse.json(respondSuccess([{
+                user: storiesData[0]?.user || null,
                 stories: storiesData,
-                storiesGroups: [{
-                    user: storiesData[0]?.user || null,
-                    stories: storiesData,
-                    hasUnviewed: true
-                }]
-            }, { status: 200 });
+                hasUnviewed: true
+            }]), { status: 200 });
         } else {
             // Récupérer toutes les stories groupées par utilisateur
             const storiesGroups = await getAllStoriesGrouped(currentUserId, publicOnly);
 
-            return NextResponse.json({
-                success: true,
-                storiesGroups: storiesGroups
-            }, { status: 200 });
+            // console.dir({ 'All stories renvoyé': storiesGroups }, { depth: null });
+
+
+            return NextResponse.json(respondSuccess(storiesGroups), { status: 200 })
         }
 
     } catch (error) {
@@ -56,31 +54,35 @@ export async function POST(req: NextRequest) {
         const userId = req.headers.get("x-user-id");
 
         if (!userId) {
-            return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+            return NextResponse.json(respondError("Invalid user ID"), { status: 401 });
         }
 
-        const formData = await req.formData();
-        const story = parseCreateStory(formData);
-
-        const parsed = StorySchema.safeParse(story);
-
-        if (!parsed.success) {
-            const errors = parsed.error.flatten().fieldErrors;
+        let parsedData: CreateStory;
+        try {
+            parsedData = parseOrThrow(StorySchemas.Create, parseCreateStory(await req.formData()));
+        } catch (error) {
+            if (error instanceof ValidationError) {
+                return NextResponse.json(respondError("Invalid body", error.fieldErrors), { status: 400 });
+            }
             return NextResponse.json(
-                { message: "Validation failed", errors },
-                { status: 400 }
+                respondError(
+                    error instanceof Error ? error.message : "Unexpected server error."
+                ),
+                { status: 500 }
             );
         }
 
-        await createStoriesServer(story, userId);
+        await createStoriesServer(parsedData, userId);
 
-        return NextResponse.json({ success: true }, { status: 201 });
+        return NextResponse.json(respondSuccess(null), { status: 200 });
     } catch (error) {
-        console.error("Post creation failed:", error);
+        console.error("❌ Failed to updated reaction:", error);
 
-        const message =
-            error instanceof Error ? error.message : "Unknown server error.";
-
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json(
+            respondError(
+                error instanceof Error ? error.message : "Unexpected server error."
+            ),
+            { status: 500 }
+        );
     }
 }

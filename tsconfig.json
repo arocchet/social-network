@@ -36,7 +36,8 @@
     "jest.globalSetup.ts",
     "jest.globalTeardown.ts",
     "jest.config.ts",
-    "jest.config.ts"
+    "jest.config.ts",
+    "src/lib/cloudinary/test_delete_image.js"
   ],
   "exclude": [
     "node_modules"

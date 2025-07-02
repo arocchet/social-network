@@ -1,61 +1,41 @@
-// hooks/useUser.ts - Hook pour récupérer les infos utilisateur
-'use client';
+import useSWRInfinite from 'swr/infinite';
+import { swrFetcher } from '@/lib/server/api/swrFetcher';
+import { z } from 'zod';
+import { PostSchemas } from '@/lib/schemas/post';
+import { useMemo } from 'react';
 
-import { Post } from '@/lib/types/types';
-// import { PublicUserInfo } from '@/lib/validations/userValidation';
-import { useState, useEffect } from 'react';
+const PostsArraySchema = z.array(PostSchemas.full);
 
-// interface UseUserReturn {
-//     user: PublicUserInfo | null;
-//     loading: boolean;
-//     error: string | null;
-//     refetch: () => void;
-// }
+const PAGE_SIZE = 7;
 
-export function useAllPosts() {
-    const [posts, setPosts] = useState<Post[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    const fetchAllPosts = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-
-            const response = await fetch('/api/private/post/getAllPosts', {
-                method: 'GET',
-                credentials: 'include',
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to fetch posts');
-            }
-
-            const data = await response.json();
-
-            const allPosts = data.user || [];
-            console.log("ALLPOST", allPosts)
-
-            // S'assurer que data est un tableau
-            setPosts(Array.isArray(allPosts) ? allPosts : []);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : 'Unknown error');
-            setPosts([]);
-        } finally {
-            setLoading(false);
-        }
+export function useInfinitePosts() {
+    const getKey = (pageIndex: number, previousPageData: unknown) => {
+        if (previousPageData && (previousPageData as any).length === 0) return null;
+        return `/api/private/post/getAllPosts?skip=${pageIndex * PAGE_SIZE}&take=${PAGE_SIZE}`;
     };
 
-    useEffect(() => {
-        fetchAllPosts();
-    }, []);
+    const {
+        data,
+        error,
+        size,
+        setSize,
+        isValidating,
+    } = useSWRInfinite(getKey, (url) => swrFetcher(url, PostsArraySchema));
+
+    const posts = useMemo(() => (data ? data.flat() : []), [data]);
+    const isLoadingInitialData = !data && !error;
+    const loading =
+        isLoadingInitialData ||
+        (size > 0 && data && typeof data[size - 1] === 'undefined');
+    const isEmpty = data?.[0]?.length === 0;
+    const hasMore = !isEmpty && (data?.[size - 1]?.length ?? 0) === PAGE_SIZE;
 
     return {
         posts,
-        loading,
         error,
-        refetch: fetchAllPosts,
-        setPosts
+        loading,
+        isValidating,
+        loadMore: () => setSize(size + 1),
+        hasMore,
     };
 }

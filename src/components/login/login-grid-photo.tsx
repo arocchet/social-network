@@ -1,6 +1,6 @@
 import { GridMotion } from "./shuffle-grid";
 
-export function LoginGridPhoto() {
+export default function LoginGridPhoto() {
     const images = [
         "https://i.pinimg.com/736x/17/f1/83/17f18311a2bec73893f51ac8e41012a1.jpg",
         "https://i.pinimg.com/736x/af/46/28/af4628755946ad7a6207d8ad3f6e7695.jpg",

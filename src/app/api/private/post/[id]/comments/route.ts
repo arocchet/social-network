@@ -1,8 +1,9 @@
-// app/api/private/post/[id]/comments/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { parseCreateComment } from "@/lib/validations/parseFormData/commentValidation";
-import { CommentSchema } from "@/lib/validations/createCommentSchemaZod";
 import { createCommentServer } from "@/lib/server/comment/createComment";
+import { parseCreateComment } from "@/lib/parsers/formParsers";
+import { PostSchemas } from "@/lib/schemas/post";
+import { parseOrThrow, ValidationError } from "@/lib/utils/validation";
+import { respondError, respondSuccess } from "@/lib/server/api/response";
 
 export async function POST(
     req: NextRequest,
@@ -10,44 +11,37 @@ export async function POST(
 ) {
     try {
         const userId = req.headers.get("x-user-id");
-
-        // Attendre la résolution des paramètres
-        const resolvedParams = await params;
-        const { id: postId } = resolvedParams;
+        const { id: postId } = await params;
 
         if (!userId) {
-            return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+            return NextResponse.json(respondError("Missing or invalid user ID"), { status: 401 });
         }
 
         if (!postId) {
-            return NextResponse.json({ message: "Post ID is required." }, { status: 400 });
+            return NextResponse.json(respondError("Post ID is required"), { status: 400 });
         }
 
         const formData = await req.formData();
-        const comment = parseCreateComment(formData);
+        const rawComment = parseCreateComment(formData);
 
-        const parsed = CommentSchema.safeParse(comment);
+        const comment = parseOrThrow(PostSchemas.create, rawComment);
 
-        if (!parsed.success) {
-            const errors = parsed.error.flatten().fieldErrors;
+        const createdComment = await createCommentServer(postId, comment, userId);
+
+        return NextResponse.json(respondSuccess(createdComment, "Comment created"), { status: 201 });
+    } catch (error) {
+        console.error("❌ Failed to create comment:", error);
+
+        if (error instanceof ValidationError) {
             return NextResponse.json(
-                { message: "Validation failed", errors },
+                respondError("Validation failed", error.fieldErrors),
                 { status: 400 }
             );
         }
 
-        const createdComment = await createCommentServer(postId, comment, userId);
-
-        return NextResponse.json({
-            success: true,
-            comment: createdComment
-        }, { status: 201 });
-    } catch (error) {
-        console.error("Comment creation failed:", error);
-
         const message =
             error instanceof Error ? error.message : "Unknown server error.";
 
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json(respondError(message), { status: 500 });
     }
 }

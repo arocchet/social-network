@@ -2,7 +2,7 @@
 // hooks/useUserPosts.ts
 'use client';
 
-import { PostWithDetails } from '@/lib/server/post/getPost';
+import { PostWithDetails } from '@/lib/schemas/post';
 import { useState, useEffect, useCallback } from 'react';
 
 interface UseUserPostsParams {

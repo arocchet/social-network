@@ -1,17 +1,19 @@
-import { register } from "@/lib/db/queries/registerUser"
+import { register } from "@/lib/db/queries/user/registerUser"
 import { signJwt } from "@/lib/jwt/signJwt"
+import { mapRegisterFormToInput } from "@/lib/parsers/formParsers"
 import { handleUploads } from "@/lib/uploads/imageUploads"
-import { parseRegisterFormData } from "@/lib/validations/registerCredentialsValidation"
 import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const formData = await req.formData()
-        const userData = await parseRegisterFormData(formData)
-        const { avatarUrl, bannerUrl } = await handleUploads(formData, userData.id!)
+        const userData = await mapRegisterFormToInput(formData)
+        const { avatarUrl, bannerUrl, coverId, bannerId } = await handleUploads(formData, userData.id!)
 
         userData.avatar = avatarUrl
         userData.banner = bannerUrl
+        userData.avatarId = coverId
+        userData.bannerId = bannerId
 
         const user = await register(userData)
         const token = await signJwt({ userId: user.id })

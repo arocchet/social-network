@@ -1,16 +1,18 @@
 import { db } from "../..";
 
 type Params = {
-    media?: string;
-    userId: string;
+  userId: string;
+  media?: string;
+  mediaId?: string;
 };
 
-export async function createStoriesIndb(story: Params) {
-    return await db.story.create({
-        data: {
-            ...(story.media ? { media: story.media } : {}),
-            visibility: "PUBLIC",
-            userId: story.userId,
-        }
-    });
+export async function createStoriesInDb(params: Params) {
+  return await db.story.create({
+    data: {
+      userId: params.userId,
+      visibility: "PUBLIC",
+      ...(params.media && { media: params.media }),
+      ...(params.mediaId && { mediaId: params.mediaId }),
+    },
+  });
 }

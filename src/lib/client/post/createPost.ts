@@ -1,6 +1,7 @@
-import { CreatePostForm } from "@/lib/types/types";
+import { CreatePost, Post } from "@/lib/schemas/post";
+import { fetcher } from "@/lib/server/api/fetcher";
 
-export async function createPostClient(post: CreatePostForm) {
+export async function createPostClient(post: CreatePost) {
     const formData = new FormData();
     formData.append("content", post.content);
 
@@ -8,15 +9,14 @@ export async function createPostClient(post: CreatePostForm) {
         formData.append("media", post.media);
     }
 
-    const res = await fetch("/api/private/post", {
-        method: "POST",
-        body: formData,
-    });
+    try {
+        const response = await fetcher<Post>("/api/private/post", {
+            method: "POST",
+            body: formData,
+        });
 
-    if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to create post.");
+        return response;
+    } catch (error) {
+        throw new Error(`Client error: ${(error instanceof Error) ? error.message : "Unknown error"}`);
     }
-
-    return await res.json();
 }

@@ -1,22 +1,28 @@
 import { createPostInDb } from "@/lib/db/queries/post/createPostInDb";
-import { CreatePostForm } from "@/lib/types/types";
+import { PostSchemas } from "@/lib/schemas/post";
+import { CreatePost } from "@/lib/schemas/post/create";
 import { handleImagePostUploads, handleVideoPostUploads } from "@/lib/uploads/postUploads";
+import { parseOrThrow } from "../../utils/";
+import { serializeDates } from "@/lib/utils/serializeDates";
 
-export async function createPostServer(post: CreatePostForm, userId: string) {
+export async function createPostServer(post: CreatePost, userId: string) {
     try {
         const { content, media } = post;
         let postMediaUrl: string | undefined;
+        let postMediaId: string | undefined
 
         if (media) {
             const isVideo = media.type.startsWith("video");
             const isImage = media.type.startsWith("image");
 
             if (isVideo) {
-                const { postVideoUrl } = await handleVideoPostUploads(media, userId);
+                const { postVideoUrl, postVideoId } = await handleVideoPostUploads(media, userId);
                 postMediaUrl = postVideoUrl;
+                postMediaId = postVideoId ?? undefined
             } else if (isImage) {
-                const { postImageUrl } = await handleImagePostUploads(media, userId);
+                const { postImageUrl, postImageId } = await handleImagePostUploads(media, userId);
                 postMediaUrl = postImageUrl;
+                postMediaId = postImageId ?? undefined
             }
         }
 
@@ -24,9 +30,12 @@ export async function createPostServer(post: CreatePostForm, userId: string) {
             content,
             userId,
             ...(postMediaUrl && { image: postMediaUrl }),
+            ...(postMediaId && { mediaId: postMediaId })
         };
 
-        return await createPostInDb(postData);
+        const newPost = await createPostInDb(postData)
+
+        return parseOrThrow(PostSchemas.full, serializeDates(newPost));
     } catch (error) {
         console.error("❌ Error in createPostServer:", error);
         throw new Error("Failed to create post");

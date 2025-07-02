@@ -1,34 +1,45 @@
-import { getAllPosts } from "@/lib/db/queries/post/getAllPosts";
+import { getPaginatedPosts } from "@/lib/db/queries/post/getAllPosts";
+import { respondError, respondSuccess } from "@/lib/server/api/response";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(req: NextRequest) {
     try {
         const userId = req.headers.get("x-user-id");
 
-
         if (!userId) {
-            return NextResponse.json({ message: "Invalid user ID." }, { status: 401 });
+            return NextResponse.json(
+                respondError("Missing or invalid user ID"),
+                { status: 401 }
+            );
         }
 
-        // Récupérer les données utilisateur depuis la base de données
-        const allPosts = await getAllPosts();
+        const { searchParams } = new URL(req.url);
 
-        if (!allPosts) {
-            return NextResponse.json({ message: "User not found." }, { status: 404 });
+        const skip = parseInt(searchParams.get("skip") || "0", 10);
+        const take = parseInt(searchParams.get("take") || "10", 10);
+
+
+        if (isNaN(skip) || skip < 0 || isNaN(take) || take <= 0 || take > 50) {
+            return NextResponse.json(
+                respondError("Invalid pagination parameters."),
+                { status: 400 }
+            );
         }
 
+        const posts = await getPaginatedPosts(skip, take);
 
-        return NextResponse.json({
-            success: true,
-            user: allPosts
-        }, { status: 200 });
-
+        return NextResponse.json(
+            respondSuccess(posts, posts.length === 0 ? "No posts available yet." : undefined),
+            { status: 200 }
+        );
     } catch (error) {
-        console.error("Failed to fetch user info:", error);
+        console.error("❌ Failed to fetch posts:", error);
 
-        const message =
-            error instanceof Error ? error.message : "Unknown server error.";
-
-        return NextResponse.json({ message }, { status: 500 });
+        return NextResponse.json(
+            respondError(
+                error instanceof Error ? error.message : "Unexpected server error."
+            ),
+            { status: 500 }
+        );
     }
 }

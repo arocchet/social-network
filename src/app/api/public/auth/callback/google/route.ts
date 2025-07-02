@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { handleGoogleCallback } from '@/lib/auth/server/oauth/google/callBackHandler';
+import { handleGoogleCallback } from '@/lib/server/oauth/google/callBackHandler';
 
 export async function GET(req: NextRequest) {
     try {
