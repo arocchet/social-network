@@ -22,23 +22,20 @@ import {
   EmojiPickerSearch,
 } from "@/components/reaction/emojiPicker";
 
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { createPostClient } from "@/lib/client/post/createPost";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePostContext } from "@/app/context/post-context";
 import { useUserContext } from "@/app/context/user-context";
 import AppLoader from "@/components/ui/app-loader";
-import { GifPopover } from "@/app/utils/giphy";
 import { CreatePost as CreatePostType } from "@/lib/schemas/post/";
 import { PostSchemas } from "@/lib/schemas/post";
-
 
 type MediaFile = {
   file: File;
   previewUrl: string;
   type: "image" | "video";
 };
-
 
 const GIPHY_API_KEY = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
 
@@ -108,21 +105,13 @@ const CreatePost: React.FC = () => {
     });
   };
 
-
-  // Fonction pour gérer la sélection de GIF
-  const handleGifSelect = (gif: { url: string }) => {
-    // Pour l'instant, on ajoute juste l'URL du GIF au commentaire
-    // Vous pourriez vouloir implémenter un système de média plus sophistiqué
-    setPostContent(prev => prev + ` ${gif.url}`);
-  };
-
   // Ouverture du sélecteur de fichiers
   const openFileDialog = () => {
     fileInputRef.current?.click();
   };
 
   async function handlePostSubmit() {
-    let media: CreatePostType['media'] | undefined = undefined;
+    let media: CreatePostType["media"] | undefined = undefined;
     if (mediaFiles.length > 0) {
       media = mediaFiles[0].file;
     }
@@ -132,10 +121,9 @@ const CreatePost: React.FC = () => {
       media: media,
     };
 
-    console.log('type', media instanceof File);
+    console.log("type", media instanceof File);
 
     const result = PostSchemas.create.safeParse(data);
-
 
     if (!result.success) {
       const fieldErrors = result.error.flatten().fieldErrors;
@@ -149,16 +137,15 @@ const CreatePost: React.FC = () => {
       return;
     }
 
-
     try {
       const response = await createPostClient(result.data);
 
       if (!response.success || !response.data) {
-        toast.error('failed to create post please try again later')
-        return
+        toast.error("failed to create post please try again later");
+        return;
       }
 
-      const newPost = response.data
+      const newPost = response.data;
 
       setAllPosts([newPost, ...allposts]);
       setPostContent("");
@@ -176,16 +163,16 @@ const CreatePost: React.FC = () => {
     }
   }
 
-  if (loading) return <AppLoader />
+  if (loading) return <AppLoader />;
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <button
-          className="md:w-full md:h-auto md:justify-start flex items-center gap-3 p-3 rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors text-normal"
-        >
+        <button className="md:w-full md:h-auto md:justify-start flex items-center gap-3 p-3 rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors text-normal">
           <PlusSquare className="h-5 w-5" />
-          <span className="hidden md:inline text-[var(--textNeutral)] font-normal">Créer un post</span>
+          <span className="hidden md:inline text-[var(--textNeutral)] font-normal">
+            Créer un post
+          </span>
         </button>
       </DialogTrigger>
 
@@ -341,10 +328,6 @@ const CreatePost: React.FC = () => {
                   </EmojiPicker>
                 </PopoverContent>
               </Popover>
-              <GifPopover
-                apiKey={GIPHY_API_KEY!} // Remplacez par votre clé API Giphy
-                onSelect={handleGifSelect}
-              />
             </div>
 
             <button
@@ -360,7 +343,5 @@ const CreatePost: React.FC = () => {
     </Dialog>
   );
 };
-
-
 
 export default CreatePost;
