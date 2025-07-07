@@ -30,7 +30,7 @@ export async function POST(
 		const userId = _req.headers.get("x-user-id");
 		// Validate userId from request headers
 		if (!userId) {
-			return NextResponse.json(respondError("Not connected"), {
+			return NextResponse.json(respondError("Not authenticated"), {
 				status: 401,
 			});
 		}
