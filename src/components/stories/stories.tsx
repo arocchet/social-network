@@ -7,12 +7,16 @@ import CreateStory from "./createStory";
 import AppLoader from "../ui/app-loader";
 import { useUserStories } from "@/hooks/use-user-stories";
 import { UserStoriesGroup } from "@/lib/schemas/stories/group";
-// Interface pour adapter vos données aux composants existants
+import { useUser } from "@/hooks/use-user-data";
+
 interface AdaptedStory {
   id: number;
   storyId: string;
   image: string;
   timeAgo: string;
+  isLiked?: boolean;
+  userReaction?: "LIKE" | "DISLIKE" | "LOVE" | "LAUGH" | "SAD" | "ANGRY" | null;
+  likesCount?: number;
 }
 
 interface AdaptedUser {
@@ -24,6 +28,7 @@ interface AdaptedUser {
 }
 
 export function Stories() {
+  const { user: currentUser } = useUser();
   const { storiesGroups, loading, error, refetch } = useUserStories({
     publicOnly: true,
     includeExpired: false,
@@ -49,10 +54,9 @@ export function Stories() {
     }
   };
 
-  // Adapter les données de la base de données au format attendu par les composants
   const adaptStoryData = (storiesGroups: UserStoriesGroup[]): AdaptedUser[] => {
     return storiesGroups.map((group, groupIndex) => ({
-      id: groupIndex + 1, // Index temporaire
+      id: groupIndex + 1,
       username:
         group.user.username ||
         `${group.user.firstName} ${group.user.lastName}`.trim(),
@@ -62,6 +66,16 @@ export function Stories() {
         storyId: story.id,
         image: story.media || "/placeholder.svg",
         timeAgo: getTimeAgo(story.datetime),
+        isLiked:
+          story.reactions?.some(
+            (r) => r.type === "LIKE" && r.user.id === currentUser?.id
+          ) || false,
+        userReaction:
+          story.reactions?.find(
+            (r) => r.type === "LIKE" && r.user.id === currentUser?.id
+          )?.type || null,
+        likesCount:
+          story.reactions?.filter((r) => r.type === "LIKE").length || 0,
       })),
     }));
   };
@@ -75,8 +89,7 @@ export function Stories() {
       isOwn: true,
       stories: [],
     },
-    ...adaptStoryData(storiesGroups ?? [])
-
+    ...adaptStoryData(storiesGroups ?? []),
   ];
 
   const viewableStories = adaptedStories.filter((story) => !story.isOwn);
@@ -84,13 +97,13 @@ export function Stories() {
   // Vérifier que les indices sont valides avant de rendre le StoryViewer
   const isValidUserIndex =
     currentUserIndex >= 0 && currentUserIndex < viewableStories.length;
-  const currentUser = isValidUserIndex
+  const currentViewingUser = isValidUserIndex
     ? viewableStories[currentUserIndex]
     : null;
   const isValidStoryIndex =
-    currentUser &&
+    currentViewingUser &&
     currentStoryIndex >= 0 &&
-    currentStoryIndex < currentUser.stories.length;
+    currentStoryIndex < currentViewingUser.stories.length;
 
   const handleStoryClick = (storyIndex: number) => {
     if (adaptedStories[storyIndex].isOwn) return;
@@ -108,60 +121,50 @@ export function Stories() {
   };
 
   const handleNext = () => {
-    // Vérifier que l'index utilisateur est valide
     if (!isValidUserIndex) {
       setViewingStory(null);
       return;
     }
 
-    const currentUser = viewableStories[currentUserIndex];
+    const currentViewingUser = viewableStories[currentUserIndex];
 
     // Vérifier que l'utilisateur a des stories
     if (
-      !currentUser ||
-      !currentUser.stories ||
-      currentUser.stories.length === 0
+      !currentViewingUser ||
+      !currentViewingUser.stories ||
+      currentViewingUser.stories.length === 0
     ) {
       setViewingStory(null);
       return;
     }
 
-    if (currentStoryIndex < currentUser.stories.length - 1) {
-      // Passer à la story suivante du même utilisateur
+    if (currentStoryIndex < currentViewingUser.stories.length - 1) {
       setCurrentStoryIndex((prevIndex) => prevIndex + 1);
     } else if (currentUserIndex < viewableStories.length - 1) {
-      // Passer au prochain utilisateur
       setCurrentUserIndex((prevIndex) => prevIndex + 1);
       setCurrentStoryIndex(0);
     } else {
-      // Fermer le viewer
       setViewingStory(null);
     }
   };
 
   const handlePrevious = () => {
-    // Vérifier que l'index utilisateur est valide
     if (!isValidUserIndex) {
       return;
     }
 
     if (currentStoryIndex > 0) {
-      // Revenir à la story précédente du même utilisateur
       setCurrentStoryIndex((prevIndex) => prevIndex - 1);
     } else if (currentUserIndex > 0) {
-      // Revenir à l'utilisateur précédent
       setCurrentUserIndex((prevIndex) => {
         const newIndex = prevIndex - 1;
 
-        // Vérifier que le nouvel index est valide
         if (newIndex < 0 || newIndex >= viewableStories.length) {
           return prevIndex;
         }
 
-        // Utiliser le nouvel index pour obtenir l'utilisateur précédent
         const prevUser = viewableStories[newIndex];
 
-        // Vérifier que prevUser existe et a des stories
         if (prevUser && prevUser.stories && prevUser.stories.length > 0) {
           setCurrentStoryIndex(prevUser.stories.length - 1);
         } else {
@@ -177,7 +180,7 @@ export function Stories() {
     setViewingStory(null);
   };
 
-  if (loading) return <AppLoader />
+  if (loading) return <AppLoader />;
 
   if (error) {
     return (
@@ -204,12 +207,13 @@ export function Stories() {
           >
             <div className="relative">
               <button
-                className={`p-0.5 rounded-full ${story.isOwn
-                  ? "bg-gray-300"
-                  : story.stories.length > 0
+                className={`p-0.5 rounded-full ${
+                  story.isOwn
+                    ? "bg-gray-300"
+                    : story.stories.length > 0
                     ? "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
                     : "bg-gray-300"
-                  }`}
+                }`}
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage

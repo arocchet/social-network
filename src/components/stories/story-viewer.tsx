@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import type React from "react";
+
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { X, Volume2, VolumeX, Heart } from "lucide-react";
@@ -9,12 +11,26 @@ import { StoryMedia } from "./storyMedia";
 import { useStoryPlayback } from "@/hooks/use-story-playback";
 import { updatedReaction } from "@/lib/client/stories/storiesReaction";
 
+interface Reaction {
+  id: string;
+  userId: string;
+  type: "LIKE" | "DISLIKE";
+  user?: {
+    id: string;
+    username: string;
+  };
+}
+
 interface StoryContent {
   id: number;
   storyId: string;
   image: string;
   timeAgo: string;
   mediaType?: "image" | "video";
+  isLiked?: boolean;
+  userReaction?: "LIKE" | "DISLIKE" | "LOVE" | "LAUGH" | "SAD" | "ANGRY" | null;
+  reactions?: Reaction[];
+  likesCount?: number;
 }
 
 interface Story {
@@ -33,6 +49,8 @@ interface StoryViewerProps {
   onPrevious: () => void;
 }
 
+const likesCache = new Map<string, { isLiked: boolean; likesCount: number }>();
+
 export function StoryViewer({
   stories,
   currentUserIndex,
@@ -42,9 +60,8 @@ export function StoryViewer({
   onPrevious,
 }: StoryViewerProps) {
   const [dominantColor, setDominantColor] = useState<string>("#000000");
-  const [isLiked, setIsLiked] = useState(false);
   const [flyingHearts, setFlyingHearts] = useState<
-    Array<{ id: number; x: number; y: number }>
+    Array<{ id: string; x: number; y: number }>
   >([]);
   const [heartId, setHeartId] = useState(0);
 
@@ -62,6 +79,26 @@ export function StoryViewer({
   const mediaType = currentStoryContent
     ? currentStoryContent.mediaType || getMediaType(currentStoryContent.image)
     : "image";
+
+  const cacheKey = currentStoryContent?.storyId;
+  const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
+
+  const [isLiked, setIsLiked] = useState(
+    cachedData?.isLiked ?? currentStoryContent?.isLiked ?? false
+  );
+  const [likesCount, setLikesCount] = useState(
+    cachedData?.likesCount ?? currentStoryContent?.likesCount ?? 0
+  );
+
+  useEffect(() => {
+    const cacheKey = currentStoryContent?.storyId;
+    const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
+
+    setIsLiked(cachedData?.isLiked ?? currentStoryContent?.isLiked ?? false);
+    setLikesCount(
+      cachedData?.likesCount ?? currentStoryContent?.likesCount ?? 0
+    );
+  }, [currentStoryContent?.storyId]);
 
   const {
     progress,
@@ -101,25 +138,54 @@ export function StoryViewer({
 
     const rect = event.currentTarget.getBoundingClientRect();
 
-    const currentStory = stories
-      .flatMap((group) => group.stories)
-      .find((story) => story.id === currentStoryIndex + 1);
-
     if (!currentStoryContent) return;
+
+    console.log(
+      "🔄 AVANT - isLiked:",
+      isLiked,
+      "storyId:",
+      currentStoryContent.storyId
+    );
 
     try {
       const response = await updatedReaction({
         type: isLiked ? "DISLIKE" : "LIKE",
-        mediaId: currentStory?.storyId,
-        contentType: "stories"
+        mediaId: currentStoryContent.storyId,
+        contentType: "stories",
       });
 
-      if (response && response.success) {
-        setIsLiked((prev) => !prev);
+      console.log("📥 RÉPONSE API:", response);
 
-        if (!isLiked) {
+      if (response && response.success) {
+        const newLikedState = !isLiked;
+        const newLikesCount = newLikedState
+          ? likesCount + 1
+          : Math.max(0, likesCount - 1);
+
+        // ✅ MISE À JOUR DES STATES
+        setIsLiked(newLikedState);
+        setLikesCount(newLikesCount);
+
+        // ✅ CACHE AVEC LES BONNES VALEURS
+        if (cacheKey) {
+          likesCache.set(cacheKey, {
+            isLiked: newLikedState,
+            likesCount: newLikesCount,
+          });
+        }
+
+        console.log(
+          "✅ UPDATE - newLikedState:",
+          newLikedState,
+          "ancien likesCount:",
+          likesCount,
+          "nouveau likesCount:",
+          newLikesCount
+        );
+
+        if (newLikedState) {
           const newHeart = {
-            id: heartId,
+            id: `heart-${heartId}-${Date.now()}`,
             x: rect.left + rect.width / 2,
             y: rect.top + rect.height / 2,
           };
@@ -192,8 +258,8 @@ export function StoryViewer({
                     index < currentStoryIndex
                       ? "100%"
                       : index === currentStoryIndex
-                        ? `${progress}%`
-                        : "0%",
+                      ? `${progress}%`
+                      : "0%",
                 }}
               />
             </div>
@@ -221,17 +287,25 @@ export function StoryViewer({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:bg-white/20"
-              onClick={toggleLike}
-            >
-              <Heart
-                className={`w-5 h-5 ${isLiked ? "fill-red-500 text-red-500" : ""
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white hover:bg-white/20"
+                onClick={toggleLike}
+              >
+                <Heart
+                  className={`w-5 h-5 ${
+                    isLiked ? "fill-red-500 text-red-500" : ""
                   }`}
-              />
-            </Button>
+                />
+              </Button>
+              {likesCount > 0 && (
+                <span className="text-xs text-white/80 min-w-[1rem]">
+                  {likesCount}
+                </span>
+              )}
+            </div>
             {mediaType === "video" && (
               <Button
                 variant="ghost"

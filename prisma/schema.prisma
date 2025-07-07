@@ -19,8 +19,8 @@ model User {
   avatar              String?
   banner              String?
   bannerId            String?
-  avatarId            String?
   visibility          ProfileVisibility    @default(PUBLIC)
+  avatarId            String?
   comments            Comment[]
   conversationMembers ConversationMember[]
   friendsWithMe       Friendship[]         @relation("FriendOf")

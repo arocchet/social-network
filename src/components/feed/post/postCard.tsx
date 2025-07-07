@@ -3,7 +3,14 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Heart, Send, Bookmark, Play, Video, MessageCircle } from "lucide-react";
+import {
+  Heart,
+  Send,
+  Bookmark,
+  Play,
+  Video,
+  MessageCircle,
+} from "lucide-react";
 import { PostDetails } from "./postDetails";
 import Link from "next/link";
 import { usePostContext } from "@/app/context/post-context";
@@ -19,8 +26,10 @@ const PostCard = () => {
   const getMediaType = (mediaUrl: string | null) => {
     if (!mediaUrl) return "text";
 
-    if (mediaUrl.includes("/video/") || mediaUrl.includes("video")) return "video";
-    if (mediaUrl.includes("/image/") || mediaUrl.includes("image")) return "image";
+    if (mediaUrl.includes("/video/") || mediaUrl.includes("video"))
+      return "video";
+    if (mediaUrl.includes("/image/") || mediaUrl.includes("image"))
+      return "image";
 
     const videoExtensions = [".mp4", ".mov", ".avi", ".webm", ".mkv", ".flv"];
     const imageExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"];
@@ -117,7 +126,9 @@ const PostCard = () => {
                     className="object-cover"
                   />
                   <AvatarFallback className="bg-[var(--greyFill)] text-[var(--textNeutral)]">
-                    {(post.user?.username || post.user.username || "U")[0].toUpperCase()}
+                    {(post.user?.username ||
+                      post.user.username ||
+                      "U")[0].toUpperCase()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col">
@@ -141,7 +152,11 @@ const PostCard = () => {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" className="p-0 hover:bg-transparent">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="p-0 hover:bg-transparent"
+                >
                   <Heart className="w-6 h-6 text-[var(--textNeutral)] hover:text-red-500 transition-colors" />
                 </Button>
 
@@ -155,11 +170,19 @@ const PostCard = () => {
                   <MessageCircle className="w-6 h-6 text-[var(--textNeutral)] hover:text-blue-500 transition-colors" />
                 </Button>
 
-                <Button variant="ghost" size="icon" className="p-0 hover:bg-transparent">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="p-0 hover:bg-transparent"
+                >
                   <Send className="w-6 h-6 text-[var(--textNeutral)] hover:text-blue-500 transition-colors" />
                 </Button>
               </div>
-              <Button variant="ghost" size="icon" className="p-0 hover:bg-transparent">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="p-0 hover:bg-transparent"
+              >
                 <Bookmark className="w-6 h-6 text-[var(--textNeutral)] hover:text-yellow-500 transition-colors" />
               </Button>
             </div>
@@ -193,11 +216,11 @@ const PostCard = () => {
             <div className="text-xs text-[var(--textMinimal)] uppercase">
               {post.datetime
                 ? new Date(post.datetime).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
                 : `Il y a ${Math.floor(Math.random() * 24)}h`}
             </div>
           </div>
