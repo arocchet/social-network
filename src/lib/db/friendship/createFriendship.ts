@@ -12,7 +12,7 @@ export async function createFriendshipInDb(params: Params) {
       data: {
         userId: params.userId,
         friendId: params.followId,
-        status: params.status || "pending", // Default to 'pending' if not provided
+        status: params.status || "pending",
       },
       select: {
         userId: true,
