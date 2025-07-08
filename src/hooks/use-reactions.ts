@@ -6,7 +6,7 @@ export async function updatedReaction(data: Record<string, any>) {
       method: "PUT",
       body: data,
     });
-
+    console.log("data", data);
     return reponse;
   } catch (error) {
     if (error instanceof Error)

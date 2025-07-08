@@ -15,8 +15,14 @@ import { PostDetails } from "./postDetails";
 import Link from "next/link";
 import { usePostContext } from "@/app/context/post-context";
 import { Post } from "@/lib/schemas/post";
+import LikeComponent from "@/components/reaction/toggleLike";
 
-const PostCard = () => {
+interface PostContent {
+  isLiked?: boolean;
+  likesCount?: number;
+}
+
+const PostCard = ({ isLiked, likesCount }: PostContent) => {
   const { allposts } = usePostContext();
 
   // Etat pour gérer quel post a ses détails ouverts
@@ -152,14 +158,14 @@ const PostCard = () => {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="p-0 hover:bg-transparent"
-                >
-                  <Heart className="w-6 h-6 text-[var(--textNeutral)] hover:text-red-500 transition-colors" />
-                </Button>
-
+                <LikeComponent
+                  contentType={"post"}
+                  content={{
+                    postId: post.id,
+                    isLiked: isLiked || false,
+                    likesCount: likesCount || 0,
+                  }}
+                />
                 {/* Bouton pour ouvrir les détails / commentaires */}
                 <Button
                   variant="ghost"

@@ -17,7 +17,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PostWithDetails } from "@/lib/schemas/post/";
 import { Comment } from "@/lib/schemas/comment";
 import { usePostById } from "@/hooks/use-post-by-id";
-
+import LikeComponent from "@/components/reaction/toggleLike";
 
 interface PostDetailsProps {
   postId: string;
@@ -33,9 +33,9 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
   const { post, loading } = usePostById(postId);
 
   useEffect(() => {
-    setUpdatedPost(post)
-    console.log('post: ', post)
-  }, [post])
+    setUpdatedPost(post);
+    console.log("post: ", post);
+  }, [post]);
 
   const handleScroll = () => {
     const content = contentRef.current;
@@ -51,15 +51,20 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
     setUpdatedPost((prev) =>
       prev
         ? {
-          ...prev,
-          comments: [newComment, ...prev.comments],
-        }
+            ...prev,
+            comments: [newComment, ...prev.comments],
+          }
         : prev
     );
   };
 
   return (
-    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Dialog
+      open={true}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="icon" className="p-0 relative">
@@ -342,9 +347,9 @@ function getTenorImageUrl(url: string): string {
 
 // Fonction pour obtenir l'URL d'image directe selon le fournisseur
 function getDirectImageUrl(url: string): string {
-  if (url.includes('giphy.com/gifs/')) {
+  if (url.includes("giphy.com/gifs/")) {
     return getGiphyImageUrl(url);
-  } else if (url.includes('tenor.com')) {
+  } else if (url.includes("tenor.com")) {
     return getTenorImageUrl(url);
   }
 
@@ -363,7 +368,7 @@ function parseCommentContent(message: string) {
     if (match.index > lastIndex) {
       const textBefore = message.slice(lastIndex, match.index).trim();
       if (textBefore) {
-        parts.push({ type: 'text', content: textBefore });
+        parts.push({ type: "text", content: textBefore });
       }
     }
 
@@ -373,12 +378,12 @@ function parseCommentContent(message: string) {
       // Convertir l'URL en URL d'image directe si nécessaire
       const directImageUrl = getDirectImageUrl(url);
       parts.push({
-        type: 'image',
+        type: "image",
         content: directImageUrl,
-        originalUrl: url // Garder l'URL originale pour le fallback
+        originalUrl: url, // Garder l'URL originale pour le fallback
       });
     } else {
-      parts.push({ type: 'link', content: url });
+      parts.push({ type: "link", content: url });
     }
 
     lastIndex = match.index + match[0].length;
@@ -388,27 +393,38 @@ function parseCommentContent(message: string) {
   if (lastIndex < message.length) {
     const textAfter = message.slice(lastIndex).trim();
     if (textAfter) {
-      parts.push({ type: 'text', content: textAfter });
+      parts.push({ type: "text", content: textAfter });
     }
   }
 
   // Si aucune URL n'a été trouvée, retourner tout comme texte
   if (parts.length === 0) {
-    parts.push({ type: 'text', content: message });
+    parts.push({ type: "text", content: message });
   }
 
   return parts;
 }
 
-// Composant pour un commentaire individuel avec support des médias
-function CommentItem({
-  comment,
-  isLast,
-}: {
+interface CommentContent {
   comment: Comment;
-  isLast?: boolean;
-}) {
-  const formatDate = (dateString: string | Date) => {
+  isLiked?: boolean;
+  likesCount?: number;
+}
+
+// Composant pour un commentaire individuel avec support des médias
+interface CommentItemProps {
+  comment: Comment;
+  isLiked?: boolean;
+  likesCount?: number;
+  isLast?: boolean; // Pour gérer le style du dernier commentaire
+}
+
+const CommentItem: React.FC<CommentItemProps> = ({
+  comment,
+  isLiked,
+  likesCount,
+}) => {
+  const formatDate = (dateString: string | Date): string => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInMinutes = Math.floor(
@@ -451,13 +467,13 @@ function CommentItem({
         {/* Contenu du commentaire avec support des médias */}
         <div className="space-y-2">
           {contentParts.map((part, index) => {
-            if (part.type === 'text') {
+            if (part.type === "text") {
               return (
                 <span key={index} className="text-foreground text-sm">
                   {part.content}
                 </span>
               );
-            } else if (part.type === 'image') {
+            } else if (part.type === "image") {
               return (
                 <div key={index} className="mt-2">
                   <img
@@ -467,19 +483,22 @@ function CommentItem({
                     onError={(e) => {
                       // En cas d'erreur de chargement, afficher le lien original comme texte
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const linkElement = document.createElement('a');
-                      linkElement.href = (part as any).originalUrl || part.content;
-                      linkElement.textContent = (part as any).originalUrl || part.content;
-                      linkElement.target = '_blank';
-                      linkElement.rel = 'noopener noreferrer';
-                      linkElement.className = 'text-blue-500 hover:underline text-sm break-all';
+                      target.style.display = "none";
+                      const linkElement = document.createElement("a");
+                      linkElement.href =
+                        (part as any).originalUrl || part.content;
+                      linkElement.textContent =
+                        (part as any).originalUrl || part.content;
+                      linkElement.target = "_blank";
+                      linkElement.rel = "noopener noreferrer";
+                      linkElement.className =
+                        "text-blue-500 hover:underline text-sm break-all";
                       target.parentNode?.insertBefore(linkElement, target);
                     }}
                   />
                 </div>
               );
-            } else if (part.type === 'link') {
+            } else if (part.type === "link") {
               return (
                 <a
                   key={index}
@@ -499,10 +518,18 @@ function CommentItem({
         <div className="text-xs text-muted-foreground mt-1">
           {formatDate(comment.datetime)}
         </div>
+        <LikeComponent
+          contentType={"comment"}
+          content={{
+            commentId: comment.id,
+            isLiked: isLiked,
+            likesCount: likesCount,
+          }}
+        ></LikeComponent>
       </div>
     </div>
   );
-}
+};
 
 // Composant pour le footer avec actions
 export function PostFooter({
@@ -515,10 +542,7 @@ export function PostFooter({
   return (
     <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)]">
       <div className="p-2 w-full">
-        <InputComment
-          postId={postId}
-          onCommentAdded={onCommentAdded}
-        />
+        <InputComment postId={postId} onCommentAdded={onCommentAdded} />
       </div>
     </div>
   );
