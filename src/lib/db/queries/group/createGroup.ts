@@ -3,7 +3,8 @@ import { db } from "@/lib/db";
 
 export async function createGroupInDb(
   userIds: string[],
-  title: string
+  title: string,
+  ownerId: string
 ): Promise<NextResponse> {
   try {
     if (!userIds || userIds.length < 2) {
@@ -17,6 +18,7 @@ export async function createGroupInDb(
       data: {
         title,
         isGroup: true,
+        owner: { connect: { id: ownerId } },
         members: {
           create: userIds.map((id) => ({
             user: { connect: { id } },

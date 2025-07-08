@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createGroupInDb } from "@/lib/db/queries/group/createGroup";
 
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -14,7 +13,15 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    return await createGroupInDb(userIds, title);
+    const ownerId = req.headers.get("x-user-id");
+    if (!ownerId) {
+      return NextResponse.json(
+        { error: "Utilisateur non authentifié" },
+        { status: 401 }
+      );
+    }
+
+    return await createGroupInDb(userIds, title, ownerId);
   } catch (error) {
     console.error("Erreur lors de la création du groupe :", error);
     return NextResponse.json(
