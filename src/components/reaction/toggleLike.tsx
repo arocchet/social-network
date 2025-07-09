@@ -2,6 +2,7 @@ import { Heart } from "lucide-react";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import { updatedReaction } from "@/hooks/use-reactions";
+import { likesCache } from "@/lib/cache/likesCache";
 
 interface LikeComponentProps {
   contentType: "story" | "post" | "comment";
@@ -32,11 +33,8 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
     Array<{ id: string; x: number; y: number }>
   >([]);
   const [heartId, setHeartId] = useState(0);
-  const likesCache = new Map<
-    number | string,
-    { isLiked: boolean; likesCount: number }
-  >();
-  const cacheKey = currentContent?.storyId;
+  const cacheKey =
+    currentContent.postId || currentContent.storyId || currentContent.commentId;
   const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
 
   const [isLiked, setIsLiked] = useState(
@@ -46,12 +44,21 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
     cachedData?.likesCount ?? currentContent?.likesCount ?? 0
   );
   useEffect(() => {
-    const cacheKey = currentContent?.storyId;
+    const cacheKey =
+      currentContent.postId ||
+      currentContent.storyId ||
+      currentContent.commentId;
     const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
 
     setIsLiked(cachedData?.isLiked ?? currentContent?.isLiked ?? false);
     setLikesCount(cachedData?.likesCount ?? currentContent?.likesCount ?? 0);
-  }, [currentContent?.storyId]);
+  }, [
+    currentContent.postId,
+    currentContent.storyId,
+    currentContent.commentId,
+    currentContent.isLiked,
+    currentContent.likesCount,
+  ]);
 
   const apiContentType =
     contentType === "story"
