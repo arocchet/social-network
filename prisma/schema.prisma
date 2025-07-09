@@ -194,7 +194,7 @@ model UserSettings {
 }
 
 model GroupInvitation {
-  id                                   String            @id @default(cuid())
+  id                                   String           @id @default(cuid())
   groupId                              String
   inviterId                            String
   invitedId                            String
