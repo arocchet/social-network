@@ -220,7 +220,7 @@ model GroupJoinRequest {
 }
 
 model GroupMember {
-  id           String       @id
+  id           String       @id @default(cuid())
   groupId      String
   userId       String
   joinedAt     DateTime     @default(now())
