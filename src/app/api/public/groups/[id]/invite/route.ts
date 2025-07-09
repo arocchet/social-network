@@ -21,7 +21,7 @@ export async function POST(
     const { invitedId } = await req.json();
 
     if (!invitedId) {
-      return NextResponse.json(respondError("Invitee ID is required"), { status: 400 });
+      return NextResponse.json(respondError("Invited ID is required"), { status: 400 });
     }
 
     const invitation = await createGroupInvitation( groupId, inviterId, invitedId);

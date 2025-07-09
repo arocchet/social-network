@@ -39,22 +39,31 @@ export async function POST(
     },
   });
 
-  if (action === "ACCEPT") {
-    const alreadyMember = await db.groupMember.findFirst({
-      where: {
-        groupId,
+  // ...existing code...
+
+if (action === "ACCEPT") {
+  // Vérifie si l'utilisateur est déjà membre du groupe
+  const alreadyMember = await db.conversationMember.findUnique({
+    where: {
+      userId_conversationId: {
+        userId: updated.invitedId,
+        conversationId: groupId,
+      },
+    },
+  });
+
+  // S'il n'est pas membre, on l'ajoute
+  if (!alreadyMember) {
+    await db.conversationMember.create({
+      data: {
+        conversationId: groupId,
         userId: updated.invitedId,
       },
     });
+  }
 
-    if (!alreadyMember) {
-      await db.groupMember.create({
-        data: {
-          groupId,
-          userId: updated.invitedId,
-        },
-      });
-    }
+  if (action === "REJECT" || action === "ACCEPT" )
+    await db.groupInvitation.delete({ where: { id: requestId } });
   }
 
   return NextResponse.json({
