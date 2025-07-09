@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createGroupInDb } from "@/lib/db/queries/group/createGroup";
+import { createGroupInDb } from "@/lib/db/queries/groups/createGroup";
 
 export async function POST(req: NextRequest) {
   try {
