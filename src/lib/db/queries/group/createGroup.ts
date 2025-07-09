@@ -14,11 +14,15 @@ export async function createGroupInDb(
       );
     }
 
+    if (!userIds.includes(ownerId)) {
+      userIds.push(ownerId);
+    }
+    
     const group = await db.conversation.create({
       data: {
         title,
         isGroup: true,
-        owner: { connect: { id: ownerId } },
+         ownerId,
         members: {
           create: userIds.map((id) => ({
             user: { connect: { id } },
