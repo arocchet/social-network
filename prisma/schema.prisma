@@ -160,17 +160,6 @@ model ConversationMember {
   @@unique([userId, conversationId])
 }
 
-model GroupMessage {
-  id             String       @id @default(cuid())
-  conversationId String
-  senderId       String
-  message        String
-  image          String?
-  sentAt         DateTime     @default(now())
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  sender         User         @relation(fields: [senderId], references: [id])
-}
-
 model Notification {
   id        String   @id @default(cuid())
   userId    String
@@ -219,16 +208,6 @@ model GroupJoinRequest {
   @@unique([groupId, seeker], name: "groupId_seeker") // ✅ Ajout du nom
 }
 
-model GroupMember {
-  id       String       @id @default(cuid()) // ✅ Nouveau modèle
-  groupId  String
-  userId   String
-  joinedAt DateTime     @default(now())
-  group    Conversation @relation(fields: [groupId], references: [id])
-  user     User         @relation(fields: [userId], references: [id])
-
-  @@unique([groupId, userId])
-}
 
 enum Visibility {
   PUBLIC

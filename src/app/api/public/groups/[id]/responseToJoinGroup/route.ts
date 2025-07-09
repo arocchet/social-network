@@ -9,6 +9,10 @@ export async function POST(
   const userId = req.headers.get("x-user-id");
   const groupId = params.id;
 
+  if (!userId) {
+    return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+  }
+
   const { requestId, action } = await req.json();
 
   if (!["ACCEPT", "REJECT"].includes(action)) {
@@ -20,10 +24,10 @@ export async function POST(
     return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   }
 
+  // Correction ici : on cherche la demande dans groupJoinRequest
   const request = await db.groupJoinRequest.findUnique({
     where: { id: requestId },
   });
-
   if (!request || request.groupId !== groupId) {
     return NextResponse.json({ error: "Demande invalide" }, { status: 400 });
   }
@@ -39,22 +43,27 @@ export async function POST(
   });
 
   if (action === "ACCEPT") {
-    const existing = await db.groupMember.findFirst({
+    const alreadyMember = await db.conversationMember.findUnique({
       where: {
-        groupId,
-        userId: updated.seeker,
+        userId_conversationId: {
+          userId: updated.seeker,
+          conversationId: groupId,
+        },
       },
     });
 
-    if (!existing) {
-      await db.groupMember.create({
+    if (!alreadyMember) {
+      await db.conversationMember.create({
         data: {
-          groupId,
+          conversationId: groupId,
           userId: updated.seeker,
         },
       });
     }
   }
+
+  // Suppression de la demande dans tous les cas
+  await db.groupJoinRequest.delete({ where: { id: requestId } });
 
   return NextResponse.json({
     message: `Demande ${action === "ACCEPT" ? "acceptée" : "rejetée"}`,
