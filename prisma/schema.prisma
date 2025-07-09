@@ -19,9 +19,10 @@ model User {
   avatar              String?
   banner              String?
   bannerId            String?
-  visibility          ProfileVisibility    @default(PUBLIC)
   avatarId            String?
+  visibility          ProfileVisibility    @default(PUBLIC)
   comments            Comment[]
+  Conversation        Conversation[]
   conversationMembers ConversationMember[]
   friendsWithMe       Friendship[]         @relation("FriendOf")
   friendships         Friendship[]         @relation("UserFriendships")
@@ -131,6 +132,8 @@ model Conversation {
   title     String?
   isGroup   Boolean              @default(false)
   createdAt DateTime             @default(now())
+  ownerId   String?
+  User      User?                @relation(fields: [ownerId], references: [id])
   members   ConversationMember[]
   messages  GroupMessage[]
 }
