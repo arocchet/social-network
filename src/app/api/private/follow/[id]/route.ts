@@ -6,12 +6,68 @@ import { respondSuccess, respondError } from "@/lib/server/api/response";
 import { ProfileVisibility } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
+export async function GET(
+	_req: NextRequest,
+	{ params }: { params: { id: string } }
+) {
+	try {
+		const { id: followId } = await params;
+		if (!followId) {
+			return NextResponse.json(respondError("Follow ID is required"), {
+				status: 400,
+			});
+		}
+
+		const follow = await getUser({ userId: followId });
+
+		// Check if the user exists
+		if (!follow) {
+			return NextResponse.json(respondError("Follower not found"), {
+				status: 404,
+			});
+		}
+
+		const userId = _req.headers.get("x-user-id");
+		// Validate userId from request headers
+		if (!userId) {
+			return NextResponse.json(respondError("Not authenticated"), {
+				status: 401,
+			});
+		}
+
+		const existingFriendship = await checkFriendshipInDb({
+			followId: followId,
+			userId: userId,
+		});
+
+		if (!existingFriendship) {
+			return NextResponse.json(
+				respondError("Friendship not found"),
+				{ status: 404 }
+			);
+		}
+
+		return NextResponse.json(
+			respondSuccess(null, "Follower retrieved successfully"),
+			{ status: 200 }
+		);
+	} catch (err) {
+		console.error("Error retrieving follower:", err);
+		return NextResponse.json(
+			respondError(
+				err instanceof Error ? err.message : "Unexpected server error"
+			),
+			{ status: 500 }
+		);
+	}
+}
+
 export async function POST(
 	_req: NextRequest,
 	{ params }: { params: { id: string } }
 ) {
 	try {
-		const { id: followId } = params;
+		const { id: followId } = await params;
 		if (!followId) {
 			return NextResponse.json(respondError("Follow ID is required"), {
 				status: 400,
@@ -43,7 +99,7 @@ export async function POST(
 
 		// If the friendship exists, cancel it if it's pending, otherwise return success
 		if (existingFriendship) {
-			if (existingFriendship.status === "pending") {
+			if (existingFriendship.status === "pending" || existingFriendship.status === "accepted") {
 				deleteFriendshipInDb({
 					followId: followId,
 					userId: userId,
@@ -51,7 +107,7 @@ export async function POST(
 			}
 
 			return NextResponse.json(
-				respondSuccess("Friendship canceled successfully"),
+				respondSuccess(null, "Friendship canceled successfully"),
 				{ status: 201 }
 			);
 		} else {
