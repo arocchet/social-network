@@ -24,12 +24,12 @@ export async function POST(
     return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
   }
 
-  const request = await db.groupJoinRequest.findUnique({ where: { id: requestId } });
+  const request = await db.groupInvitation.findUnique({ where: { id: requestId } });
   if (!request || request.groupId !== groupId) {
     return NextResponse.json({ error: "Demande invalide" }, { status: 400 });
   }
 
-  const updated = await db.groupJoinRequest.update({
+  const updated = await db.groupInvitation.update({
     where: { id: requestId },
     data: {
       status:
@@ -43,7 +43,7 @@ export async function POST(
     const alreadyMember = await db.groupMember.findFirst({
       where: {
         groupId,
-        userId: updated.seeker,
+        userId: updated.invitedId,
       },
     });
 
@@ -51,7 +51,7 @@ export async function POST(
       await db.groupMember.create({
         data: {
           groupId,
-          userId: updated.seeker,
+          userId: updated.invitedId,
         },
       });
     }
