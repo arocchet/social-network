@@ -41,6 +41,7 @@ export default function ProfilePage() {
   const [selectedPostDetails, setSelectedPostDetails] = useState<any>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [postDetailsLoading, setPostDetailsLoading] = useState(false);
   const [postDetailsError, setPostDetailsError] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -83,7 +84,30 @@ export default function ProfilePage() {
       }
     };
 
+    // Mettre à jour le nombre de followers
+    const updateSatsCount = async () => {
+      try {
+        const response = await fetch(`/api/private/follow/stats/${profileUser.id}/`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          setFollowersCount(0);
+          return;
+        }
+
+        const data = await response.json();
+        console.log(data.data)
+        setFollowersCount(data.data.follower || 0);
+        setFollowingCount(data.data.following || 0);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des followers:", err);
+      }
+    }
+
     checkFollowingStatus();
+    updateSatsCount();
   }, [profileUser]);
 
 
@@ -107,8 +131,6 @@ export default function ProfilePage() {
       if (!data.success) {
         console.log(response)
       }
-
-      console.log("Réponse de l'API de suivi:", data);
 
       if (data.data) {
         setIsFollowing(true)
@@ -435,7 +457,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="flex flex-col items-center">
                         <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                          {followersCount.toLocaleString()}
+                          {followersCount}
                         </div>
                         <div className="text-sm text-[var(--textMinimal)]">
                           abonnés
@@ -443,8 +465,8 @@ export default function ProfilePage() {
                       </div>
                       <div className="flex flex-col items-center">
                         <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                          {/* {profileUser.followingCount || 0} */}
-                          0
+                          {followingCount}
+                          
                         </div>
                         <div className="text-sm text-[var(--textMinimal)]">
                           abonnements
