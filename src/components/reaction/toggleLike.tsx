@@ -2,7 +2,6 @@ import { Heart } from "lucide-react";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import { updatedReaction } from "@/hooks/use-reactions";
-import { likesCache } from "@/lib/cache/likesCache";
 
 interface LikeComponentProps {
   contentType: "story" | "post" | "comment";
@@ -33,25 +32,15 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
     Array<{ id: string; x: number; y: number }>
   >([]);
   const [heartId, setHeartId] = useState(0);
-  const cacheKey =
-    currentContent.postId || currentContent.storyId || currentContent.commentId;
-  const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
-
-  const [isLiked, setIsLiked] = useState(
-    cachedData?.isLiked ?? currentContent?.isLiked ?? false
-  );
-  const [likesCount, setLikesCount] = useState(
-    cachedData?.likesCount ?? currentContent?.likesCount ?? 0
-  );
+  const [isLiked, setIsLiked] = useState(currentContent.isLiked ?? false);
+  const [likesCount, setLikesCount] = useState(currentContent.likesCount ?? 0);
   useEffect(() => {
     const cacheKey =
       currentContent.postId ||
       currentContent.storyId ||
       currentContent.commentId;
-    const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
-
-    setIsLiked(cachedData?.isLiked ?? currentContent?.isLiked ?? false);
-    setLikesCount(cachedData?.likesCount ?? currentContent?.likesCount ?? 0);
+    setIsLiked(currentContent?.isLiked ?? false);
+    setLikesCount(currentContent.likesCount ?? 0);
   }, [
     currentContent.postId,
     currentContent.storyId,
@@ -134,13 +123,6 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
             : contentType === "post"
             ? currentContent.postId
             : currentContent.commentId;
-
-        if (cacheKey) {
-          likesCache.set(cacheKey, {
-            isLiked: newLikedState,
-            likesCount: newLikesCount,
-          });
-        }
 
         console.log(
           "✅ UPDATE - newLikedState:",
