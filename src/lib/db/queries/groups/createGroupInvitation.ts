@@ -1,52 +1,43 @@
 import { db } from "@/lib/db";
-import { Prisma } from "@prisma/client";
 
-export async function createGroupInvitation(
-  groupId: string,
-  inviterId: string,
-  invitedId: string
-) {
-  if (inviterId === invitedId) {
-    throw new Error("Vous ne pouvez pas vous inviter vous-même.");
-  }
+interface CreateGroupInvitation {
+  groupId: string;
+  inviterId: string;
+  invitedId: string;
+}
+
+export async function createGroupInvitation(data: CreateGroupInvitation) {
+  const { groupId, inviterId, invitedId } = data;
 
   const group = await db.conversation.findUnique({
     where: { id: groupId },
   });
 
   if (!group) {
-    throw new Error("Groupe introuvable.");
+    throw new Error("Group not found.");
   }
 
   if (group.ownerId !== inviterId) {
-    throw new Error("Non autorisé à inviter dans ce groupe.");
+    throw new Error("Not authorized to invite in this group.");
   }
 
-  try {
-    const invitation = await db.groupInvitation.create({
-      data: {
-        groupId,
-        inviterId,
-        invitedId,
-      },
-    });
+  const invitation = await db.groupInvitation.create({
+    data: {
+      groupId,
+      inviterId,
+      invitedId,
+    },
+  });
 
-    await db.notification.create({
-      data: {
-        userId: invitedId,
-        type: "GROUP_INVITATION",
-        message: `You have been invited to join the group "${group.title || "Unnamed Group"}".`,
-      },
-    });
+  await db.notification.create({
+    data: {
+      userId: invitedId,
+      type: "GROUP_INVITATION",
+      message: `You have been invited to join the group "${
+        group.title || "Unnamed Group"
+      }".`,
+    },
+  });
 
-    return invitation;
-  } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      throw new Error("L'utilisateur a déjà été invité.");
-    }
-    throw error;
-  }
+  return invitation;
 }

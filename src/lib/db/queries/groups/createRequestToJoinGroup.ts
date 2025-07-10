@@ -1,6 +1,14 @@
 import { db } from "../..";
 
-export async function sendRequestToJoinGroup(groupId: string, seeker: string) {
+interface RequestInput{
+  groupId : string,
+  seeker : string,
+}
+
+export async function sendRequestToJoinGroup(data : RequestInput) {
+
+  const {groupId, seeker} = data;
+
   if (!groupId || !seeker) {
     throw new Error("Missing groupId or seeker");
   }
