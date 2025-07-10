@@ -57,7 +57,7 @@ export default function NavigationBar() {
               </div>
             </Link>
 
-            <Link href="/profile">
+            <Link href={`/profile/${user?.id}`}>
               <div className="flex items-center gap-3 p-3 mt-2  rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors">
                 <User className="w-5 h-5" />
                 <span>Profil</span>
