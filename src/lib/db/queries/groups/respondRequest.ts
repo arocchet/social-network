@@ -12,12 +12,15 @@ export interface RespondJoinInput {
   action: ActionType;
 }
 
-export async function respondJoinRequest({
+export async function respondJoinRequest(data : RespondJoinInput) {
+  
+  const {
   userId,
   groupId,
   requestId,
   action,
-}: RespondJoinInput) {
+} =  data;
+
   const group = await db.conversation.findUnique({ where: { id: groupId } });
   if (!group || group.ownerId !== userId) {
     throw new Error("Unauthorized");
