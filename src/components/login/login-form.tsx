@@ -16,7 +16,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { login } from "@/lib/client/user/login";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader } from "lucide-react";
 import { OAuthLoginButton } from "../auth/OAuthLoginButton";
 import { CredentialsLogin, UserSchemas } from "@/lib/schemas/user";
 
@@ -33,7 +33,7 @@ export default function LoginForm({
   const [errors, setErrors] = useState<Partial<LoginFormErrors>>({});
   const router = useRouter();
   const [isVisible, setIsVisible] = useState<boolean>(false);
-
+  const [isLoading, setIsLoanding] = useState(false)
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -48,7 +48,7 @@ export default function LoginForm({
       });
       return;
     }
-
+    setIsLoanding(true)
     try {
       setErrors({});
       const response = await login(credentials);
@@ -66,7 +66,7 @@ export default function LoginForm({
     const { id, value } = e.target;
     setCredentials(prevCredentials => ({
       ...prevCredentials,
-      [id]: value,
+      [id]: value.trim(),
     }));
   };
 
@@ -126,7 +126,7 @@ export default function LoginForm({
                   {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
                 </div>
                 <Button type="submit" className="w-full bg-[var(--pink20)] text-[var(--white)] hover:bg-[var(--pink40)]" onClick={handleSubmit}>
-                  Se connecter
+                  {isLoading ? (<div className="flex items-center gap-2">Connection en cours <Loader className="animate-spin" /></div>) : ("Se connecter")}
                 </Button>
                 <div className="min-h-[1.25rem]">
                   {errors.general && (

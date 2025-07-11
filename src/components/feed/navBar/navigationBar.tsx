@@ -5,6 +5,7 @@ import CreatePost from "../post/createPost";
 import Link from "next/link";
 import { useUserContext } from "@/app/context/user-context";
 import AppLoader from "@/components/ui/app-loader";
+import { FaPlay } from "react-icons/fa6";
 
 export default function NavigationBar() {
   const { user, loading } = useUserContext();
@@ -50,6 +51,13 @@ export default function NavigationBar() {
               <CreatePost />
             </div>
 
+            <Link href="/reels">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bgLevel3)] text-[var(--textNeutral)] hover:bg-[var(--bgLevel4)] transition-colors">
+                <FaPlay className="w-5 h-5" />
+                <span>Reels</span>
+              </div>
+            </Link>
+
             <Link href="/settings">
               <div className="flex items-center gap-3 p-3 mt-2  rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors">
                 <SettingsIcon className="w-5 h-5" />
@@ -80,6 +88,8 @@ export default function NavigationBar() {
                 <Home className="w-6 h-6" />
               </Button>
             </Link>
+
+
             <Link href="/search">
               <Button
                 variant="ghost"
@@ -90,13 +100,13 @@ export default function NavigationBar() {
               </Button>
             </Link>
             <CreatePost />
-            <Link href="/settings">
+            <Link href="/reels">
               <Button
                 variant="ghost"
                 size="icon"
-                className="hover:bg-gray-100 transition-colors duration-200 rounded-xl"
+                className="hover:bg-[var(--bgLevel2)] transition-colors duration-200 rounded-xl"
               >
-                <SettingsIcon className="w-6 h-6" />
+                <FaPlay className="w-6 h-6" />
               </Button>
             </Link>
 

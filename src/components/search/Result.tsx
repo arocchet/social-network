@@ -1,103 +1,66 @@
-import React from "react";
+"use client";
+import Link from "next/link";
+import React, { useState } from "react";
+import { PostDetails } from "../feed/post/postDetails";
 
-// Define proper type definitions for your data
-interface AccountItem {
-  id: number;
+// Types
+export interface AccountItem {
+  id: string;
   type: "accounts";
   username: string;
   displayName: string;
   image: string;
 }
 
-interface TagItem {
+export interface TagItem {
   id: number;
   type: "tags";
   name: string;
   postCount: number;
 }
 
-interface PlaceItem {
-  id: number;
-  type: "places";
-  name: string;
-  placeType: string;
+export interface PostItem {
+  id: string;
+  type: "posts";
+  content: string;
+  createdAt: string;
+  images?: string;
+  user: {
+    id: string;
+    username: string;
+    displayName: string;
+    image: string;
+  };
+  stats: {
+    likes: number;
+    comments: number;
+  };
 }
 
-type SearchItem = AccountItem | TagItem | PlaceItem;
+type SearchItem = AccountItem | TagItem | PostItem;
 
-// Define props interface
-interface FakeResultsListProps {
+interface ResultsListProps {
   query: string;
-  type?: string;
+  results?: SearchItem[];
 }
 
-const FakeResultsList: React.FC<FakeResultsListProps> = ({
-  query,
-  type = "all",
-}) => {
-  // Sample data with proper typing
-  const fakeData: SearchItem[] = [
-    {
-      id: 1,
-      type: "accounts",
-      username: "user1",
-      displayName: "User One",
-      image: "profile1.jpg",
-    },
-    {
-      id: 2,
-      type: "accounts",
-      username: "user2",
-      displayName: "User Two",
-      image: "profile2.jpg",
-    },
-    { id: 3, type: "tags", name: "trending", postCount: 1234 },
-    { id: 4, type: "places", name: "Paris, France", placeType: "City" },
-    {
-      id: 5,
-      type: "accounts",
-      username: "user3",
-      displayName: "User Three",
-      image: "profile3.jpg",
-    },
-    { id: 6, type: "tags", name: "photography", postCount: 5678 },
-  ];
+const ResultsList: React.FC<ResultsListProps> = ({ query, results = [] }) => {
+  const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
 
-  // Type guards for safer type checking
   const isAccountItem = (item: SearchItem): item is AccountItem =>
     item.type === "accounts";
 
-  const isTagItem = (item: SearchItem): item is TagItem => item.type === "tags";
+  const isTagItem = (item: SearchItem): item is TagItem =>
+    item.type === "tags";
 
-  const isPlaceItem = (item: SearchItem): item is PlaceItem =>
-    item.type === "places";
+  const isPostItem = (item: SearchItem): item is PostItem =>
+    item.type === "posts";
 
-  // Filter results based on query and type
-  const filteredResults = fakeData.filter((item) => {
-    // First, filter by type if specified
-    if (type !== "all" && item.type !== type) {
-      return false;
-    }
-
-    // Then filter by search query
-    if (isAccountItem(item)) {
-      return (
-        item.username.toLowerCase().includes(query.toLowerCase()) ||
-        item.displayName.toLowerCase().includes(query.toLowerCase())
-      );
-    } else if (isTagItem(item) || isPlaceItem(item)) {
-      return item.name.toLowerCase().includes(query.toLowerCase());
-    }
-
-    return false;
-  });
-
-  // If no results after filtering
-  if (filteredResults.length === 0) {
+  if (results.length === 0 && query.trim()) {
     return (
       <div className="text-center py-8">
         <p className="text-sm text-[var(--textMinimal)]">
-          Aucun résultat pour "{query}" {type !== "all" ? `dans ${type}` : ""}
+          Aucun résultat pour "{query}"
         </p>
       </div>
     );
@@ -105,76 +68,124 @@ const FakeResultsList: React.FC<FakeResultsListProps> = ({
 
   return (
     <div className="space-y-2">
-      {filteredResults.map((item) => {
+      {results.map((item) => {
         if (isAccountItem(item)) {
           return (
-            <div
-              key={item.id}
-              className="flex items-center justify-between p-3 hover:bg-[var(--bgLevel2)] rounded-lg transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white">
-                  {item.username[0].toUpperCase()}
-                </div>
-                <div>
-                  <p className="font-medium text-sm text-[var(--textNeutral)]">
-                    {item.username}
-                  </p>
-                  <p className="text-xs text-[var(--textMinimal)]">
-                    {item.displayName}
-                  </p>
-                </div>
-              </div>
-              <button className="text-sm font-medium text-[var(--blue)]"></button>
+            <div key={item.id} className="flex items-center justify-between p-3 hover:bg-[var(--bgLevel2)] rounded-lg transition-colors">
+              <Link href={`/profile/${item.id}`}>
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white overflow-hidden">
+                    {item.image ? (
+                      <img src={item.image} alt={item.username} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      item.username[0].toUpperCase()
+                    )}
+                  </div>
+                  <div>
+                    <p className="font-medium text-sm text-[var(--textNeutral)]">
+                      {item.username}
+                    </p>
+                    <p className="text-xs text-[var(--textMinimal)]">
+                      {item.displayName}
+                    </p>
+                  </div>
+                </div></Link>
+
             </div>
           );
-        } else if (isTagItem(item)) {
+        }
+
+        if (isTagItem(item)) {
           return (
-            <div
-              key={item.id}
-              className="flex items-center justify-between p-3 hover:bg-[var(--bgLevel2)] rounded-lg transition-colors"
-            >
+            <div key={item.id} className="flex items-center justify-between p-3 hover:bg-[var(--bgLevel2)] rounded-lg transition-colors">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-lg bg-[var(--bgLevel2)] flex items-center justify-center">
                   <span className="text-lg text-[var(--textNeutral)]">#</span>
                 </div>
                 <div>
                   <p className="font-medium text-sm text-[var(--textNeutral)]">
-                    #{item.name}
-                  </p>
-                  <p className="text-xs text-[var(--textMinimal)]">
-                    {item.postCount.toLocaleString()} posts
-                  </p>
-                </div>
-              </div>
-            </div>
-          );
-        } else if (isPlaceItem(item)) {
-          return (
-            <div
-              key={item.id}
-              className="flex items-center justify-between p-3 hover:bg-[var(--bgLevel2)] rounded-lg transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-lg bg-[var(--bgLevel2)] flex items-center justify-center">
-                  <span className="text-lg text-[var(--textNeutral)]">📍</span>
-                </div>
-                <div>
-                  <p className="font-medium text-sm text-[var(--textNeutral)]">
                     {item.name}
                   </p>
                   <p className="text-xs text-[var(--textMinimal)]">
-                    {item.placeType}
+                    {item.postCount} posts
                   </p>
                 </div>
               </div>
             </div>
           );
         }
+
+        if (isPostItem(item)) {
+          return (
+            <div key={item.id}>
+              <div
+                className="p-4 border border-[var(--detailMinimal)] rounded-lg hover:bg-[var(--bgLevel2)] transition-colors cursor-pointer"
+                onClick={() => setSelectedPostId(item.id)}
+              >
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white overflow-hidden flex-shrink-0">
+                    {item.user.image ? (
+                      <img src={item.user.image} alt={item.user.username} className="w-full h-full object-cover rounded-full" />
+                    ) : (
+                      item.user.username[0].toUpperCase()
+                    )}
+                  </div>
+                  <div className="flex-1 max-w-lg">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="font-medium text-sm text-[var(--textNeutral)]">
+                        {item.user.username}
+                      </p>
+                      <span className="text-xs text-[var(--textMinimal)]">
+                        {item.user.displayName}
+                      </span>
+                      <span className="text-xs text-[var(--textMinimal)]">
+                        {new Date(item.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <p className="text-sm  text-[var(--textNeutral)] mb-3 leading-relaxed">
+                      {item.content}
+                    </p>
+                    {item.images && (
+                      <div className="mb-3">
+                        {item.images.includes('.mp4') || item.images.includes('.webm') || item.images.includes('.mov') ? (
+                          <video
+                            src={item.images}
+                            controls
+                            className="max-w-full h-auto rounded-lg"
+                            preload="metadata"
+                          >
+                            Your browser does not support the video tag.
+                          </video>
+                        ) : (
+                          <img
+                            src={item.images}
+                            alt="Post image"
+                            className="max-w-full h-auto rounded-lg"
+                          />
+                        )}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-4 text-xs text-[var(--textMinimal)]">
+                      <span>{item.stats.likes} likes</span>
+                      <span>{item.stats.comments} comments</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {selectedPostId === item.id && (
+                <PostDetails
+                  postId={item.id}
+                  onClose={() => setSelectedPostId(null)}
+                />
+              )}
+            </div>
+          );
+        }
+
         return null;
       })}
     </div>
   );
 };
 
-export default FakeResultsList;
+export default ResultsList;

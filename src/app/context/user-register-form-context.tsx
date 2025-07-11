@@ -63,7 +63,7 @@ export const UserFormProvider = ({ children }: { children: React.ReactNode }) =>
     const { id, value } = e.target;
     setUserInfo((prev) => ({
       ...prev,
-      [id]: value,
+      [id]: value.trim(),
     }));
   };
 

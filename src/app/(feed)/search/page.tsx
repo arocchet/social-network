@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import NavigationBar from "@/components/feed/navBar/navigationBar";
-import FakeResultsList from "@/components/search/Result";
+import SearchBox from "@/components/search/SearchBox";
 import { SearchBar } from "@/components/search/SearchBar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModeToggle } from "@/components/toggle-theme";
+import RecentSearches from "@/components/search/RecentSearches";
+import { addToSearchHistory } from "@/lib/utils/searchHistory";
 
 export default function SearchPage() {
     const [searchQuery, setSearchQuery] = useState("");
@@ -14,6 +16,12 @@ export default function SearchPage() {
     // Handler for search input changes
     const handleSearchChange = (query: string) => {
         setSearchQuery(query);
+    };
+
+    // Handler for clicking on recent search
+    const handleRecentSearchClick = (query: string) => {
+        setSearchQuery(query);
+        addToSearchHistory(query);
     };
 
     return (
@@ -49,8 +57,9 @@ export default function SearchPage() {
                 <div className="flex-1 overflow-y-auto">
                     {searchQuery ? (
                         <div className="p-4">
+                            <SearchBox query={searchQuery} />
                             {/* Search Results categorized by tabs */}
-                            <Tabs
+                            {/* <Tabs
                                 defaultValue="all"
                                 value={activeTab}
                                 onValueChange={setActiveTab}
@@ -72,36 +81,26 @@ export default function SearchPage() {
                                 </TabsList>
 
                                 <TabsContent value="all" className="mt-0">
-                                    <FakeResultsList query={searchQuery} />
+                                    <SearchBox query={searchQuery} />
                                 </TabsContent>
 
                                 <TabsContent value="accounts" className="mt-0">
-                                    <FakeResultsList query={searchQuery} type="accounts" />
+                                    <SearchBox query={searchQuery} />
                                 </TabsContent>
 
                                 <TabsContent value="tags" className="mt-0">
-                                    <FakeResultsList query={searchQuery} type="tags" />
+                                    <SearchBox query={searchQuery} />
                                 </TabsContent>
 
                                 <TabsContent value="places" className="mt-0">
-                                    <FakeResultsList query={searchQuery} type="places" />
+                                    <SearchBox query={searchQuery} />
                                 </TabsContent>
-                            </Tabs>
+                            </Tabs> */}
                         </div>
                     ) : (
                         <div className="p-4">
                             {/* Recent/Suggested searches shown when no query */}
-                            <h2 className="font-medium text-sm mb-4 text-[var(--textNeutral)]">
-                                Récent
-                            </h2>
-
-                            <div className="space-y-2">
-                                <div className="text-center py-8">
-                                    <p className="text-sm text-[var(--textMinimal)]">
-                                        Aucune recherche récente
-                                    </p>
-                                </div>
-                            </div>
+                            <RecentSearches onSearchClick={handleRecentSearchClick} />
                         </div>
                     )}
                 </div>
