@@ -19,11 +19,12 @@ import NavigationBar from "@/components/feed/navBar/navigationBar";
 import { useUserProfile } from "@/hooks/use-user-data";
 import { formatDate } from "@/app/utils/dateFormat";
 import { useUserPosts } from "@/hooks/use-posts-by-user";
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { PostProvider } from "@/app/context/post-context";
 import { Dialog, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog";
 import { LoadingState, ErrorState, MediaSection, CommentsSection, PostHeader, PostFooter } from "@/components/feed/post/postDetails";
 import { useParams, useRouter } from "next/navigation";
+import { set } from "date-fns";
 
 type FilterType = 'all' | 'photos' | 'videos' | 'text';
 
@@ -40,6 +41,7 @@ export default function ProfilePage() {
   const [selectedPostDetails, setSelectedPostDetails] = useState<any>(null);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
   const [postDetailsLoading, setPostDetailsLoading] = useState(false);
   const [postDetailsError, setPostDetailsError] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -59,6 +61,54 @@ export default function ProfilePage() {
   });
   // Initialiser les états de suivi
 
+  useEffect(() => {
+    if (!profileUser) return;
+
+    // Vérifier si l'utilisateur actuel suit le profil
+    const checkFollowingStatus = async () => {
+      try {
+        const response = await fetch(`/api/private/follow/${profileUser.id}/`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          setIsFollowing(false);
+          return;
+        } else {
+          setIsFollowing(true);
+          return;
+        }
+      } catch (err) {
+        console.error("Erreur lors de la vérification du suivi:", err);
+      }
+    };
+
+    // Mettre à jour le nombre de followers
+    const updateSatsCount = async () => {
+      try {
+        const response = await fetch(`/api/private/follow/stats/${profileUser.id}/`, {
+          method: "GET",
+          credentials: "include",
+        });
+
+        if (!response.ok) {
+          setFollowersCount(0);
+          return;
+        }
+
+        const data = await response.json();
+        console.log(data.data)
+        setFollowersCount(data.data.follower || 0);
+        setFollowingCount(data.data.following || 0);
+      } catch (err) {
+        console.error("Erreur lors de la récupération des followers:", err);
+      }
+    }
+
+    checkFollowingStatus();
+    updateSatsCount();
+  }, [profileUser]);
 
 
   // Fonction pour suivre/ne plus suivre un utilisateur
@@ -66,8 +116,8 @@ export default function ProfilePage() {
     if (!profileUser?.id || isOwnProfile) return;
 
     try {
-      const endpoint = isFollowing ? 'unfollow' : 'follow';
-      const response = await fetch(`/api/private/user/${endpoint}`, {
+      ;
+      const response = await fetch(`/api/private/follow/${profileUser?.id}/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -76,11 +126,19 @@ export default function ProfilePage() {
         body: JSON.stringify({ userId: profileUser.id }),
       });
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'action de suivi");
+      const data = await response.json();
+
+      if (!data.success) {
+        console.log(response)
       }
 
-      setIsFollowing(!isFollowing);
+      if (data.data) {
+        setIsFollowing(true)
+      } else {
+        setIsFollowing(false);
+      }
+
+
       setFollowersCount(prev => isFollowing ? prev - 1 : prev + 1);
     } catch (err) {
       console.error("Erreur lors du suivi:", err);
@@ -399,7 +457,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="flex flex-col items-center">
                         <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                          {followersCount.toLocaleString()}
+                          {followersCount}
                         </div>
                         <div className="text-sm text-[var(--textMinimal)]">
                           abonnés
@@ -407,8 +465,8 @@ export default function ProfilePage() {
                       </div>
                       <div className="flex flex-col items-center">
                         <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                          {/* {profileUser.followingCount || 0} */}
-                          0
+                          {followingCount}
+                          
                         </div>
                         <div className="text-sm text-[var(--textMinimal)]">
                           abonnements
