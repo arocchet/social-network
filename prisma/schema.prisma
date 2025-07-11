@@ -29,6 +29,8 @@ model User {
   GroupInvitation_GroupInvitation_invitedIdToUser GroupInvitation[]    @relation("GroupInvitation_invitedIdToUser")
   GroupInvitation_GroupInvitation_inviterIdToUser GroupInvitation[]    @relation("GroupInvitation_inviterIdToUser")
   GroupJoinRequest                                GroupJoinRequest[]
+  eventsCreated                                   Event[]               @relation("EventOwner")
+  rsvps Rsvp[]
   GroupMember                                     GroupMember[]
   groupMessages                                   GroupMessage[]
   receivedMessages                                Message[]            @relation("ReceivedMessages")
@@ -147,6 +149,7 @@ model Conversation {
   GroupJoinRequest GroupJoinRequest[]
   GroupMember      GroupMember[]
   messages         GroupMessage[]
+  events           Event[]
 
 }
 
@@ -230,6 +233,41 @@ model GroupMember {
 
   @@unique([groupId, userId])
 }
+
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  datetime    DateTime
+  groupId     String
+  ownerId     String
+  createdAt   DateTime    @default(now())
+
+  group       Conversation @relation(fields: [groupId], references: [id])
+  owner       User         @relation("EventOwner", fields: [ownerId], references: [id])
+  rsvps       Rsvp[]
+}
+
+
+model Rsvp {
+  id        String      @id @default(cuid())
+  userId    String
+  eventId   String
+  status    RsvpStatus
+  createdAt DateTime    @default(now())
+
+  user      User        @relation(fields: [userId], references: [id])
+  event     Event       @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+}
+
+enum RsvpStatus {
+  YES
+  NO
+  MAYBE
+}
+
 
 enum Visibility {
   PUBLIC

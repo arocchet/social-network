@@ -1,18 +1,14 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-export async function createGroupInDb(
+interface GroupDetails {
   userIds: string[],
   title: string,
-  ownerId: string
-): Promise<NextResponse> {
-  try {
-    if (!userIds || userIds.length < 2) {
-      return NextResponse.json(
-        { error: "Au moins deux membres sont requis pour un groupe." },
-        { status: 400 }
-      );
-    }
+  ownerId: string,
+}
+
+export async function createGroupInDb(data : GroupDetails){
+
+    const {userIds, title, ownerId} = data;
 
     if (!userIds.includes(ownerId)) {
       userIds.push(ownerId);
@@ -34,12 +30,5 @@ export async function createGroupInDb(
       },
     });
 
-    return NextResponse.json(group);
-  } catch (error) {
-    console.error("Error creating group:", error);
-    return NextResponse.json(
-      { error: "Failed to create group" },
-      { status: 500 }
-    );
-  }
+   return group;
 }

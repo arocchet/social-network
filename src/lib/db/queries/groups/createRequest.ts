@@ -5,7 +5,7 @@ interface RequestInput{
   seeker : string,
 }
 
-export async function sendRequestToJoinGroup(data : RequestInput) {
+export async function RequestToJoinGroup(data : RequestInput) {
 
   const {groupId, seeker} = data;
 

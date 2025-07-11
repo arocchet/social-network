@@ -6,7 +6,7 @@ interface CreateGroupInvitation {
   invitedId: string;
 }
 
-export async function createGroupInvitation(data: CreateGroupInvitation) {
+export async function createInvitation(data: CreateGroupInvitation) {
   const { groupId, inviterId, invitedId } = data;
 
   const group = await db.conversation.findUnique({
