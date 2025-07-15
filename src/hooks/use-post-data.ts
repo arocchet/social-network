@@ -21,8 +21,6 @@ export function useInfinitePosts() {
     (url) => swrFetcher(url, PostsArraySchema)
   );
 
-  console.log("Post: ", data);
-
   const posts = useMemo(() => (data ? data.flat() : []), [data]);
   const isLoadingInitialData = !data && !error;
   const loading =

@@ -34,20 +34,9 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
   const [heartId, setHeartId] = useState(0);
   const [isLiked, setIsLiked] = useState(currentContent.isLiked ?? false);
   const [likesCount, setLikesCount] = useState(currentContent.likesCount ?? 0);
-  useEffect(() => {
-    const cacheKey =
-      currentContent.postId ||
-      currentContent.storyId ||
-      currentContent.commentId;
-    setIsLiked(currentContent?.isLiked ?? false);
-    setLikesCount(currentContent.likesCount ?? 0);
-  }, [
-    currentContent.postId,
-    currentContent.storyId,
-    currentContent.commentId,
-    currentContent.isLiked,
-    currentContent.likesCount,
-  ]);
+  if (currentContent?.storyId) {
+    console.log("🔄 LikeComponent - currentContent:", currentContent);
+  }
 
   const apiContentType =
     contentType === "story"

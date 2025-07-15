@@ -25,6 +25,8 @@ interface PostContent {
 const PostCard = ({ isLiked, likesCount }: PostContent) => {
   const { allposts } = usePostContext();
 
+  console.log("PostCard:", allposts[0]?.reactions);
+
   // Etat pour gérer quel post a ses détails ouverts
   const [openPostId, setOpenPostId] = useState<string | null>(null);
 
@@ -162,8 +164,8 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
                   contentType={"post"}
                   content={{
                     postId: post.id,
-                    isLiked: isLiked || false,
-                    likesCount: likesCount || 0,
+                    isLiked: post?.reactions[0]?.type === "LIKE" || false,
+                    likesCount: post._count.reactions || 0,
                   }}
                 />
                 {/* Bouton pour ouvrir les détails / commentaires */}
