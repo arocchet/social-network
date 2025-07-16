@@ -48,7 +48,7 @@ export async function GET(req: NextRequest) {
         publicOnly
       );
 
-      console.dir({ "All stories renvoyé": storiesGroups }, { depth: null });
+      // console.dir({ "All stories renvoyé": storiesGroups }, { depth: null });
 
       return NextResponse.json(respondSuccess(storiesGroups), { status: 200 });
     }

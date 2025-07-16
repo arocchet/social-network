@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  Heart,
   Send,
   Bookmark,
   Play,
@@ -15,7 +14,7 @@ import { PostDetails } from "./postDetails";
 import Link from "next/link";
 import { usePostContext } from "@/app/context/post-context";
 import { Post } from "@/lib/schemas/post";
-import LikeComponent from "@/components/reaction/toggleLike";
+import { ReactionComponent } from "@/components/reaction/toggleLike";
 
 interface PostContent {
   isLiked?: boolean;
@@ -54,6 +53,7 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
   const PostMedia = ({ post }: { post: Post }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const mediaType = getMediaType(post.image);
+    const [reactionCount, setReactionCount] = useState<number>(post._count.reactions)
 
     const handleVideoPlay = (e: React.MouseEvent<HTMLVideoElement>) => {
       e.stopPropagation();
@@ -160,14 +160,13 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-4">
-                <LikeComponent
-                  contentType={"post"}
-                  content={{
-                    postId: post.id,
-                    isLiked: post?.reactions[0]?.type === "LIKE" || false,
-                    likesCount: post._count.reactions || 0,
-                  }}
-                />
+
+                <ReactionComponent content={{
+                  contentId: post.id,
+                  reaction: post?.reactions[0]?.type,
+                  reactionCount: post._count.reactions ?? 0,
+                  type: "post"
+                }} />
                 {/* Bouton pour ouvrir les détails / commentaires */}
                 <Button
                   variant="ghost"
@@ -195,11 +194,6 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
               </Button>
             </div>
 
-            {/* Likes */}
-            <div className="font-semibold text-sm mb-2 text-[var(--textNeutral)]">
-              {post._count.reactions} mentions J’aime
-            </div>
-
             {/* Caption - seulement si ce n’est pas un post texte */}
             {post.image && (
               <div className="text-sm text-[var(--textNeutral)] mb-2">
@@ -224,11 +218,11 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
             <div className="text-xs text-[var(--textMinimal)] uppercase">
               {post.datetime
                 ? new Date(post.datetime).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                  day: "numeric",
+                  month: "long",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
                 : `Il y a ${Math.floor(Math.random() * 24)}h`}
             </div>
           </div>

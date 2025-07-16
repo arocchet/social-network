@@ -15,7 +15,6 @@ export async function updatedReaction(
     );
   }
 
-  // ✅ Vérification d'existence selon le type
   let exists = null;
 
   if (isPost) {
@@ -26,20 +25,17 @@ export async function updatedReaction(
     exists = await db.comment.findUnique({ where: { id: data.mediaId } });
   }
 
-  // ✅ Vérification que l'entité existe
   if (!exists) {
     const entityType = isPost ? "Post" : isStory ? "Story" : "Comment";
     throw new Error(`${entityType} with ID ${data.mediaId} not found`);
   }
 
-  // ✅ Définition des whereClause selon le type
   const where = isPost
     ? { userId_postId: { userId, postId: data.mediaId } }
     : isStory
-    ? { userId_storyId: { userId, storyId: data.mediaId } }
-    : { userId_commentId: { userId, commentId: data.mediaId } };
+      ? { userId_storyId: { userId, storyId: data.mediaId } }
+      : { userId_commentId: { userId, commentId: data.mediaId } };
 
-  // ✅ Données de création selon le type
   const createData = {
     userId,
     type: data.type,
@@ -48,7 +44,6 @@ export async function updatedReaction(
     ...(isComment && { commentId: data.mediaId }),
   };
 
-  // ✅ Upsert avec les bonnes données
   await db.reaction.upsert({
     where: where,
     update: { type: data.type },

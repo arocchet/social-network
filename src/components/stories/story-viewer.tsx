@@ -1,16 +1,12 @@
-"use client";
-
-import type React from "react";
-
-import { useState, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { X, Volume2, VolumeX, Heart } from "lucide-react";
+import { X, Volume2, VolumeX } from "lucide-react";
 import { getMediaType } from "@/app/utils/media";
 import { StoryMedia } from "./storyMedia";
 import { useStoryPlayback } from "@/hooks/use-story-playback";
-import { updatedReaction } from "@/hooks/use-reactions";
-import LikeComponent from "../reaction/toggleLike";
+import { ReactionComponent } from "../reaction/toggleLike";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface Reaction {
   id: string;
@@ -58,22 +54,43 @@ export function StoryViewer({
   onNext,
   onPrevious,
 }: StoryViewerProps) {
-  const [dominantColor, setDominantColor] = useState<string>("#000000");
+  const [dominantColor, setDominantColor] = useState("#000000");
 
-  const isValidUserIndex =
-    currentUserIndex >= 0 && currentUserIndex < stories.length;
-  const currentUser = isValidUserIndex ? stories[currentUserIndex] : null;
-  const isValidStoryIndex =
-    currentUser &&
-    currentStoryIndex >= 0 &&
-    currentStoryIndex < currentUser.stories.length;
-  const currentStoryContent =
-    isValidStoryIndex && currentUser
-      ? currentUser.stories[currentStoryIndex]
-      : null;
-  const mediaType = currentStoryContent
-    ? currentStoryContent.mediaType || getMediaType(currentStoryContent.image)
-    : "image";
+  const { reactionMap } = useReactionContext()
+
+  const isValidUserIndex = useMemo(
+    () => currentUserIndex >= 0 && currentUserIndex < stories.length,
+    [currentUserIndex, stories.length]
+  );
+
+  const currentUser = useMemo(
+    () => (isValidUserIndex ? stories[currentUserIndex] : null),
+    [isValidUserIndex, stories, currentUserIndex]
+  );
+
+  const isValidStoryIndex = useMemo(
+    () =>
+      currentUser &&
+      currentStoryIndex >= 0 &&
+      currentStoryIndex < currentUser.stories.length,
+    [currentUser, currentStoryIndex]
+  );
+
+  const currentStoryContent = useMemo(
+    () =>
+      isValidStoryIndex && currentUser
+        ? currentUser.stories[currentStoryIndex]
+        : null,
+    [isValidStoryIndex, currentUser, currentStoryIndex]
+  );
+
+  const mediaType = useMemo(
+    () =>
+      currentStoryContent
+        ? currentStoryContent.mediaType || getMediaType(currentStoryContent.image)
+        : "image",
+    [currentStoryContent]
+  );
 
   const {
     progress,
@@ -123,25 +140,39 @@ export function StoryViewer({
     );
   }
 
+  enum ContentType {
+    STORY = "stories",
+    POST = "post",
+    COMMENT = "comment",
+  }
+
+
+  const reactionContent = useMemo(
+    () => ({
+      contentId: currentStoryContent.storyId,
+      reaction: reactionMap[currentStoryContent.storyId] ?? currentStoryContent?.userReaction ?? null,
+      reactionCount: 1,
+      type: ContentType.STORY
+    }),
+    [currentStoryContent]
+  );
+
+  console.log({ currentStoryContent, currentStoryIndex, currentUserIndex })
+  console.log('reaction conent: ', reactionContent)
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col">
       <div className="absolute inset-0 bg-black" />
       <div
         className="absolute inset-0 transition-all duration-700 ease-in-out"
-        style={{
-          backgroundColor: dominantColor,
-          opacity: mediaLoaded ? 0.8 : 0,
-        }}
+        style={{ backgroundColor: dominantColor, opacity: mediaLoaded ? 0.8 : 0 }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/20" />
 
       <div className="relative z-10 flex flex-col h-full">
         <div className="flex gap-1 p-4">
           {currentUser.stories.map((_, index) => (
-            <div
-              key={index}
-              className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden"
-            >
+            <div key={index} className="flex-1 h-1 bg-white/30 rounded-full overflow-hidden">
               <div
                 className="h-full bg-white transition-all duration-100 ease-linear"
                 style={{
@@ -149,8 +180,8 @@ export function StoryViewer({
                     index < currentStoryIndex
                       ? "100%"
                       : index === currentStoryIndex
-                      ? `${progress}%`
-                      : "0%",
+                        ? `${progress}%`
+                        : "0%",
                 }}
               />
             </div>
@@ -164,17 +195,11 @@ export function StoryViewer({
                 src={currentUser.avatar || "/placeholder.svg"}
                 alt={currentUser.username}
               />
-              <AvatarFallback>
-                {currentUser.username[0].toUpperCase()}
-              </AvatarFallback>
+              <AvatarFallback>{currentUser.username[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <div>
-              <span className="font-semibold text-sm text-white">
-                {currentUser.username}
-              </span>
-              <span className="text-xs text-white/70 ml-2">
-                {currentStoryContent.timeAgo}
-              </span>
+              <span className="font-semibold text-sm text-white">{currentUser.username}</span>
+              <span className="text-xs text-white/70 ml-2">{currentStoryContent.timeAgo}</span>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -185,22 +210,12 @@ export function StoryViewer({
                 className="text-white hover:bg-white/20"
                 onClick={toggleMute}
               >
-                {isMuted ? (
-                  <VolumeX className="w-5 h-5" />
-                ) : (
-                  <Volume2 className="w-5 h-5" />
-                )}
+                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
               </Button>
             )}
-            <LikeComponent
-              contentType={"story"}
-              content={{
-                id: currentStoryContent.id,
-                storyId: currentStoryContent.storyId,
-                isLiked: currentStoryContent.isLiked || false,
-                likesCount: currentStoryContent.likesCount || 0,
-              }}
-            ></LikeComponent>
+
+            <ReactionComponent key={currentStoryContent.storyId} content={reactionContent} />
+
             <Button
               variant="ghost"
               size="icon"
@@ -221,13 +236,10 @@ export function StoryViewer({
                 muted={isMuted}
                 loaded={mediaLoaded}
                 setRef={(el) => {
-                  if (mediaType === "image")
-                    imageRef.current = el as HTMLImageElement;
+                  if (mediaType === "image") imageRef.current = el as HTMLImageElement;
                   else videoRef.current = el as HTMLVideoElement;
                 }}
-                onLoad={
-                  mediaType === "image" ? handleImageLoad : handleVideoLoad
-                }
+                onLoad={mediaType === "image" ? handleImageLoad : handleVideoLoad}
                 onError={handleMediaError}
               />
               {!mediaLoaded && (

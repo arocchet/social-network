@@ -1,7 +1,13 @@
 import { Heart } from "lucide-react";
 import { Button } from "../ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { updatedReaction } from "@/hooks/use-reactions";
+import { ReactionType } from "@/lib/schemas/reaction";
+import { LikeIcon, DislikeIcon, LoveIcon, AngryIcon, WowIcon, ReactionIcon, LaughIcon, SadIcon } from "@/components/reaction/reactionType";
+import { cn } from "@/lib/utils";
+import { DeleteReaction, UpdatedReaction } from "@/lib/client/reaction/updateReaction";
+import { toast } from "sonner";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface LikeComponentProps {
   contentType: "story" | "post" | "comment";
@@ -10,11 +16,16 @@ interface LikeComponentProps {
     storyId?: string;
     postId?: string;
     commentId?: string;
-    isLiked?: boolean;
+    isLiked?: ReactionType | null | undefined;
     likesCount?: number;
   };
 }
 
+/**
+ * @deprecated Use Reaction component instead of Like component
+ * 
+ * 
+ */
 const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
   const currentContent = {
     storyId:
@@ -24,7 +35,7 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
       contentType === "comment"
         ? content.commentId || (content.id ? String(content.id) : undefined)
         : undefined,
-    isLiked: content.isLiked || false,
+    isLiked: content.isLiked || null,
     likesCount: content.likesCount || 0,
   };
 
@@ -32,18 +43,20 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
     Array<{ id: string; x: number; y: number }>
   >([]);
   const [heartId, setHeartId] = useState(0);
-  const [isLiked, setIsLiked] = useState(currentContent.isLiked ?? false);
+  const [isLiked, setIsLiked] = useState(currentContent.isLiked === "LIKE");
   const [likesCount, setLikesCount] = useState(currentContent.likesCount ?? 0);
   if (currentContent?.storyId) {
     console.log("🔄 LikeComponent - currentContent:", currentContent);
   }
 
+  console.log("isLked: ", { isLiked })
+
   const apiContentType =
     contentType === "story"
       ? "stories"
       : contentType === "post"
-      ? "post"
-      : "comment";
+        ? "post"
+        : "comment";
 
   const toggleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
@@ -110,8 +123,8 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
           contentType === "story"
             ? currentContent.storyId
             : contentType === "post"
-            ? currentContent.postId
-            : currentContent.commentId;
+              ? currentContent.postId
+              : currentContent.commentId;
 
         console.log(
           "✅ UPDATE - newLikedState:",
@@ -179,11 +192,10 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
         </Button>
         {likesCount > 0 && (
           <span
-            className={`text-xs min-w-[1rem] ${
-              contentType === "story"
-                ? "text-white/80"
-                : "text-[var(--textNeutral)]"
-            }`}
+            className={`text-xs min-w-[1rem] ${contentType === "story"
+              ? "text-white/80"
+              : "text-[var(--textNeutral)]"
+              }`}
           >
             {likesCount}
           </span>
@@ -193,3 +205,152 @@ const LikeComponent = ({ contentType, content }: LikeComponentProps) => {
   );
 };
 export default LikeComponent;
+
+const reactions = [
+  { type: "LIKE", label: "J'aime", icon: LikeIcon },
+  { type: "DISLIKE", label: "Dislike", icon: DislikeIcon },
+  { type: "LOVE", label: "J'adore", icon: LoveIcon },
+  { type: "LAUGH", label: "Haha", icon: LaughIcon },
+  { type: "WOW", label: "Wow", icon: WowIcon },
+  { type: "SAD", label: "Triste", icon: SadIcon },
+  { type: "ANGRY", label: "Grrr", icon: AngryIcon },
+];
+
+
+type ReactionComponentParams = {
+  content: ContentParams
+}
+
+type ContentParams = {
+  contentId: string;
+  reaction: ReactionType | null;
+  reactionCount: number
+  type: "stories" | "post" | "comment";
+}
+
+export function ReactionComponent({ content }: ReactionComponentParams) {
+  const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(content.reaction);
+  const prevReaction = useRef<ReactionType | null>(content.reaction);
+
+  const { handleReactionChange } = useReactionContext()
+
+  const [showReactions, setShowReactions] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
+    setShowReactions(true);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setShowReactions(false);
+    }, 150);
+  };
+
+  const handleMainIconClick = () => {
+    setSelectedReaction((prev) => (prev ? null : "LIKE"));
+  };
+
+  const handleReactionSelect = (type: ReactionType) => {
+    setSelectedReaction(type);
+    setShowReactions(false);
+  };
+
+  // Envoie au serveur si la réaction a changé
+  useEffect(() => {
+    if (selectedReaction === prevReaction.current) return;
+
+    const sendReaction = async () => {
+      const lastReaction = prevReaction.current;
+
+      try {
+        if (selectedReaction === null) {
+          const response = await DeleteReaction(content.contentId);
+          if (!response?.success) {
+            toast.error("Impossible de supprimer la réaction.");
+            setSelectedReaction(lastReaction); // rollback
+          }
+        } else {
+          const response = await UpdatedReaction({
+            type: selectedReaction,
+            mediaId: content.contentId,
+            contentType: content.type,
+          });
+          if (!response?.success) {
+            toast.error("Impossible d'ajouter la réaction.");
+            setSelectedReaction(lastReaction); // rollback
+          }
+        }
+      } catch (error) {
+        console.error("Erreur réseau :", error);
+        toast.error("Erreur réseau. Réessaye plus tard.");
+        setSelectedReaction(lastReaction); // rollback
+      } finally {
+        handleReactionChange(content.contentId, selectedReaction)
+      }
+
+      prevReaction.current = selectedReaction;
+    };
+
+    sendReaction();
+  }, [selectedReaction, content.contentId, content.type]);
+
+
+  return (
+    <div
+      className="relative group"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="flex items-center gap-1">
+        {(() => {
+          const Icon =
+            ReactionIcon[selectedReaction as keyof typeof ReactionIcon] ||
+            ReactionIcon.LIKE;
+
+          return typeof Icon === "function" ? (
+            <button
+              type="button"
+              onClick={handleMainIconClick}
+              className="cursor-pointer"
+              aria-label="Toggle reaction"
+            >
+              <Icon
+                size={36}
+                className="transition-all duration-200 cursor-pointer"
+                {...(!selectedReaction ? { fill: 'transparent' } : {})}
+              />
+            </button>
+          ) : (
+            Icon
+          );
+        })()}
+      </div>
+
+      {showReactions && (
+        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 flex gap-2 bg-white dark:bg-zinc-800 border p-2 rounded-xl shadow-lg z-50 animate-fade-in">
+          {reactions.map(({ type, label, icon: Icon }) => (
+            <button
+              key={type}
+              type="button"
+              title={label}
+              onClick={() => handleReactionSelect(type as ReactionType)}
+              className={cn(
+                "text-2xl transition-transform cursor-pointer",
+                "hover:scale-125",
+                {
+                  "fill-blue-600": selectedReaction === type,
+                  "fill-neutral-50 hover:fill-[var(--blue90)]":
+                    selectedReaction !== type,
+                }
+              )}
+            >
+              {typeof Icon === "function" ? <Icon size={24} /> : Icon}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
