@@ -6,9 +6,8 @@ export async function getStoriesByUserId(userId: string) {
   return await db.story.findMany({
     where: {
       userId: userId,
-      // Optionnel : filtrer les stories de moins de 24h
       datetime: {
-        gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // 24 heures
+        gte: new Date(Date.now() - 24 * 60 * 60 * 1000),
       },
     },
     include: {
@@ -29,6 +28,11 @@ export async function getStoriesByUserId(userId: string) {
               username: true,
             },
           },
+        },
+      },
+      _count: {
+        select: {
+          reactions: true,
         },
       },
     },
@@ -44,14 +48,7 @@ export async function getAllStoriesGrouped(
 ) {
   const stories = await db.story.findMany({
     where: {
-      // Filtrer selon la visibilité
       ...(publicOnly ? { visibility: "PUBLIC" } : {}),
-      // Exclure les stories de l'utilisateur actuel si souhaité
-      // userId: { not: currentUserId },
-      // Stories de moins de 24h
-      // datetime: {
-      //     gte: new Date(Date.now() - 24 * 60 * 60 * 1000)
-      // }
     },
     include: {
       user: {
@@ -71,6 +68,11 @@ export async function getAllStoriesGrouped(
               username: true,
             },
           },
+        },
+      },
+      _count: {
+        select: {
+          reactions: true,
         },
       },
     },
@@ -87,7 +89,7 @@ export async function getAllStoriesGrouped(
       acc[userId] = {
         user: story.user,
         stories: [],
-        hasUnviewed: true, // À implémenter avec un système de vues
+        hasUnviewed: true,
       };
     }
 
@@ -128,6 +130,11 @@ export async function getStoryById(storyId: string) {
               username: true,
             },
           },
+        },
+      },
+      _count: {
+        select: {
+          reactions: true,
         },
       },
     },

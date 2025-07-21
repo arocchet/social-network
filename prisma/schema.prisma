@@ -79,28 +79,28 @@ model Story {
 }
 
 model Comment {
-  id       String   @id @default(cuid())
-  postId   String
-  userId   String
-  message  String
-  datetime DateTime @default(now())
+  id        String     @id @default(cuid())
+  postId    String
+  userId    String
+  message   String
+  datetime  DateTime   @default(now())
   reactions Reaction[]
-  post     Post     @relation(fields: [postId], references: [id])
-  user     User     @relation(fields: [userId], references: [id])
+  post      Post       @relation(fields: [postId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
 }
 
 model Reaction {
-  id       String       @id @default(cuid())
-  type     ReactionType
-  userId   String
-  postId   String?
-  datetime DateTime     @default(now())
-  storyId  String?
+  id        String       @id @default(cuid())
+  type      ReactionType
+  userId    String
+  postId    String?
+  datetime  DateTime     @default(now())
+  storyId   String?
   commentId String?
-  post     Post?        @relation(fields: [postId], references: [id])
-  story    Story?       @relation(fields: [storyId], references: [id])
-  comment   Comment?       @relation(fields: [commentId], references: [id])
-  user     User         @relation(fields: [userId], references: [id])
+  post      Post?        @relation(fields: [postId], references: [id])
+  story     Story?       @relation(fields: [storyId], references: [id])
+  comment   Comment?     @relation(fields: [commentId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, postId])
   @@unique([userId, storyId])
@@ -196,6 +196,7 @@ enum ReactionType {
   LAUGH
   SAD
   ANGRY
+  WOW
 }
 
 enum ProfileVisibility {

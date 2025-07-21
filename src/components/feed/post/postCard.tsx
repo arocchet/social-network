@@ -3,13 +3,7 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Send,
-  Bookmark,
-  Play,
-  Video,
-  MessageCircle,
-} from "lucide-react";
+import { Send, Bookmark, Play, Video, MessageCircle } from "lucide-react";
 import { PostDetails } from "./postDetails";
 import Link from "next/link";
 import { usePostContext } from "@/app/context/post-context";
@@ -53,7 +47,9 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
   const PostMedia = ({ post }: { post: Post }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const mediaType = getMediaType(post.image);
-    const [reactionCount, setReactionCount] = useState<number>(post._count.reactions)
+    const [reactionCount, setReactionCount] = useState<number>(
+      post._count.reactions
+    );
 
     const handleVideoPlay = (e: React.MouseEvent<HTMLVideoElement>) => {
       e.stopPropagation();
@@ -160,13 +156,14 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-4">
-
-                <ReactionComponent content={{
-                  contentId: post.id,
-                  reaction: post?.reactions[0]?.type,
-                  reactionCount: post._count.reactions ?? 0,
-                  type: "post"
-                }} />
+                <ReactionComponent
+                  content={{
+                    contentId: post.id,
+                    reaction: post?.reactions[0]?.type,
+                    reactionCount: post._count.reactions ?? 0,
+                    type: "post",
+                  }}
+                />
                 {/* Bouton pour ouvrir les détails / commentaires */}
                 <Button
                   variant="ghost"
@@ -218,11 +215,11 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
             <div className="text-xs text-[var(--textMinimal)] uppercase">
               {post.datetime
                 ? new Date(post.datetime).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
+                    day: "numeric",
+                    month: "long",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
                 : `Il y a ${Math.floor(Math.random() * 24)}h`}
             </div>
           </div>

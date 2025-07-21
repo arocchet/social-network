@@ -29,7 +29,7 @@ export async function PUT(req: NextRequest) {
       { status: 500 }
     );
   }
-
+  console.log(parsedData, "parsedData in PUT reaction");
   try {
     await updatedReaction(userId, parsedData);
 

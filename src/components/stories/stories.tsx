@@ -9,14 +9,21 @@ import { useUserStories } from "@/hooks/use-user-stories";
 import { UserStoriesGroup } from "@/lib/schemas/stories/group";
 import { useUser } from "@/hooks/use-user-data";
 
-
 interface AdaptedStory {
   id: number;
   storyId: string;
   image: string;
   timeAgo: string;
   isLiked?: boolean;
-  userReaction?: "LIKE" | "DISLIKE" | "LOVE" | "LAUGH" | "SAD" | "ANGRY" | null;
+  userReaction?:
+    | "LIKE"
+    | "DISLIKE"
+    | "LOVE"
+    | "LAUGH"
+    | "SAD"
+    | "ANGRY"
+    | "WOW"
+    | null;
   likesCount?: number;
 }
 
@@ -71,7 +78,9 @@ export function Stories() {
           story.reactions?.some(
             (r) => r.type === "LIKE" && r.user.id === currentUser?.id
           ) || false,
-        userReaction: story.reactions.find((r) => r.user.id === currentUser?.id)?.type || null,
+        userReaction:
+          story.reactions.find((r) => r.user.id === currentUser?.id)?.type ||
+          null,
         likesCount:
           story.reactions?.filter((r) => r.type === "LIKE").length || 0,
       })),
@@ -205,12 +214,13 @@ export function Stories() {
           >
             <div className="relative">
               <button
-                className={`p-0.5 rounded-full ${story.isOwn
-                  ? "bg-gray-300"
-                  : story.stories.length > 0
+                className={`p-0.5 rounded-full ${
+                  story.isOwn
+                    ? "bg-gray-300"
+                    : story.stories.length > 0
                     ? "bg-gradient-to-tr from-[var(--pink)] to-[var(--purple)]"
                     : "bg-gray-300"
-                  }`}
+                }`}
               >
                 <Avatar className="w-14 h-14">
                   <AvatarImage

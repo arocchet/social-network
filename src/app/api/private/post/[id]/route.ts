@@ -10,7 +10,9 @@ export async function GET(
     const { id: postId } = await params;
 
     if (!postId) {
-      return NextResponse.json(respondError("Post ID is required"), { status: 400 });
+      return NextResponse.json(respondError("Post ID is required"), {
+        status: 400,
+      });
     }
 
     const post = await getPostById(postId);
@@ -23,7 +25,9 @@ export async function GET(
   } catch (err) {
     console.error("Error fetching post:", err);
     return NextResponse.json(
-      respondError(err instanceof Error ? err.message : "Unexpected server error"),
+      respondError(
+        err instanceof Error ? err.message : "Unexpected server error"
+      ),
       { status: 500 }
     );
   }

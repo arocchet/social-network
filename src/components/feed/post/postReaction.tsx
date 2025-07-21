@@ -1,4 +1,4 @@
-import LikeComponent from "@/components/reaction/toggleLike";
+import { ReactionComponent } from "@/components/reaction/toggleLike";
 import React from "react";
 import { IoChatbubbleOutline } from "react-icons/io5";
 import { LuSend } from "react-icons/lu";
@@ -13,12 +13,12 @@ const PostReaction = ({ postId, isLiked, likesCount }: PostContent) => {
   return (
     <div className="gap-2 -mt-2 flex items-center">
       <div className="gap-2 flex items-center">
-        <LikeComponent
-          contentType={"post"}
+        <ReactionComponent
           content={{
-            postId: postId,
-            isLiked: isLiked || false,
-            likesCount: likesCount || 0,
+            contentId: postId,
+            reaction: isLiked ? "LIKE" : null,
+            reactionCount: likesCount || 0,
+            type: "post",
           }}
         />
         <div className="font-semibold">{likesCount || 0}</div>{" "}

@@ -17,7 +17,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PostWithDetails } from "@/lib/schemas/post/";
 import { Comment } from "@/lib/schemas/comment";
 import { usePostById } from "@/hooks/use-post-by-id";
-import LikeComponent from "@/components/reaction/toggleLike";
+import { ReactionComponent } from "@/components/reaction/toggleLike";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface PostDetailsProps {
   postId: string;
@@ -31,6 +32,15 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
   const contentRef = useRef<HTMLDivElement>(null);
 
   const { post, loading } = usePostById(postId);
+
+  // ✅ AJOUTER CES 2 LIGNES
+  const { initializeReactionCount } = useReactionContext();
+
+  useEffect(() => {
+    if (post?.id && post._count?.reactions !== undefined) {
+      initializeReactionCount(post.id, post._count.reactions);
+    }
+  }, [post?.id]);
 
   useEffect(() => {
     setUpdatedPost(post);
@@ -84,17 +94,10 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
           <DialogDescription asChild>
             <div className="flex h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
               {!loading && updatedPost ? (
-                /* Layout Instagram avec média à gauche et commentaires à droite */
                 <div className="flex w-full h-full">
-                  {/* Section média - gauche */}
                   <MediaSection post={updatedPost} />
-
-                  {/* Section commentaires - droite */}
                   <div className="flex flex-col w-[500px] bg-[var(--bgLevel1)] border-l border-[var(--detailMinimal)]">
-                    {/* Header avec info du post */}
                     <PostHeader post={updatedPost} />
-
-                    {/* Liste des commentaires scrollable */}
                     <div
                       ref={contentRef}
                       onScroll={handleScroll}
@@ -102,8 +105,6 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
                     >
                       <CommentsSection comments={updatedPost?.comments} />
                     </div>
-
-                    {/* Footer fixe */}
                     <PostFooter
                       postId={postId}
                       onCommentAdded={handleNewComment}
@@ -419,11 +420,15 @@ interface CommentItemProps {
   isLast?: boolean; // Pour gérer le style du dernier commentaire
 }
 
-const CommentItem: React.FC<CommentItemProps> = ({
-  comment,
-  isLiked,
-  likesCount,
-}) => {
+const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
+  const { initializeReactionCount } = useReactionContext();
+
+  useEffect(() => {
+    if (comment.id && comment._count?.reactions !== undefined) {
+      initializeReactionCount(comment.id, comment._count.reactions);
+    }
+  }, [comment.id]);
+
   const formatDate = (dateString: string | Date): string => {
     const date = new Date(dateString);
     const now = new Date();
@@ -441,7 +446,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
     return `${diffInDays}j`;
   };
 
-  // Parser le contenu du commentaire
   const contentParts = parseCommentContent(comment.message);
 
   return (
@@ -464,7 +468,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
           </span>
         </div>
 
-        {/* Contenu du commentaire avec support des médias */}
         <div className="space-y-2">
           {contentParts.map((part, index) => {
             if (part.type === "text") {
@@ -481,7 +484,6 @@ const CommentItem: React.FC<CommentItemProps> = ({
                     alt="Contenu du commentaire"
                     className="max-w-full max-h-48 rounded-md object-contain border border-[var(--detailMinimal)]"
                     onError={(e) => {
-                      // En cas d'erreur de chargement, afficher le lien original comme texte
                       const target = e.target as HTMLImageElement;
                       target.style.display = "none";
                       const linkElement = document.createElement("a");
@@ -518,14 +520,16 @@ const CommentItem: React.FC<CommentItemProps> = ({
         <div className="text-xs text-muted-foreground mt-1">
           {formatDate(comment.datetime)}
         </div>
-        <LikeComponent
-          contentType={"comment"}
+
+        {/* Composant de réaction simple, comme avant */}
+        <ReactionComponent
           content={{
-            commentId: comment.id,
-            isLiked: isLiked,
-            likesCount: likesCount,
+            contentId: comment.id,
+            reaction: comment.reactions?.[0]?.type || null,
+            reactionCount: comment._count?.reactions ?? 0,
+            type: "comment",
           }}
-        ></LikeComponent>
+        />
       </div>
     </div>
   );

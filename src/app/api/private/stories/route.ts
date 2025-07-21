@@ -24,33 +24,61 @@ export async function GET(req: NextRequest) {
     const userId = searchParams.get("userId");
     const publicOnly = searchParams.get("publicOnly") === "true";
 
+    console.log("🔍 userId param:", userId);
+    console.log("🔍 currentUserId:", currentUserId);
+    console.log(
+      "🔍 Will use branch:",
+      userId ? "getStoriesByUserId" : "getAllStoriesGrouped"
+    );
+
     let storiesData;
 
     if (userId) {
-      // Récupérer les stories d'un utilisateur spécifique
-      storiesData = await getStoriesByUserId(userId);
+      const rawStories = await getStoriesByUserId(userId);
+      console.log("🔍 Raw story _count:", rawStories[0]?._count);
+      console.log(
+        "🔍 Raw story reactions length:",
+        rawStories[0]?.reactions?.length
+      );
+      const mappedStories = rawStories.map((story) => ({
+        ...story,
+        likesCount: story._count.reactions,
+      }));
 
-      // console.log('Story renvoyé: ', storiesData)
+      console.log("🔍 Mapped story likesCount:", mappedStories[0]?.likesCount);
+
       return NextResponse.json(
         respondSuccess([
           {
-            user: storiesData[0]?.user || null,
-            stories: storiesData,
+            user: mappedStories[0]?.user || null,
+            stories: mappedStories,
             hasUnviewed: true,
           },
         ]),
         { status: 200 }
       );
     } else {
-      // Récupérer toutes les stories groupées par utilisateur
-      const storiesGroups = await getAllStoriesGrouped(
+      console.log("🔍 Using getAllStoriesGrouped branch");
+      const rawStoriesGroups = await getAllStoriesGrouped(
         currentUserId,
         publicOnly
       );
 
-      // console.dir({ "All stories renvoyé": storiesGroups }, { depth: null });
+      const mappedStoriesGroups = rawStoriesGroups.map((userGroup) => ({
+        ...userGroup,
+        stories: userGroup.stories.map((story: any) => ({
+          ...story,
+          likesCount: story._count.reactions,
+        })),
+      }));
+      console.log(
+        "🔍 Mapped stories groups first story likesCount:",
+        mappedStoriesGroups[0]?.stories[0]?.likesCount
+      );
 
-      return NextResponse.json(respondSuccess(storiesGroups), { status: 200 });
+      return NextResponse.json(respondSuccess(mappedStoriesGroups), {
+        status: 200,
+      });
     }
   } catch (error) {
     console.error("Failed to fetch stories:", error);

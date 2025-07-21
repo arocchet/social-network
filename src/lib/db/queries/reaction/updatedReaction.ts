@@ -5,6 +5,7 @@ export async function updatedReaction(
   userId: string,
   data: CreateReaction
 ): Promise<void> {
+  console.log(data, userId, "data in updatedReaction");
   const isPost = data.contentType === "post";
   const isStory = data.contentType === "stories";
   const isComment = data.contentType === "comment";
@@ -33,8 +34,8 @@ export async function updatedReaction(
   const where = isPost
     ? { userId_postId: { userId, postId: data.mediaId } }
     : isStory
-      ? { userId_storyId: { userId, storyId: data.mediaId } }
-      : { userId_commentId: { userId, commentId: data.mediaId } };
+    ? { userId_storyId: { userId, storyId: data.mediaId } }
+    : { userId_commentId: { userId, commentId: data.mediaId } };
 
   const createData = {
     userId,
@@ -43,7 +44,12 @@ export async function updatedReaction(
     ...(isStory && { storyId: data.mediaId }),
     ...(isComment && { commentId: data.mediaId }),
   };
-
+  console.log(
+    where,
+    createData,
+    data.type,
+    "where, createData, type in updatedReaction"
+  );
   await db.reaction.upsert({
     where: where,
     update: { type: data.type },
