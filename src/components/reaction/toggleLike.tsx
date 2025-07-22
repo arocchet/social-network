@@ -36,6 +36,14 @@ type ContentParams = {
   contentId: string;
   reaction: ReactionType | null;
   reactionCount: number;
+  reactions?: {
+    type: "LIKE" | "DISLIKE" | "LOVE" | "LAUGH" | "SAD" | "ANGRY" | "WOW";
+    id: string;
+    user: {
+      id: string;
+      username: string;
+    };
+  }[];
   type: "stories" | "post" | "comment";
 };
 

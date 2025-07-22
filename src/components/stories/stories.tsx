@@ -8,6 +8,7 @@ import AppLoader from "../ui/app-loader";
 import { useUserStories } from "@/hooks/use-user-stories";
 import { UserStoriesGroup } from "@/lib/schemas/stories/group";
 import { useUser } from "@/hooks/use-user-data";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface AdaptedStory {
   id: number;
@@ -62,6 +63,8 @@ export function Stories() {
     }
   };
 
+  const { initializeReactionCount, reactionCounts } = useReactionContext();
+
   const adaptStoryData = (storiesGroups: UserStoriesGroup[]): AdaptedUser[] => {
     return storiesGroups.map((group, groupIndex) => ({
       id: groupIndex + 1,
@@ -69,21 +72,27 @@ export function Stories() {
         group.user.username ||
         `${group.user.firstName} ${group.user.lastName}`.trim(),
       avatar: group.user.avatar || "/placeholder.svg",
-      stories: group.stories.map((story, storyIndex) => ({
-        id: storyIndex + 1,
-        storyId: story.id,
-        image: story.media || "/placeholder.svg",
-        timeAgo: getTimeAgo(story.datetime),
-        isLiked:
-          story.reactions?.some(
-            (r) => r.type === "LIKE" && r.user.id === currentUser?.id
-          ) || false,
-        userReaction:
-          story.reactions.find((r) => r.user.id === currentUser?.id)?.type ||
-          null,
-        likesCount:
-          story.reactions?.filter((r) => r.type === "LIKE").length || 0,
-      })),
+      stories: group.stories.map((story, storyIndex) => {
+        // Initialisation du count local à partir du backend
+        if (story.id && story._count?.reactions !== undefined) {
+          initializeReactionCount(story.id, story._count.reactions);
+        }
+        return {
+          id: storyIndex + 1,
+          storyId: story.id,
+          image: story.media || "/placeholder.svg",
+          timeAgo: getTimeAgo(story.datetime),
+          isLiked:
+            story.reactions?.some(
+              (r) => r.type === "LIKE" && r.user.id === currentUser?.id
+            ) || false,
+          userReaction:
+            story.reactions.find((r) => r.user.id === currentUser?.id)?.type ||
+            null,
+          // 👇 Utilise le count instantané si dispo, sinon celui du backend
+          likesCount: reactionCounts[story.id] ?? story._count?.reactions ?? 0,
+        };
+      }),
     }));
   };
 

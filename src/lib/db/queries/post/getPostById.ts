@@ -24,6 +24,21 @@ export async function getPostById(postId: string) {
               avatar: true,
             },
           },
+          reactions: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              reactions: true,
+            },
+          },
         },
         orderBy: {
           datetime: "desc",
