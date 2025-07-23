@@ -421,6 +421,9 @@ interface CommentItemProps {
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
+  const [reactionCount, setReactionCount] = useState(
+    comment._count?.reactions ?? 0
+  );
   const { initializeReactionCount } = useReactionContext();
 
   useEffect(() => {

@@ -57,7 +57,7 @@ const Laugh = (
     xmlns="http://www.w3.org/2000/svg"
   >
     <g clipPath="url(#clip0_0_30)">
-      <circle cx="57" cy="57" r="57" fill="#FFDA69" />
+      <circle cx="57" cy="57" r="55" fill="#FFDA69" />
       <g clipPath="url(#clip1_0_30)">
         <path
           fillRule="evenodd"
@@ -146,7 +146,7 @@ const Wow = (
     xmlns="http://www.w3.org/2000/svg"
   >
     <g clipPath="url(#clip0_0_22)">
-      <circle cx="57" cy="57" r="57" fill="#FFDA69" />
+      <circle cx="57" cy="57" r="55" fill="#FFDA69" />
       <ellipse cx="57" cy="79" rx="17" ry="22" fill="#252B37" />
       <path
         fillRule="evenodd"
@@ -172,7 +172,7 @@ const Sad = (
     xmlns="http://www.w3.org/2000/svg"
   >
     <g clipPath="url(#clip0_0_13)">
-      <circle cx="57" cy="57" r="57" fill="#FFDA69" />
+      <circle cx="57" cy="57" r="55" fill="#FFDA69" />
       <path
         d="M73.1966 86.8547C69.1596 82.5146 63.5092 80 57.463 80C51.4609 80 45.8478 82.4779 41.8153 86.7629C40.6798 87.9694 40.7374 89.8681 41.944 91.0036C43.1506 92.139 45.0492 92.0814 46.1847 90.8748C49.0948 87.7826 53.1327 86 57.463 86C61.825 86 65.89 87.809 68.8034 90.9411C69.9318 92.1543 71.8301 92.223 73.0432 91.0945C74.2564 89.9661 74.3251 88.0678 73.1966 86.8547V86.8547Z"
         fill="#252B39"
@@ -207,7 +207,7 @@ const angry = (
     xmlns="http://www.w3.org/2000/svg"
   >
     <g clipPath="url(#clip0_0_5)">
-      <circle cx="57" cy="57" r="57" fill="url(#paint0_linear_0_5)" />
+      <circle cx="57" cy="57" r="55" fill="url(#paint0_linear_0_5)" />
       <ellipse cx="56.5" cy="91.25" rx="18.5" ry="4.25" fill="#252B39" />
       <path
         fillRule="evenodd"
@@ -259,7 +259,7 @@ export const LikeIcon: React.FC<ReactionIconProps> = ({
       className={className}
     >
       <g clipPath="url(#clip0_0_45)">
-        <circle cx="57" cy="57" r="57" fill={fill} />
+        <circle cx="57" cy="57" r="55" fill={fill} />
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -292,7 +292,7 @@ export const LoveIcon: React.FC<ReactionIconProps> = ({
       className={className}
     >
       <g clipPath="url(#clip0_0_39)">
-        <circle cx="57" cy="57" r="57" fill={fill} />
+        <circle cx="57" cy="57" r="55" fill={fill} />
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -324,7 +324,7 @@ export const SadIcon: React.FC<ReactionIconProps> = ({
       className={className}
     >
       <g clipPath="url(#clip0_0_13)">
-        <circle cx="57" cy="57" r="57" fill="#FFDA69" />
+        <circle cx="57" cy="57" r="55" fill="#FFDA69" />
         <path
           d="M73.1966 86.8547C69.1596 82.5146 63.5092 80 57.463 80C51.4609 80 45.8478 82.4779 41.8153 86.7629C40.6798 87.9694 40.7374 89.8681 41.944 91.0036C43.1506 92.139 45.0492 92.0814 46.1847 90.8748C49.0948 87.7826 53.1327 86 57.463 86C61.825 86 65.89 87.809 68.8034 90.9411C69.9318 92.1543 71.8301 92.223 73.0432 91.0945C74.2564 89.9661 74.3251 88.0678 73.1966 86.8547V86.8547Z"
           fill="#252B39"
@@ -366,7 +366,7 @@ export const LaughIcon: React.FC<ReactionIconProps> = ({
       className={className}
     >
       <g clipPath="url(#clip0_0_30)">
-        <circle cx="57" cy="57" r="57" fill="#FFDA69" />
+        <circle cx="57" cy="57" r="55" fill="#FFDA69" />
         <g clipPath="url(#clip1_0_30)">
           <path
             fillRule="evenodd"
@@ -439,7 +439,7 @@ export const DislikeIcon: React.FC<ReactionIconProps> = ({
       className={className}
     >
       <g clipPath="url(#clip0_dislike)">
-        <circle cx="57" cy="57" r="57" fill={fill} />
+        <circle cx="57" cy="57" r="55" fill={fill} />
         <path
           fillRule="evenodd"
           clipRule="evenodd"
@@ -471,7 +471,7 @@ export const AngryIcon: React.FC<ReactionIconProps> = ({
       className={className}
     >
       <g clipPath="url(#clip0_0_5)">
-        <circle cx="57" cy="57" r="57" fill="url(#paint0_linear_0_5)" />
+        <circle cx="57" cy="57" r="55" fill="url(#paint0_linear_0_5)" />
         <ellipse cx="56.5" cy="91.25" rx="18.5" ry="4.25" fill="#252B39" />
         <path
           fillRule="evenodd"
@@ -514,7 +514,7 @@ export const WowIcon: React.FC<ReactionIconProps> = ({
       className={className}
     >
       <g clipPath="url(#clip0_0_22)">
-        <circle cx="57" cy="57" r="57" fill="#FFDA69" />
+        <circle cx="57" cy="57" r="55" fill="#FFDA69" />
         <ellipse cx="57" cy="79" rx="17" ry="22" fill="#252B37" />
         <path
           fillRule="evenodd"

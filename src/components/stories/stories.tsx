@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StoryViewer } from "./story-viewer";
 import CreateStory from "./createStory";
@@ -65,6 +65,18 @@ export function Stories() {
 
   const { initializeReactionCount, reactionCounts } = useReactionContext();
 
+  // 👇 CORRECTION : Initialisation des counts dans un useEffect
+  useEffect(() => {
+    if (!storiesGroups) return;
+    storiesGroups.forEach((group) => {
+      group.stories.forEach((story) => {
+        if (story.id && story._count?.reactions !== undefined) {
+          initializeReactionCount(story.id, story._count.reactions);
+        }
+      });
+    });
+  }, [storiesGroups, initializeReactionCount]);
+
   const adaptStoryData = (storiesGroups: UserStoriesGroup[]): AdaptedUser[] => {
     return storiesGroups.map((group, groupIndex) => ({
       id: groupIndex + 1,
@@ -72,27 +84,20 @@ export function Stories() {
         group.user.username ||
         `${group.user.firstName} ${group.user.lastName}`.trim(),
       avatar: group.user.avatar || "/placeholder.svg",
-      stories: group.stories.map((story, storyIndex) => {
-        // Initialisation du count local à partir du backend
-        if (story.id && story._count?.reactions !== undefined) {
-          initializeReactionCount(story.id, story._count.reactions);
-        }
-        return {
-          id: storyIndex + 1,
-          storyId: story.id,
-          image: story.media || "/placeholder.svg",
-          timeAgo: getTimeAgo(story.datetime),
-          isLiked:
-            story.reactions?.some(
-              (r) => r.type === "LIKE" && r.user.id === currentUser?.id
-            ) || false,
-          userReaction:
-            story.reactions.find((r) => r.user.id === currentUser?.id)?.type ||
-            null,
-          // 👇 Utilise le count instantané si dispo, sinon celui du backend
-          likesCount: reactionCounts[story.id] ?? story._count?.reactions ?? 0,
-        };
-      }),
+      stories: group.stories.map((story, storyIndex) => ({
+        id: storyIndex + 1,
+        storyId: story.id,
+        image: story.media || "/placeholder.svg",
+        timeAgo: getTimeAgo(story.datetime),
+        isLiked:
+          story.reactions?.some(
+            (r) => r.type === "LIKE" && r.user.id === currentUser?.id
+          ) || false,
+        userReaction:
+          story.reactions.find((r) => r.user.id === currentUser?.id)?.type ||
+          null,
+        likesCount: reactionCounts[story.id] ?? story._count?.reactions ?? 0,
+      })),
     }));
   };
 

@@ -159,7 +159,15 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
       </div>
 
       {showReactions && (
-        <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 flex gap-2 bg-[var(--bgLevel1)] border border-[var(--detailMinimal)] p-2 rounded-xl shadow-lg z-50 animate-fade-in">
+        <div
+          className={
+            content.type === "comment"
+              ? "absolute left-9 top-1/2 -translate-y-1/2 ml-2 flex gap-2 bg-[var(--bgLevel1)] border border-[var(--detailMinimal)] p-2 rounded-xl shadow-lg z-50 animate-fade-in"
+              : content.type === "stories"
+              ? "absolute bottom-full left-1/2 -translate-x-41 flex gap-2 bg-[var(--bgLevel1)] border border-[var(--detailMinimal)] p-2 rounded-xl shadow-lg z-50 animate-fade-in"
+              : "absolute bottom-full left-1/2 -translate-x-5 flex gap-2 bg-[var(--bgLevel1)] border border-[var(--detailMinimal)] p-2 rounded-xl shadow-lg z-50 animate-fade-in"
+          }
+        >
           {reactions.map(({ type, label, icon: Icon }) => (
             <button
               key={type}
