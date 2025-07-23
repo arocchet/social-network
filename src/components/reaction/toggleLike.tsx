@@ -1,5 +1,7 @@
+"use client";
+
 import { useEffect, useRef, useState } from "react";
-import { ReactionType } from "@/lib/schemas/reaction";
+import type { ReactionType } from "@/lib/schemas/reaction";
 import {
   LikeIcon,
   DislikeIcon,
@@ -53,7 +55,7 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
   );
 
   const prevReaction = useRef<ReactionType | null>(content.reaction);
-  const { handleReactionChange } = useReactionContext();
+  const { handleReactionChange, reactionCounts } = useReactionContext();
   const [showReactions, setShowReactions] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -117,6 +119,9 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
     sendReaction();
   }, [selectedReaction, content.contentId, content.type]);
 
+  const currentCount =
+    reactionCounts[content.contentId] ?? content.reactionCount;
+
   return (
     <div
       className="relative group"
@@ -150,11 +155,9 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
           })()}
         </div>
 
-        {/* ✅ Compteur de réactions */}
-        {content.reactionCount > 0 && (
-          <span className="text-xs text-muted-foreground">
-            {content.reactionCount}
-          </span>
+        {/* ✅ Compteur de réactions - utilise le contexte */}
+        {currentCount > 0 && (
+          <span className="text-xs text-muted-foreground">{currentCount}</span>
         )}
       </div>
 

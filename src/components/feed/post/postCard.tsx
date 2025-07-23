@@ -1,14 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Send, Bookmark, Play, Video, MessageCircle } from "lucide-react";
 import { PostDetails } from "./postDetails";
 import Link from "next/link";
 import { usePostContext } from "@/app/context/post-context";
-import { Post } from "@/lib/schemas/post";
+import type { Post } from "@/lib/schemas/post";
 import { ReactionComponent } from "@/components/reaction/toggleLike";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface PostContent {
   isLiked?: boolean;
@@ -17,6 +19,7 @@ interface PostContent {
 
 const PostCard = ({ isLiked, likesCount }: PostContent) => {
   const { allposts } = usePostContext();
+  const { reactionCounts } = useReactionContext();
 
   console.log("PostCard:", allposts[0]?.reactions);
 
@@ -47,9 +50,6 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
   const PostMedia = ({ post }: { post: Post }) => {
     const [isPlaying, setIsPlaying] = useState(false);
     const mediaType = getMediaType(post.image);
-    const [reactionCount, setReactionCount] = useState<number>(
-      post._count.reactions
-    );
 
     const handleVideoPlay = (e: React.MouseEvent<HTMLVideoElement>) => {
       e.stopPropagation();
@@ -160,7 +160,8 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
                   content={{
                     contentId: post.id,
                     reaction: post?.reactions[0]?.type,
-                    reactionCount: post._count.reactions ?? 0,
+                    reactionCount:
+                      reactionCounts[post.id] ?? post._count.reactions ?? 0,
                     type: "post",
                   }}
                 />
@@ -191,7 +192,7 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
               </Button>
             </div>
 
-            {/* Caption - seulement si ce n’est pas un post texte */}
+            {/* Caption - seulement si ce n'est pas un post texte */}
             {post.image && (
               <div className="text-sm text-[var(--textNeutral)] mb-2">
                 <span className="font-semibold mr-2">

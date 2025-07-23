@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,8 +16,8 @@ import { MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import InputComment from "../../comments/InputComment";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PostWithDetails } from "@/lib/schemas/post/";
-import { Comment } from "@/lib/schemas/comment";
+import type { PostWithDetails } from "@/lib/schemas/post/";
+import type { Comment } from "@/lib/schemas/comment";
 import { usePostById } from "@/hooks/use-post-by-id";
 import { ReactionComponent } from "@/components/reaction/toggleLike";
 import { useReactionContext } from "@/app/context/reaction-context";
@@ -214,7 +216,7 @@ export function MediaSection({ post }: { post: PostWithDetails }) {
             />
           ) : (
             <img
-              src={post.image}
+              src={post.image || "/placeholder.svg"}
               alt="Post content"
               className="max-w-full max-h-full object-contain"
             />
@@ -424,7 +426,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
   const [reactionCount, setReactionCount] = useState(
     comment._count?.reactions ?? 0
   );
-  const { initializeReactionCount } = useReactionContext();
+  const { initializeReactionCount, reactionCounts } = useReactionContext();
 
   useEffect(() => {
     if (comment.id && comment._count?.reactions !== undefined) {
@@ -483,7 +485,7 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
               return (
                 <div key={index} className="mt-2">
                   <img
-                    src={part.content}
+                    src={part.content || "/placeholder.svg"}
                     alt="Contenu du commentaire"
                     className="max-w-full max-h-48 rounded-md object-contain border border-[var(--detailMinimal)]"
                     onError={(e) => {
@@ -529,7 +531,8 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
           content={{
             contentId: comment.id,
             reaction: comment.reactions?.[0]?.type || null,
-            reactionCount: comment._count?.reactions ?? 0,
+            reactionCount:
+              reactionCounts[comment.id] ?? comment._count?.reactions ?? 0,
             type: "comment",
           }}
         />

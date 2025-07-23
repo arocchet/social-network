@@ -6,7 +6,7 @@ import { StoryViewer } from "./story-viewer";
 import CreateStory from "./createStory";
 import AppLoader from "../ui/app-loader";
 import { useUserStories } from "@/hooks/use-user-stories";
-import { UserStoriesGroup } from "@/lib/schemas/stories/group";
+import type { UserStoriesGroup } from "@/lib/schemas/stories/group";
 import { useUser } from "@/hooks/use-user-data";
 import { useReactionContext } from "@/app/context/reaction-context";
 
@@ -96,7 +96,7 @@ export function Stories() {
         userReaction:
           story.reactions.find((r) => r.user.id === currentUser?.id)?.type ||
           null,
-        likesCount: reactionCounts[story.id] ?? story._count?.reactions ?? 0,
+        likesCount: story._count?.reactions ?? 0, // Garde l'initial, le contexte se chargera de la mise à jour
       })),
     }));
   };
