@@ -8,32 +8,39 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(cuid())
-  firstName           String?
-  lastName            String?
-  password            String?
-  email               String               @unique
-  birthDate           DateTime?
-  username            String?              @unique
-  biography           String?
-  avatar              String?
-  banner              String?
-  bannerId            String?
-  visibility          ProfileVisibility    @default(PUBLIC)
-  avatarId            String?
-  comments            Comment[]
-  conversationMembers ConversationMember[]
-  friendsWithMe       Friendship[]         @relation("FriendOf")
-  friendships         Friendship[]         @relation("UserFriendships")
-  groupMessages       GroupMessage[]
-  receivedMessages    Message[]            @relation("ReceivedMessages")
-  sentMessages        Message[]            @relation("SentMessages")
-  notifications       Notification[]
-  posts               Post[]
-  reactions           Reaction[]
-  stories             Story[]
-  userSettings        UserSettings?
-  accounts            Account[]
+  id                                              String               @id @default(cuid())
+  firstName                                       String?
+  lastName                                        String?
+  password                                        String?
+  email                                           String               @unique
+  birthDate                                       DateTime?
+  username                                        String?              @unique
+  biography                                       String?
+  avatar                                          String?
+  banner                                          String?
+  bannerId                                        String?
+  avatarId                                        String?
+  visibility                                      ProfileVisibility    @default(PUBLIC)
+  comments                                        Comment[]
+  Conversation                                    Conversation[]
+  conversationMembers                             ConversationMember[]
+  Event                                           Event[]
+  friendsWithMe                                   Friendship[]         @relation("FriendOf")
+  friendships                                     Friendship[]         @relation("UserFriendships")
+  GroupInvitation_GroupInvitation_invitedIdToUser GroupInvitation[]    @relation("GroupInvitation_invitedIdToUser")
+  GroupInvitation_GroupInvitation_inviterIdToUser GroupInvitation[]    @relation("GroupInvitation_inviterIdToUser")
+  GroupJoinRequest                                GroupJoinRequest[]
+  GroupMember                                     GroupMember[]
+  groupMessages                                   GroupMessage[]
+  receivedMessages                                Message[]            @relation("ReceivedMessages")
+  sentMessages                                    Message[]            @relation("SentMessages")
+  notifications                                   Notification[]
+  posts                                           Post[]
+  reactions                                       Reaction[]
+  Rsvp                                            Rsvp[]
+  stories                                         Story[]
+  userSettings                                    UserSettings?
+  accounts                                        Account[]
 }
 
 model Account {
@@ -84,9 +91,9 @@ model Comment {
   userId    String
   message   String
   datetime  DateTime   @default(now())
-  reactions Reaction[]
   post      Post       @relation(fields: [postId], references: [id])
   user      User       @relation(fields: [userId], references: [id])
+  reactions Reaction[]
 }
 
 model Reaction {
@@ -97,9 +104,9 @@ model Reaction {
   datetime  DateTime     @default(now())
   storyId   String?
   commentId String?
+  comment   Comment?     @relation(fields: [commentId], references: [id])
   post      Post?        @relation(fields: [postId], references: [id])
   story     Story?       @relation(fields: [storyId], references: [id])
-  comment   Comment?     @relation(fields: [commentId], references: [id])
   user      User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, postId])
@@ -131,12 +138,18 @@ model Friendship {
 }
 
 model Conversation {
-  id        String               @id @default(cuid())
-  title     String?
-  isGroup   Boolean              @default(false)
-  createdAt DateTime             @default(now())
-  members   ConversationMember[]
-  messages  GroupMessage[]
+  id               String               @id @default(cuid())
+  title            String?
+  isGroup          Boolean              @default(false)
+  createdAt        DateTime             @default(now())
+  ownerId          String?
+  User             User?                @relation(fields: [ownerId], references: [id])
+  members          ConversationMember[]
+  Event            Event[]
+  GroupInvitation  GroupInvitation[]
+  GroupJoinRequest GroupJoinRequest[]
+  GroupMember      GroupMember[]
+  messages         GroupMessage[]
 }
 
 model ConversationMember {
@@ -183,6 +196,68 @@ model UserSettings {
   user                 User     @relation(fields: [userId], references: [id])
 }
 
+model Event {
+  id           String       @id
+  title        String
+  description  String
+  datetime     DateTime
+  groupId      String
+  ownerId      String
+  createdAt    DateTime     @default(now())
+  Conversation Conversation @relation(fields: [groupId], references: [id])
+  User         User         @relation(fields: [ownerId], references: [id])
+  Rsvp         Rsvp[]
+}
+
+model GroupInvitation {
+  id                                   String           @id
+  groupId                              String
+  inviterId                            String
+  invitedId                            String
+  status                               InvitationStatus @default(PENDING)
+  createdAt                            DateTime         @default(now())
+  Conversation                         Conversation     @relation(fields: [groupId], references: [id])
+  User_GroupInvitation_invitedIdToUser User             @relation("GroupInvitation_invitedIdToUser", fields: [invitedId], references: [id])
+  User_GroupInvitation_inviterIdToUser User             @relation("GroupInvitation_inviterIdToUser", fields: [inviterId], references: [id])
+
+  @@unique([groupId, invitedId])
+}
+
+model GroupJoinRequest {
+  id           String           @id
+  groupId      String
+  seeker       String
+  status       InvitationStatus @default(PENDING)
+  createdAt    DateTime         @default(now())
+  Conversation Conversation     @relation(fields: [groupId], references: [id])
+  User         User             @relation(fields: [seeker], references: [id])
+
+  @@unique([groupId, seeker])
+}
+
+model GroupMember {
+  id           String       @id
+  groupId      String
+  userId       String
+  joinedAt     DateTime     @default(now())
+  Conversation Conversation @relation(fields: [groupId], references: [id])
+  User         User         @relation(fields: [userId], references: [id])
+
+  @@unique([groupId, userId])
+}
+
+model Rsvp {
+  id        String     @id
+  userId    String
+  eventId   String
+  status    RsvpStatus
+  createdAt DateTime   @default(now())
+  Event     Event      @relation(fields: [eventId], references: [id])
+  User      User       @relation(fields: [userId], references: [id])
+
+  @@unique([userId, eventId])
+}
+
 enum Visibility {
   PUBLIC
   PRIVATE
@@ -202,4 +277,16 @@ enum ReactionType {
 enum ProfileVisibility {
   PUBLIC
   PRIVATE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum RsvpStatus {
+  YES
+  NO
+  MAYBE
 }
