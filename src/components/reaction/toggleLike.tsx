@@ -67,7 +67,7 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
   const handleMouseLeave = () => {
     hoverTimeoutRef.current = setTimeout(() => {
       setShowReactions(false);
-    }, 150);
+    }, 400);
   };
 
   const handleMainIconClick = () => {
@@ -127,7 +127,7 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
       <div className="flex  items-center gap-2">
         {/* Icône de réaction */}
         <div
-          className="flex  items-center gap-1"
+          className="flex items-center gap-1"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
@@ -170,6 +170,8 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
               ? "absolute bottom-full left-1/2 -translate-x-41 flex gap-2 bg-[var(--bgLevel1)] border border-[var(--detailMinimal)] p-2 rounded-xl shadow-lg z-50 animate-fade-in"
               : "absolute bottom-full left-1/2 -translate-x-5 flex gap-2 bg-[var(--bgLevel1)] border border-[var(--detailMinimal)] p-2 rounded-xl shadow-lg z-50 animate-fade-in"
           }
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {reactions.map(({ type, label, icon: Icon }) => (
             <button
