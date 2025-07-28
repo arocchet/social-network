@@ -123,14 +123,14 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
     reactionCounts[content.contentId] ?? content.reactionCount;
 
   return (
-    <div
-      className="relative group"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      <div className="flex items-center gap-2">
+    <div className="relative group">
+      <div className="flex  items-center gap-2">
         {/* Icône de réaction */}
-        <div className="flex items-center gap-1">
+        <div
+          className="flex  items-center gap-1"
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+        >
           {(() => {
             const Icon =
               ReactionIcon[selectedReaction as keyof typeof ReactionIcon] ||
