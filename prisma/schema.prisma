@@ -115,17 +115,17 @@ model Reaction {
 }
 
 model Message {
-  id         String        @id @default(cuid())
-  senderId   String
-  receiverId String
-  message    String
-  image      String?
-  datetime   DateTime      @default(now())
-  deliveredAt DateTime?    // When message was delivered to recipient
-  readAt     DateTime?     // When message was read by recipient
-  status     MessageStatus @default(SENT)
-  receiver   User          @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  sender     User          @relation("SentMessages", fields: [senderId], references: [id])
+  id          String        @id @default(cuid())
+  senderId    String
+  receiverId  String
+  message     String
+  image       String?
+  datetime    DateTime      @default(now())
+  deliveredAt DateTime? // When message was delivered to recipient
+  readAt      DateTime? // When message was read by recipient
+  status      MessageStatus @default(SENT)
+  receiver    User          @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  sender      User          @relation("SentMessages", fields: [senderId], references: [id])
 }
 
 model Friendship {
@@ -156,32 +156,32 @@ model Conversation {
 }
 
 model ConversationMember {
-  id               String       @id @default(cuid())
-  userId           String
-  conversationId   String
-  joinedAt         DateTime     @default(now())
-  lastSeenMessageId String?     // ID of the last message seen by this user
-  lastSeenAt       DateTime?    // When the user last viewed this conversation
-  conversation     Conversation @relation(fields: [conversationId], references: [id])
-  user             User         @relation(fields: [userId], references: [id])
+  id                String       @id @default(cuid())
+  userId            String
+  conversationId    String
+  joinedAt          DateTime     @default(now())
+  lastSeenMessageId String? // ID of the last message seen by this user
+  lastSeenAt        DateTime? // When the user last viewed this conversation
+  conversation      Conversation @relation(fields: [conversationId], references: [id])
+  user              User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, conversationId])
 }
 
 model GroupMessage {
-  id             String            @id @default(cuid())
+  id             String        @id @default(cuid())
   conversationId String
   senderId       String
   message        String
   image          String?
-  eventId        String?           // Link to event for event messages
-  sentAt         DateTime          @default(now())
-  deliveredAt    DateTime?         // When message was delivered to recipient(s)
-  readAt         DateTime?         // When message was read by recipient(s)
-  status         MessageStatus     @default(SENT)
-  conversation   Conversation      @relation(fields: [conversationId], references: [id])
-  sender         User              @relation(fields: [senderId], references: [id])
-  event          Event?            @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  eventId        String? // Link to event for event messages
+  sentAt         DateTime      @default(now())
+  deliveredAt    DateTime? // When message was delivered to recipient(s)
+  readAt         DateTime? // When message was read by recipient(s)
+  status         MessageStatus @default(SENT)
+  conversation   Conversation  @relation(fields: [conversationId], references: [id])
+  sender         User          @relation(fields: [senderId], references: [id])
+  event          Event?        @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
@@ -206,18 +206,6 @@ model UserSettings {
   user                 User     @relation(fields: [userId], references: [id])
 }
 
-model Event {
-  id           String       @id
-  title        String
-  description  String
-  datetime     DateTime
-  groupId      String
-  ownerId      String
-  createdAt    DateTime     @default(now())
-  Conversation Conversation @relation(fields: [groupId], references: [id])
-  User         User         @relation(fields: [ownerId], references: [id])
-  Rsvp         Rsvp[]
-}
 model GroupInvitation {
   id                                   String           @id @default(cuid())
   groupId                              String
