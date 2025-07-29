@@ -31,7 +31,7 @@ export async function getPostsByUserIdServer(
                 avatar: true,
               },
             },
-            reactions: {
+            Reaction: {
               include: {
                 user: {
                   select: {
@@ -43,7 +43,7 @@ export async function getPostsByUserIdServer(
             },
             _count: {
               select: {
-                reactions: true,
+                Reaction: true,
               },
             },
           },

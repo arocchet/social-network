@@ -121,8 +121,8 @@ model Message {
   message     String
   image       String?
   datetime    DateTime      @default(now())
-  deliveredAt DateTime? // When message was delivered to recipient
-  readAt      DateTime? // When message was read by recipient
+  deliveredAt DateTime?
+  readAt      DateTime?
   status      MessageStatus @default(SENT)
   receiver    User          @relation("ReceivedMessages", fields: [receiverId], references: [id])
   sender      User          @relation("SentMessages", fields: [senderId], references: [id])
@@ -160,8 +160,8 @@ model ConversationMember {
   userId            String
   conversationId    String
   joinedAt          DateTime     @default(now())
-  lastSeenMessageId String? // ID of the last message seen by this user
-  lastSeenAt        DateTime? // When the user last viewed this conversation
+  lastSeenAt        DateTime?
+  lastSeenMessageId String?
   conversation      Conversation @relation(fields: [conversationId], references: [id])
   user              User         @relation(fields: [userId], references: [id])
 
@@ -174,14 +174,14 @@ model GroupMessage {
   senderId       String
   message        String
   image          String?
-  eventId        String? // Link to event for event messages
   sentAt         DateTime      @default(now())
-  deliveredAt    DateTime? // When message was delivered to recipient(s)
-  readAt         DateTime? // When message was read by recipient(s)
+  eventId        String?
+  deliveredAt    DateTime?
+  readAt         DateTime?
   status         MessageStatus @default(SENT)
   conversation   Conversation  @relation(fields: [conversationId], references: [id])
-  sender         User          @relation(fields: [senderId], references: [id])
   event          Event?        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  sender         User          @relation(fields: [senderId], references: [id])
 }
 
 model Notification {
@@ -253,8 +253,8 @@ model Event {
   createdAt   DateTime       @default(now())
   group       Conversation   @relation(fields: [groupId], references: [id])
   owner       User           @relation("EventOwner", fields: [ownerId], references: [id])
+  messages    GroupMessage[]
   rsvps       Rsvp[]
-  messages    GroupMessage[] // Messages related to this event
 }
 
 model Rsvp {
