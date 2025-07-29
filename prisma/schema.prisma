@@ -24,6 +24,7 @@ model User {
   comments                                        Comment[]
   Conversation                                    Conversation[]
   conversationMembers                             ConversationMember[]
+  Event                                           Event[]
   friendsWithMe                                   Friendship[]         @relation("FriendOf")
   friendships                                     Friendship[]         @relation("UserFriendships")
   GroupInvitation_GroupInvitation_invitedIdToUser GroupInvitation[]    @relation("GroupInvitation_invitedIdToUser")
@@ -38,6 +39,7 @@ model User {
   notifications                                   Notification[]
   posts                                           Post[]
   reactions                                       Reaction[]
+  Rsvp                                            Rsvp[]
   stories                                         Story[]
   userSettings                                    UserSettings?
   accounts                                        Account[]
@@ -104,7 +106,7 @@ model Reaction {
   datetime  DateTime     @default(now())
   storyId   String?
   commentId String?
-  Comment   Comment?     @relation(fields: [commentId], references: [id])
+  comment   Comment?     @relation(fields: [commentId], references: [id])
   post      Post?        @relation(fields: [postId], references: [id])
   story     Story?       @relation(fields: [storyId], references: [id])
   user      User         @relation(fields: [userId], references: [id])
@@ -145,12 +147,12 @@ model Conversation {
   ownerId          String?
   User             User?                @relation(fields: [ownerId], references: [id])
   members          ConversationMember[]
+  Event            Event[]
   GroupInvitation  GroupInvitation[]
   GroupJoinRequest GroupJoinRequest[]
   GroupMember      GroupMember[]
   messages         GroupMessage[]
   events           Event[]
-
 }
 
 model ConversationMember {
@@ -197,6 +199,18 @@ model UserSettings {
   user                 User     @relation(fields: [userId], references: [id])
 }
 
+model Event {
+  id           String       @id
+  title        String
+  description  String
+  datetime     DateTime
+  groupId      String
+  ownerId      String
+  createdAt    DateTime     @default(now())
+  Conversation Conversation @relation(fields: [groupId], references: [id])
+  User         User         @relation(fields: [ownerId], references: [id])
+  Rsvp         Rsvp[]
+}
 model GroupInvitation {
   id                                   String           @id @default(cuid())
   groupId                              String
@@ -268,7 +282,6 @@ enum RsvpStatus {
   MAYBE
 }
 
-
 enum Visibility {
   PUBLIC
   PRIVATE
@@ -282,6 +295,7 @@ enum ReactionType {
   LAUGH
   SAD
   ANGRY
+  WOW
 }
 
 enum ProfileVisibility {

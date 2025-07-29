@@ -1,23 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Heart,
-  Send,
-  Bookmark,
-  Play,
-  Video,
-  MessageCircle,
-} from "lucide-react";
+import { Send, Bookmark, Play, Video, MessageCircle } from "lucide-react";
 import { PostDetails } from "./postDetails";
 import Link from "next/link";
 import { usePostContext } from "@/app/context/post-context";
-import { Post } from "@/lib/schemas/post";
+import type { Post } from "@/lib/schemas/post";
+import { ReactionComponent } from "@/components/reaction/toggleLike";
+import { useReactionContext } from "@/app/context/reaction-context";
 
-const PostCard = () => {
+interface PostContent {
+  isLiked?: boolean;
+  likesCount?: number;
+}
+
+const PostCard = ({ isLiked, likesCount }: PostContent) => {
   const { allposts } = usePostContext();
+  const { reactionCounts } = useReactionContext();
+
+  console.log("PostCard:", allposts[0]?.reactions);
 
   // Etat pour gérer quel post a ses détails ouverts
   const [openPostId, setOpenPostId] = useState<string | null>(null);
@@ -152,14 +156,15 @@ const PostCard = () => {
           <div className="p-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="p-0 hover:bg-transparent"
-                >
-                  <Heart className="w-6 h-6 text-[var(--textNeutral)] hover:text-red-500 transition-colors" />
-                </Button>
-
+                <ReactionComponent
+                  content={{
+                    contentId: post.id,
+                    reaction: post?.reactions[0]?.type,
+                    reactionCount:
+                      reactionCounts[post.id] ?? post._count.reactions ?? 0,
+                    type: "post",
+                  }}
+                />
                 {/* Bouton pour ouvrir les détails / commentaires */}
                 <Button
                   variant="ghost"
@@ -187,12 +192,7 @@ const PostCard = () => {
               </Button>
             </div>
 
-            {/* Likes */}
-            <div className="font-semibold text-sm mb-2 text-[var(--textNeutral)]">
-              {post._count.reactions} mentions J’aime
-            </div>
-
-            {/* Caption - seulement si ce n’est pas un post texte */}
+            {/* Caption - seulement si ce n'est pas un post texte */}
             {post.image && (
               <div className="text-sm text-[var(--textNeutral)] mb-2">
                 <span className="font-semibold mr-2">

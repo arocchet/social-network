@@ -1,5 +1,7 @@
 "use client";
 
+import type React from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,10 +16,11 @@ import { MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import InputComment from "../../comments/InputComment";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PostWithDetails } from "@/lib/schemas/post/";
-import { Comment } from "@/lib/schemas/comment";
+import type { PostWithDetails } from "@/lib/schemas/post/";
+import type { Comment } from "@/lib/schemas/comment";
 import { usePostById } from "@/hooks/use-post-by-id";
-
+import { ReactionComponent } from "@/components/reaction/toggleLike";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface PostDetailsProps {
   postId: string;
@@ -32,10 +35,19 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
 
   const { post, loading } = usePostById(postId);
 
+  // ✅ AJOUTER CES 2 LIGNES
+  const { initializeReactionCount } = useReactionContext();
+
   useEffect(() => {
-    setUpdatedPost(post)
-    console.log('post: ', post)
-  }, [post])
+    if (post?.id && post._count?.reactions !== undefined) {
+      initializeReactionCount(post.id, post._count.reactions);
+    }
+  }, [post?.id]);
+
+  useEffect(() => {
+    setUpdatedPost(post);
+    console.log("post: ", post);
+  }, [post]);
 
   const handleScroll = () => {
     const content = contentRef.current;
@@ -51,15 +63,20 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
     setUpdatedPost((prev) =>
       prev
         ? {
-          ...prev,
-          comments: [newComment, ...prev.comments],
-        }
+            ...prev,
+            comments: [newComment, ...prev.comments],
+          }
         : prev
     );
   };
 
   return (
-    <Dialog open={true} onOpenChange={(open) => { if (!open) onClose(); }}>
+    <Dialog
+      open={true}
+      onOpenChange={(open) => {
+        if (!open) onClose();
+      }}
+    >
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="ghost" size="icon" className="p-0 relative">
@@ -79,17 +96,10 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
           <DialogDescription asChild>
             <div className="flex h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
               {!loading && updatedPost ? (
-                /* Layout Instagram avec média à gauche et commentaires à droite */
                 <div className="flex w-full h-full">
-                  {/* Section média - gauche */}
                   <MediaSection post={updatedPost} />
-
-                  {/* Section commentaires - droite */}
                   <div className="flex flex-col w-[500px] bg-[var(--bgLevel1)] border-l border-[var(--detailMinimal)]">
-                    {/* Header avec info du post */}
                     <PostHeader post={updatedPost} />
-
-                    {/* Liste des commentaires scrollable */}
                     <div
                       ref={contentRef}
                       onScroll={handleScroll}
@@ -97,8 +107,6 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
                     >
                       <CommentsSection comments={updatedPost?.comments} />
                     </div>
-
-                    {/* Footer fixe */}
                     <PostFooter
                       postId={postId}
                       onCommentAdded={handleNewComment}
@@ -208,7 +216,7 @@ export function MediaSection({ post }: { post: PostWithDetails }) {
             />
           ) : (
             <img
-              src={post.image}
+              src={post.image || "/placeholder.svg"}
               alt="Post content"
               className="max-w-full max-h-full object-contain"
             />
@@ -342,9 +350,9 @@ function getTenorImageUrl(url: string): string {
 
 // Fonction pour obtenir l'URL d'image directe selon le fournisseur
 function getDirectImageUrl(url: string): string {
-  if (url.includes('giphy.com/gifs/')) {
+  if (url.includes("giphy.com/gifs/")) {
     return getGiphyImageUrl(url);
-  } else if (url.includes('tenor.com')) {
+  } else if (url.includes("tenor.com")) {
     return getTenorImageUrl(url);
   }
 
@@ -363,7 +371,7 @@ function parseCommentContent(message: string) {
     if (match.index > lastIndex) {
       const textBefore = message.slice(lastIndex, match.index).trim();
       if (textBefore) {
-        parts.push({ type: 'text', content: textBefore });
+        parts.push({ type: "text", content: textBefore });
       }
     }
 
@@ -373,12 +381,12 @@ function parseCommentContent(message: string) {
       // Convertir l'URL en URL d'image directe si nécessaire
       const directImageUrl = getDirectImageUrl(url);
       parts.push({
-        type: 'image',
+        type: "image",
         content: directImageUrl,
-        originalUrl: url // Garder l'URL originale pour le fallback
+        originalUrl: url, // Garder l'URL originale pour le fallback
       });
     } else {
-      parts.push({ type: 'link', content: url });
+      parts.push({ type: "link", content: url });
     }
 
     lastIndex = match.index + match[0].length;
@@ -388,27 +396,45 @@ function parseCommentContent(message: string) {
   if (lastIndex < message.length) {
     const textAfter = message.slice(lastIndex).trim();
     if (textAfter) {
-      parts.push({ type: 'text', content: textAfter });
+      parts.push({ type: "text", content: textAfter });
     }
   }
 
   // Si aucune URL n'a été trouvée, retourner tout comme texte
   if (parts.length === 0) {
-    parts.push({ type: 'text', content: message });
+    parts.push({ type: "text", content: message });
   }
 
   return parts;
 }
 
-// Composant pour un commentaire individuel avec support des médias
-function CommentItem({
-  comment,
-  isLast,
-}: {
+interface CommentContent {
   comment: Comment;
-  isLast?: boolean;
-}) {
-  const formatDate = (dateString: string | Date) => {
+  isLiked?: boolean;
+  likesCount?: number;
+}
+
+// Composant pour un commentaire individuel avec support des médias
+interface CommentItemProps {
+  comment: Comment;
+  isLiked?: boolean;
+  likesCount?: number;
+  isLast?: boolean; // Pour gérer le style du dernier commentaire
+}
+
+const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
+  const [reactionCount, setReactionCount] = useState(
+    comment._count?.reactions ?? 0
+  );
+  const { initializeReactionCount, reactionCounts } = useReactionContext();
+
+  useEffect(() => {
+    if (comment.id && comment._count?.reactions !== undefined) {
+      initializeReactionCount(comment.id, comment._count.reactions);
+    }
+  }, [comment.id]);
+
+  const formatDate = (dateString: string | Date): string => {
     const date = new Date(dateString);
     const now = new Date();
     const diffInMinutes = Math.floor(
@@ -425,7 +451,6 @@ function CommentItem({
     return `${diffInDays}j`;
   };
 
-  // Parser le contenu du commentaire
   const contentParts = parseCommentContent(comment.message);
 
   return (
@@ -448,38 +473,39 @@ function CommentItem({
           </span>
         </div>
 
-        {/* Contenu du commentaire avec support des médias */}
         <div className="space-y-2">
           {contentParts.map((part, index) => {
-            if (part.type === 'text') {
+            if (part.type === "text") {
               return (
                 <span key={index} className="text-foreground text-sm">
                   {part.content}
                 </span>
               );
-            } else if (part.type === 'image') {
+            } else if (part.type === "image") {
               return (
                 <div key={index} className="mt-2">
                   <img
-                    src={part.content}
+                    src={part.content || "/placeholder.svg"}
                     alt="Contenu du commentaire"
                     className="max-w-full max-h-48 rounded-md object-contain border border-[var(--detailMinimal)]"
                     onError={(e) => {
-                      // En cas d'erreur de chargement, afficher le lien original comme texte
                       const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const linkElement = document.createElement('a');
-                      linkElement.href = (part as any).originalUrl || part.content;
-                      linkElement.textContent = (part as any).originalUrl || part.content;
-                      linkElement.target = '_blank';
-                      linkElement.rel = 'noopener noreferrer';
-                      linkElement.className = 'text-blue-500 hover:underline text-sm break-all';
+                      target.style.display = "none";
+                      const linkElement = document.createElement("a");
+                      linkElement.href =
+                        (part as any).originalUrl || part.content;
+                      linkElement.textContent =
+                        (part as any).originalUrl || part.content;
+                      linkElement.target = "_blank";
+                      linkElement.rel = "noopener noreferrer";
+                      linkElement.className =
+                        "text-blue-500 hover:underline text-sm break-all";
                       target.parentNode?.insertBefore(linkElement, target);
                     }}
                   />
                 </div>
               );
-            } else if (part.type === 'link') {
+            } else if (part.type === "link") {
               return (
                 <a
                   key={index}
@@ -499,10 +525,21 @@ function CommentItem({
         <div className="text-xs text-muted-foreground mt-1">
           {formatDate(comment.datetime)}
         </div>
+
+        {/* Composant de réaction simple, comme avant */}
+        <ReactionComponent
+          content={{
+            contentId: comment.id,
+            reaction: comment.reactions?.[0]?.type || null,
+            reactionCount:
+              reactionCounts[comment.id] ?? comment._count?.reactions ?? 0,
+            type: "comment",
+          }}
+        />
       </div>
     </div>
   );
-}
+};
 
 // Composant pour le footer avec actions
 export function PostFooter({
@@ -515,10 +552,7 @@ export function PostFooter({
   return (
     <div className="flex-shrink-0 bg-[var(--bgLevel2)] border-t border-[var(--detailMinimal)]">
       <div className="p-2 w-full">
-        <InputComment
-          postId={postId}
-          onCommentAdded={onCommentAdded}
-        />
+        <InputComment postId={postId} onCommentAdded={onCommentAdded} />
       </div>
     </div>
   );
