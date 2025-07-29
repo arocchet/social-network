@@ -7,7 +7,8 @@ export const ReactionTypeSchema = z.enum([
     "LOVE",
     "LAUGH",
     "SAD",
-    "ANGRY"
+    "ANGRY",
+    "WOW"
 ]);
 
 

@@ -12,8 +12,6 @@
 
 # production
 /build
-
-/prisma/migrations
 prisma/social-network.db
 
 # misc
