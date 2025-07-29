@@ -11,12 +11,13 @@ export const ReactionTypeSchema = z.enum([
     "WOW"
 ]);
 
-
-export const ReactionSchema = z.object({
+export const ReactionSchema = z
+  .object({
     id: z.string(),
     type: ReactionTypeSchema,
     user: ReactionUserSchema,
-}).describe('ReactionSchema');
+  })
+  .describe("ReactionSchema");
 
 export type ReactionType = z.infer<typeof ReactionTypeSchema>;
 export type Reaction = z.infer<typeof ReactionSchema>;

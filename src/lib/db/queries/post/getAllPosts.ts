@@ -1,6 +1,5 @@
 import { db } from "../..";
 
-
 // export async function getAllPosts() {
 //   return await db.post.findMany({
 //     include: {
@@ -34,10 +33,26 @@ export async function getPaginatedPosts(skip: number, take: number = 10) {
     include: {
       user: {
         select: {
-          id: true, username: true, avatar: true, lastName: true, firstName: true
-        }
+          id: true,
+          username: true,
+          avatar: true,
+          lastName: true,
+          firstName: true,
+        },
       },
-      _count: { select: { reactions: true, comments: true } }
+      reactions: {
+        select: {
+          id: true,
+          type: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
+      },
+      _count: { select: { reactions: true, comments: true } },
     },
   });
 }

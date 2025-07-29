@@ -104,7 +104,7 @@ model Reaction {
   datetime  DateTime     @default(now())
   storyId   String?
   commentId String?
-  Comment   Comment?     @relation(fields: [commentId], references: [id])
+  comment   Comment?     @relation(fields: [commentId], references: [id])
   post      Post?        @relation(fields: [postId], references: [id])
   story     Story?       @relation(fields: [storyId], references: [id])
   user      User         @relation(fields: [userId], references: [id])
@@ -206,6 +206,18 @@ model UserSettings {
   user                 User     @relation(fields: [userId], references: [id])
 }
 
+model Event {
+  id           String       @id
+  title        String
+  description  String
+  datetime     DateTime
+  groupId      String
+  ownerId      String
+  createdAt    DateTime     @default(now())
+  Conversation Conversation @relation(fields: [groupId], references: [id])
+  User         User         @relation(fields: [ownerId], references: [id])
+  Rsvp         Rsvp[]
+}
 model GroupInvitation {
   id                                   String           @id @default(cuid())
   groupId                              String

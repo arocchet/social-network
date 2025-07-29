@@ -1,20 +1,17 @@
-"use client";
-
-import type React from "react";
-
-import { useState, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { X, Volume2, VolumeX, Heart } from "lucide-react";
+import { X, Volume2, VolumeX } from "lucide-react";
 import { getMediaType } from "@/app/utils/media";
 import { StoryMedia } from "./storyMedia";
 import { useStoryPlayback } from "@/hooks/use-story-playback";
-import { updatedReaction } from "@/lib/client/stories/storiesReaction";
+import { ReactionComponent } from "../reaction/toggleLike";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface Reaction {
   id: string;
   userId: string;
-  type: "LIKE" | "DISLIKE";
+  type: "LIKE" | "DISLIKE" | "LOVE" | "LAUGH" | "SAD" | "ANGRY" | "WOW";
   user?: {
     id: string;
     username: string;
@@ -28,7 +25,15 @@ interface StoryContent {
   timeAgo: string;
   mediaType?: "image" | "video";
   isLiked?: boolean;
-  userReaction?: "LIKE" | "DISLIKE" | "LOVE" | "LAUGH" | "SAD" | "ANGRY" | null;
+  userReaction?:
+    | "LIKE"
+    | "DISLIKE"
+    | "LOVE"
+    | "LAUGH"
+    | "SAD"
+    | "ANGRY"
+    | "WOW"
+    | null;
   reactions?: Reaction[];
   likesCount?: number;
 }
@@ -49,8 +54,6 @@ interface StoryViewerProps {
   onPrevious: () => void;
 }
 
-const likesCache = new Map<string, { isLiked: boolean; likesCount: number }>();
-
 export function StoryViewer({
   stories,
   currentUserIndex,
@@ -59,46 +62,58 @@ export function StoryViewer({
   onNext,
   onPrevious,
 }: StoryViewerProps) {
-  const [dominantColor, setDominantColor] = useState<string>("#000000");
-  const [flyingHearts, setFlyingHearts] = useState<
-    Array<{ id: string; x: number; y: number }>
-  >([]);
-  const [heartId, setHeartId] = useState(0);
+  const [dominantColor, setDominantColor] = useState("#000000");
 
-  const isValidUserIndex =
-    currentUserIndex >= 0 && currentUserIndex < stories.length;
-  const currentUser = isValidUserIndex ? stories[currentUserIndex] : null;
-  const isValidStoryIndex =
-    currentUser &&
-    currentStoryIndex >= 0 &&
-    currentStoryIndex < currentUser.stories.length;
-  const currentStoryContent =
-    isValidStoryIndex && currentUser
-      ? currentUser.stories[currentStoryIndex]
-      : null;
-  const mediaType = currentStoryContent
-    ? currentStoryContent.mediaType || getMediaType(currentStoryContent.image)
-    : "image";
+  // ✅ RÉCUPÉRER LES FONCTIONS DU CONTEXT
+  const { reactionMap, reactionCounts, initializeReactionCount } =
+    useReactionContext();
 
-  const cacheKey = currentStoryContent?.storyId;
-  const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
-
-  const [isLiked, setIsLiked] = useState(
-    cachedData?.isLiked ?? currentStoryContent?.isLiked ?? false
+  const isValidUserIndex = useMemo(
+    () => currentUserIndex >= 0 && currentUserIndex < stories.length,
+    [currentUserIndex, stories.length]
   );
-  const [likesCount, setLikesCount] = useState(
-    cachedData?.likesCount ?? currentStoryContent?.likesCount ?? 0
+
+  const currentUser = useMemo(
+    () => (isValidUserIndex ? stories[currentUserIndex] : null),
+    [isValidUserIndex, stories, currentUserIndex]
+  );
+
+  const isValidStoryIndex = useMemo(
+    () =>
+      currentUser &&
+      currentStoryIndex >= 0 &&
+      currentStoryIndex < currentUser.stories.length,
+    [currentUser, currentStoryIndex]
+  );
+
+  const currentStoryContent = useMemo(
+    () =>
+      isValidStoryIndex && currentUser
+        ? currentUser.stories[currentStoryIndex]
+        : null,
+    [isValidStoryIndex, currentUser, currentStoryIndex]
   );
 
   useEffect(() => {
-    const cacheKey = currentStoryContent?.storyId;
-    const cachedData = cacheKey ? likesCache.get(cacheKey) : null;
+    if (
+      currentStoryContent?.storyId &&
+      currentStoryContent?.likesCount !== undefined
+    ) {
+      initializeReactionCount(
+        currentStoryContent.storyId,
+        currentStoryContent.likesCount
+      );
+    }
+  }, [currentStoryContent?.storyId, initializeReactionCount]);
 
-    setIsLiked(cachedData?.isLiked ?? currentStoryContent?.isLiked ?? false);
-    setLikesCount(
-      cachedData?.likesCount ?? currentStoryContent?.likesCount ?? 0
-    );
-  }, [currentStoryContent?.storyId]);
+  const mediaType = useMemo(
+    () =>
+      currentStoryContent
+        ? currentStoryContent.mediaType ||
+          getMediaType(currentStoryContent.image)
+        : "image",
+    [currentStoryContent]
+  );
 
   const {
     progress,
@@ -133,76 +148,6 @@ export function StoryViewer({
     x < width / 2 ? onPrevious() : onNext();
   };
 
-  const toggleLike = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-
-    const rect = event.currentTarget.getBoundingClientRect();
-
-    if (!currentStoryContent) return;
-
-    console.log(
-      "🔄 AVANT - isLiked:",
-      isLiked,
-      "storyId:",
-      currentStoryContent.storyId
-    );
-
-    try {
-      const response = await updatedReaction({
-        type: isLiked ? "DISLIKE" : "LIKE",
-        mediaId: currentStoryContent.storyId,
-        contentType: "stories",
-      });
-
-      console.log("📥 RÉPONSE API:", response);
-
-      if (response && response.success) {
-        const newLikedState = !isLiked;
-        const newLikesCount = newLikedState
-          ? likesCount + 1
-          : Math.max(0, likesCount - 1);
-
-        // ✅ MISE À JOUR DES STATES
-        setIsLiked(newLikedState);
-        setLikesCount(newLikesCount);
-
-        // ✅ CACHE AVEC LES BONNES VALEURS
-        if (cacheKey) {
-          likesCache.set(cacheKey, {
-            isLiked: newLikedState,
-            likesCount: newLikesCount,
-          });
-        }
-
-        console.log(
-          "✅ UPDATE - newLikedState:",
-          newLikedState,
-          "ancien likesCount:",
-          likesCount,
-          "nouveau likesCount:",
-          newLikesCount
-        );
-
-        if (newLikedState) {
-          const newHeart = {
-            id: `heart-${heartId}-${Date.now()}`,
-            x: rect.left + rect.width / 2,
-            y: rect.top + rect.height / 2,
-          };
-          setFlyingHearts((prev) => [...prev, newHeart]);
-          setHeartId((prev) => prev + 1);
-          setTimeout(() => {
-            setFlyingHearts((prev) =>
-              prev.filter((heart) => heart.id !== newHeart.id)
-            );
-          }, 1000);
-        }
-      }
-    } catch (error) {
-      console.error("Erreur lors de la gestion du like :", error);
-    }
-  };
-
   if (error || !currentUser || !currentStoryContent) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col bg-black">
@@ -218,22 +163,30 @@ export function StoryViewer({
     );
   }
 
+  enum ContentType {
+    STORY = "stories",
+    POST = "post",
+    COMMENT = "comment",
+  }
+
+  const reactionContent = useMemo(
+    () => ({
+      contentId: currentStoryContent.storyId,
+      reaction:
+        reactionMap[currentStoryContent.storyId] ??
+        currentStoryContent?.userReaction ??
+        null,
+      reactionCount:
+        reactionCounts[currentStoryContent.storyId] ??
+        currentStoryContent.likesCount ??
+        0,
+      type: ContentType.STORY,
+    }),
+    [currentStoryContent, reactionMap, reactionCounts] // ✅ AJOUTER reactionCounts
+  );
+
   return (
     <div className="fixed inset-0 z-50 flex flex-col">
-      {flyingHearts.map((heart) => (
-        <div
-          key={heart.id}
-          className="fixed pointer-events-none z-[60]"
-          style={{
-            left: heart.x - 12,
-            top: heart.y - 12,
-            animation: "heartFly 1s ease-out forwards",
-          }}
-        >
-          <Heart className="w-6 h-6 fill-red-500 text-red-500" />
-        </div>
-      ))}
-
       <div className="absolute inset-0 bg-black" />
       <div
         className="absolute inset-0 transition-all duration-700 ease-in-out"
@@ -287,25 +240,6 @@ export function StoryViewer({
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="text-white hover:bg-white/20"
-                onClick={toggleLike}
-              >
-                <Heart
-                  className={`w-5 h-5 ${
-                    isLiked ? "fill-red-500 text-red-500" : ""
-                  }`}
-                />
-              </Button>
-              {likesCount > 0 && (
-                <span className="text-xs text-white/80 min-w-[1rem]">
-                  {likesCount}
-                </span>
-              )}
-            </div>
             {mediaType === "video" && (
               <Button
                 variant="ghost"
@@ -320,6 +254,12 @@ export function StoryViewer({
                 )}
               </Button>
             )}
+
+            <ReactionComponent
+              key={currentStoryContent.storyId}
+              content={reactionContent}
+            />
+
             <Button
               variant="ghost"
               size="icon"
