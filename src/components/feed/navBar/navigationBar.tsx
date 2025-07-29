@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useUserContext } from "@/app/context/user-context";
 import { useNotifications } from "@/hooks/use-notifications";
 import AppLoader from "@/components/ui/app-loader";
+import { FaPlay } from "react-icons/fa6";
 
 export default function NavigationBar() {
   const { user, loading } = useUserContext();
@@ -89,6 +90,13 @@ export default function NavigationBar() {
             <div className="mt-2 rounded-lg">
               <CreatePost />
             </div>
+
+            <Link href="/reels">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bgLevel3)] text-[var(--textNeutral)] hover:bg-[var(--bgLevel4)] transition-colors">
+                <FaPlay className="w-5 h-5" />
+                <span>Reels</span>
+              </div>
+            </Link>
 
             <Link href="/settings">
               <div className="flex items-center gap-3 p-3 mt-2  rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors">
