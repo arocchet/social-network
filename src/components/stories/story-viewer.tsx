@@ -26,15 +26,15 @@ interface StoryContent {
   mediaType?: "image" | "video";
   isLiked?: boolean;
   userReaction?:
-    | "LIKE"
-    | "DISLIKE"
-    | "LOVE"
-    | "LAUGH"
-    | "SAD"
-    | "ANGRY"
-    | "WOW"
-    | null;
-  reactions?: Reaction[];
+  | "LIKE"
+  | "DISLIKE"
+  | "LOVE"
+  | "LAUGH"
+  | "SAD"
+  | "ANGRY"
+  | "WOW"
+  | null;
+  Reaction?: Reaction[];
   likesCount?: number;
 }
 
@@ -110,7 +110,7 @@ export function StoryViewer({
     () =>
       currentStoryContent
         ? currentStoryContent.mediaType ||
-          getMediaType(currentStoryContent.image)
+        getMediaType(currentStoryContent.image)
         : "image",
     [currentStoryContent]
   );
@@ -180,6 +180,7 @@ export function StoryViewer({
         reactionCounts[currentStoryContent.storyId] ??
         currentStoryContent.likesCount ??
         0,
+      reactions: currentStoryContent?.reactions,
       type: ContentType.STORY,
     }),
     [currentStoryContent, reactionMap, reactionCounts] // ✅ AJOUTER reactionCounts
@@ -211,8 +212,8 @@ export function StoryViewer({
                     index < currentStoryIndex
                       ? "100%"
                       : index === currentStoryIndex
-                      ? `${progress}%`
-                      : "0%",
+                        ? `${progress}%`
+                        : "0%",
                 }}
               />
             </div>

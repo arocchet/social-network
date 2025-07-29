@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Plus, Clock, Users, Filter } from 'lucide-react';
+import { Calendar, Plus, Clock, Users, Filter, ArrowLeft } from 'lucide-react';
 import { EventCard } from '@/components/events/EventCard';
 import Link from 'next/link';
 
@@ -62,7 +62,7 @@ export default function EventsPage() {
       setIsLoading(true);
       const response = await fetch('/api/private/events');
       const data = await response.json();
-      
+
       if (data.events) {
         setEvents(data.events);
       }
@@ -74,18 +74,18 @@ export default function EventsPage() {
   };
 
   const handleRsvpUpdate = (eventId: string, status: 'YES' | 'NO' | 'MAYBE' | null) => {
-    setEvents(prevEvents => 
+    setEvents(prevEvents =>
       prevEvents.map(event => {
         if (event.id === eventId) {
           // Update RSVP counts
           const updatedCounts = { ...event.rsvpCounts };
-          
+
           // Remove from previous status if there was one
           if (event.userRsvp) {
             const prevStatus = event.userRsvp.toLowerCase() as 'yes' | 'no' | 'maybe';
             updatedCounts[prevStatus] = Math.max(0, updatedCounts[prevStatus] - 1);
           }
-          
+
           // Add to new status if not null
           if (status) {
             const newStatus = status.toLowerCase() as 'yes' | 'no' | 'maybe';
@@ -157,14 +157,21 @@ export default function EventsPage() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex items-center justify-between mb-8">
-        <div>
+        <div className='flex'>
+          <Link href={"/"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-[var(--bgLevel2)] cursor-pointer"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+          </Link>
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <Calendar className="w-8 h-8" />
             Événements
           </h1>
-          <p className="text-gray-600 mt-2">
-            Découvrez et participez aux événements de vos groupes
-          </p>
+
         </div>
         <Link href="/groups">
           <Button className="bg-blue-500 hover:bg-blue-600 text-white">

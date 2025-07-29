@@ -21,7 +21,7 @@ import { formatDate } from "@/app/utils/dateFormat";
 import { useUserPosts } from "@/hooks/use-posts-by-user";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { PostProvider } from "@/app/context/post-context";
-import { Dialog, DialogContent, DialogDescription, DialogHeader } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { LoadingState, ErrorState, MediaSection, CommentsSection, PostHeader, PostFooter } from "@/components/feed/post/postDetails";
 import { useParams, useRouter } from "next/navigation";
 import { set } from "date-fns";
@@ -163,7 +163,10 @@ export default function ProfilePage() {
       }
 
       const data = await response.json();
-      setSelectedPostDetails(data.post);
+
+
+      setSelectedPostDetails(data.data);
+      console.log(selectedPostDetails)
     } catch (err) {
       setPostDetailsError(err instanceof Error ? err.message : "Unknown error");
     } finally {
@@ -466,7 +469,7 @@ export default function ProfilePage() {
                       <div className="flex flex-col items-center">
                         <div className="font-semibold text-lg text-[var(--textNeutral)]">
                           {followingCount}
-                          
+
                         </div>
                         <div className="text-sm text-[var(--textMinimal)]">
                           abonnements
@@ -598,6 +601,7 @@ export default function ProfilePage() {
 
         {/* Dialog pour afficher les détails du post */}
         <Dialog open={isOpen} onOpenChange={handleCloseDialog}>
+          <DialogTitle />
           <DialogContent className="flex flex-col gap-0 p-0 sm:max-h-[min(840px,90vh)] sm:max-w-5xl [&>button:last-child]:top-3.5 [&>button:last-child]:z-50">
             <DialogHeader className="contents space-y-0 text-left">
               <DialogDescription asChild>

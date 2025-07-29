@@ -5,8 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Users, Check, X, Mail, Clock } from 'lucide-react';
+import { Users, Check, X, Mail, Clock, ArrowLeft } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import Link from 'next/link';
+import { SuccessModal } from '@/components/ui/success-modal';
 
 interface Invitation {
   id: string;
@@ -30,6 +32,16 @@ export default function InvitationsPage() {
   const [invitations, setInvitations] = useState<Invitation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
+  const [successModal, setSuccessModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    groupTitle?: string;
+  }>({
+    isOpen: false,
+    title: '',
+    message: '',
+  });
 
   useEffect(() => {
     loadInvitations();
@@ -40,7 +52,7 @@ export default function InvitationsPage() {
       setIsLoading(true);
       const response = await fetch('/api/private/invitations');
       const data = await response.json();
-      
+
       if (data.invitations) {
         setInvitations(data.invitations);
       }
@@ -63,12 +75,20 @@ export default function InvitationsPage() {
       });
 
       if (response.ok) {
+        // Find the invitation to get group details
+        const invitation = invitations.find(inv => inv.id === invitationId);
+
         // Remove the invitation from the list since it's no longer pending
         setInvitations(prev => prev.filter(inv => inv.id !== invitationId));
-        
+
         if (action === 'accept') {
-          // Show success message for accepted invitations
-          alert('Vous avez rejoint le groupe avec succès !');
+          // Show success modal for accepted invitations
+          setSuccessModal({
+            isOpen: true,
+            title: 'Invitation acceptée !',
+            message: `Vous avez rejoint le groupe "${invitation?.group.title}" avec succès !`,
+            groupTitle: invitation?.group.title
+          });
         }
       } else {
         const error = await response.json();
@@ -83,8 +103,8 @@ export default function InvitationsPage() {
   };
 
   const getInviterDisplayName = (inviter: Invitation['inviter']) => {
-    return inviter.firstName && inviter.lastName 
-      ? `${inviter.firstName} ${inviter.lastName}` 
+    return inviter.firstName && inviter.lastName
+      ? `${inviter.firstName} ${inviter.lastName}`
       : inviter.username;
   };
 
@@ -99,25 +119,32 @@ export default function InvitationsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-[var(--bgLevel1)]">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-8 flex">
+        <Link href={"/"}>
+          <Button
+            variant="ghost"
+
+            className="hover:bg-[var(--bgLevel2)] cursor-pointer"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </Button>
+        </Link>
         <h1 className="text-3xl font-bold flex items-center gap-3">
           <Mail className="w-8 h-8" />
           Invitations de groupes
         </h1>
-        <p className="text-gray-600 mt-2">
-          Gérez vos invitations aux groupes en cours
-        </p>
+
       </div>
 
       {/* Invitations List */}
       {invitations.length === 0 ? (
-        <Card className="text-center py-12">
+        <Card className="text-center py-12 bg-[var(--bgLevel2)] ">
           <CardContent>
-            <Mail className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+            <Mail className="w-16 h-16 text-[var(--textNeutral)] mx-auto mb-4" />
             <h3 className="text-lg font-semibold mb-2">Aucune invitation</h3>
-            <p className="text-gray-600">
+            <p className="text-[var(--black70)]">
               Vous n'avez pas d'invitations en attente pour le moment.
             </p>
           </CardContent>
@@ -146,7 +173,7 @@ export default function InvitationsPage() {
                         <p className="text-gray-600 mt-1">
                           <strong>{getInviterDisplayName(invitation.inviter)}</strong> vous a invité(e) à rejoindre ce groupe
                         </p>
-                        <div className="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                        <div className="flex items-center gap-2 mt-2 text-sm text-[var(--textNeutral)]">
                           <Clock className="w-4 h-4" />
                           {formatDistanceToNow(new Date(invitation.createdAt), { addSuffix: true })}
                         </div>
@@ -177,10 +204,10 @@ export default function InvitationsPage() {
                     </div>
 
                     {/* Group Info */}
-                    <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                    <div className="mt-4 p-3 bg-[var(--bgLevel2)] rounded-lg">
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-gray-500" />
-                        <span className="text-sm font-medium text-gray-700">
+                        <Users className="w-4 h-4 " />
+                        <span className="text-sm font-medium ">
                           Groupe: {invitation.group.title}
                         </span>
                       </div>

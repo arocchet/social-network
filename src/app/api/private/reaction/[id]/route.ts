@@ -20,7 +20,7 @@ export async function DELETE(
         }
 
 
-        await deleteReaction(id)
+        await deleteReaction(id, userId)
 
         return NextResponse.json(respondSuccess(null), { status: 200 });
     } catch (error) {

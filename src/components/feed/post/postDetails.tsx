@@ -424,13 +424,13 @@ interface CommentItemProps {
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
   const [reactionCount, setReactionCount] = useState(
-    comment._count?.reactions ?? 0
+    comment._count?.Reaction ?? 0
   );
   const { initializeReactionCount, reactionCounts } = useReactionContext();
 
   useEffect(() => {
-    if (comment.id && comment._count?.reactions !== undefined) {
-      initializeReactionCount(comment.id, comment._count.reactions);
+    if (comment.id && comment._count?.Reaction !== undefined) {
+      initializeReactionCount(comment.id, comment._count.Reaction);
     }
   }, [comment.id]);
 
@@ -530,9 +530,10 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
         <ReactionComponent
           content={{
             contentId: comment.id,
-            reaction: comment.reactions?.[0]?.type || null,
+            reaction: comment.Reaction?.[0]?.type || null,
             reactionCount:
-              reactionCounts[comment.id] ?? comment._count?.reactions ?? 0,
+              reactionCounts[comment.id] ?? comment._count?.Reaction ?? 0,
+            reactions: comment.Reaction,
             type: "comment",
           }}
         />

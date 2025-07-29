@@ -130,14 +130,14 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated }: CreateGrou
   };
 
   const getUserDisplayName = (user: User) => {
-    return user.firstName && user.lastName 
-      ? `${user.firstName} ${user.lastName}` 
+    return user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
       : user.username;
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-[var(--bgLevel1)] ">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Users className="w-5 h-5" />
@@ -150,6 +150,7 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated }: CreateGrou
             <div className="space-y-2">
               <Label htmlFor="groupName">Nom du groupe</Label>
               <Input
+                className='bg-[var(--bgLevel2)] '
                 id="groupName"
                 placeholder="Entrez le nom du groupe..."
                 value={groupName}
@@ -161,10 +162,10 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated }: CreateGrou
               <Button variant="outline" onClick={handleClose}>
                 Annuler
               </Button>
-              <Button 
+              <Button
                 onClick={handleNext}
                 disabled={!groupName.trim()}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-[var(--blue40)] hover:bg-[var(--blue60)] text-white"
               >
                 Suivant
               </Button>
@@ -176,7 +177,7 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated }: CreateGrou
           <div className="space-y-4">
             <div>
               <Label>Nom du groupe</Label>
-              <div className="text-sm text-gray-600 bg-gray-50 rounded-lg p-2 mt-1">
+              <div className="text-sm  rounded-lg p-2 mt-1">
                 {groupName}
               </div>
             </div>
@@ -240,7 +241,7 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated }: CreateGrou
                     .map((user) => (
                       <div
                         key={user.id}
-                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer"
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-[var(--bgLevel2)]  cursor-pointer"
                         onClick={() => addMember(user)}
                       >
                         <Avatar className="w-8 h-8">
@@ -278,10 +279,10 @@ export function CreateGroupModal({ isOpen, onClose, onGroupCreated }: CreateGrou
                 <Button variant="outline" onClick={handleClose}>
                   Annuler
                 </Button>
-                <Button 
+                <Button
                   onClick={handleCreateGroup}
                   disabled={isCreating}
-                  className="bg-blue-500 hover:bg-blue-600 text-white"
+                  className="bg-[var(--blue40)] hover:bg-[var(--blue60)] text-white"
                 >
                   {isCreating ? 'Création...' : 'Créer le groupe'}
                 </Button>

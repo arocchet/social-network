@@ -243,7 +243,7 @@ export function EventCard({
               disabled={isUpdatingRsvp}
             >
               <X className="w-4 h-4 mr-1" />
-              {event.userRsvp === 'NO' ? 'Je ne participe pas' : 'Non'}
+              {event.userRsvp === 'NO' ? 'Non présent' : 'Non'}
             </Button>
           </div>
         )}

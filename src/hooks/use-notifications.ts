@@ -49,11 +49,6 @@ export function useNotifications() {
 
   useEffect(() => {
     loadNotificationCounts();
-    
-    // Refresh counts every 30 seconds
-    const interval = setInterval(loadNotificationCounts, 30000);
-    
-    return () => clearInterval(interval);
   }, []);
 
   const markInvitationsAsRead = () => {
@@ -62,8 +57,6 @@ export function useNotifications() {
 
   const markMessagesAsRead = () => {
     setCounts(prev => ({ ...prev, unreadMessages: 0 }));
-    // Refresh counts after a short delay to get updated data
-    setTimeout(loadNotificationCounts, 1000);
   };
 
   const markEventsAsRead = () => {

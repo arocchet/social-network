@@ -1,12 +1,13 @@
 import { db } from "../..";
 
-export async function deleteReaction(id: string) {
+export async function deleteReaction(contentId: string, userId: string) {
     return await db.reaction.deleteMany({
         where: {
+            userId: userId, // Only delete reactions from this user
             OR: [
-                { storyId: id },
-                { postId: id },
-                { commentId: id },
+                { storyId: contentId },
+                { postId: contentId },
+                { commentId: contentId },
             ],
         },
     });

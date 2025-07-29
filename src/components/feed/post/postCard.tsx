@@ -74,17 +74,7 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
             onClick={handleVideoPlay}
             onEnded={() => setIsPlaying(false)}
           />
-          {!isPlaying && (
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="w-16 h-16 bg-black/70 rounded-full flex items-center justify-center backdrop-blur-sm">
-                <Play className="w-8 h-8 text-white fill-white" />
-              </div>
-            </div>
-          )}
-          <div className="absolute top-3 right-3 bg-black/60 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
-            <Video className="w-3 h-3" />
-            <span>Vidéo</span>
-          </div>
+
         </div>
       );
     }
@@ -159,9 +149,10 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
                 <ReactionComponent
                   content={{
                     contentId: post.id,
-                    reaction: post?.reactions[0]?.type,
+                    reaction: post?.reactions[0]?.type || null,
                     reactionCount:
                       reactionCounts[post.id] ?? post._count.reactions ?? 0,
+                    reactions: post?.reactions,
                     type: "post",
                   }}
                 />
@@ -174,22 +165,7 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
                 >
                   <MessageCircle className="w-6 h-6 text-[var(--textNeutral)] hover:text-blue-500 transition-colors" />
                 </Button>
-
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="p-0 hover:bg-transparent"
-                >
-                  <Send className="w-6 h-6 text-[var(--textNeutral)] hover:text-blue-500 transition-colors" />
-                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="p-0 hover:bg-transparent"
-              >
-                <Bookmark className="w-6 h-6 text-[var(--textNeutral)] hover:text-yellow-500 transition-colors" />
-              </Button>
             </div>
 
             {/* Caption - seulement si ce n'est pas un post texte */}

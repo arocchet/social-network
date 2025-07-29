@@ -144,3 +144,97 @@ export async function PUT(
     return NextResponse.json({ error: 'Failed to update group' }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const userId = request.headers.get('x-user-id');
+  
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const { id: groupId } = await params;
+
+    // Check if user is the owner of this group
+    const group = await db.conversation.findUnique({
+      where: {
+        id: groupId,
+        isGroup: true,
+        ownerId: userId
+      }
+    });
+
+    if (!group) {
+      return NextResponse.json({ error: 'Group not found or unauthorized' }, { status: 404 });
+    }
+
+    // Delete all related data in transaction
+    await db.$transaction(async (tx) => {
+      // Delete all RSVPs for events in this group
+      await tx.rsvp.deleteMany({
+        where: {
+          event: {
+            groupId: groupId
+          }
+        }
+      });
+
+      // Delete all group messages
+      await tx.groupMessage.deleteMany({
+        where: {
+          conversationId: groupId
+        }
+      });
+
+      // Delete all events in this group
+      await tx.event.deleteMany({
+        where: {
+          groupId: groupId
+        }
+      });
+
+      // Delete all group invitations
+      await tx.groupInvitation.deleteMany({
+        where: {
+          groupId: groupId
+        }
+      });
+
+      // Delete all join requests
+      await tx.groupJoinRequest.deleteMany({
+        where: {
+          groupId: groupId
+        }
+      });
+
+      // Delete all group members
+      await tx.groupMember.deleteMany({
+        where: {
+          groupId: groupId
+        }
+      });
+
+      // Delete all conversation members
+      await tx.conversationMember.deleteMany({
+        where: {
+          conversationId: groupId
+        }
+      });
+
+      // Finally delete the group
+      await tx.conversation.delete({
+        where: {
+          id: groupId
+        }
+      });
+    });
+
+    return NextResponse.json({ success: true, message: 'Group deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting group:', error);
+    return NextResponse.json({ error: 'Failed to delete group' }, { status: 500 });
+  }
+}

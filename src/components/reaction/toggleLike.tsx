@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import type { ReactionType } from "@/lib/schemas/reaction";
 import {
   LikeIcon,
@@ -50,14 +50,43 @@ type ContentParams = {
 };
 
 export function ReactionComponent({ content }: ReactionComponentParams) {
-  const [selectedReaction, setSelectedReaction] = useState<ReactionType | null>(
-    content.reaction
-  );
+  const { handleReactionChange, reactionCounts, reactionsData, reactionUpdates, reactionMap, initializeReactionsData } = useReactionContext();
+  
+  // Use reaction from context if available, otherwise use prop
+  const selectedReaction = reactionMap[content.contentId] ?? content.reaction;
+  const [localSelectedReaction, setLocalSelectedReaction] = useState<ReactionType | null>(selectedReaction);
 
   const prevReaction = useRef<ReactionType | null>(content.reaction);
-  const { handleReactionChange, reactionCounts } = useReactionContext();
   const [showReactions, setShowReactions] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount and handle click outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.reaction-container')) {
+        setShowReactions(false);
+      }
+    };
+
+    if (showReactions) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      if (hoverTimeoutRef.current) {
+        clearTimeout(hoverTimeoutRef.current);
+      }
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showReactions]);
+
+  // Initialize reactions data on mount
+  useEffect(() => {
+    if (content.reactions) {
+      initializeReactionsData(content.contentId, content.reactions);
+    }
+  }, [content.contentId, content.reactions, initializeReactionsData]);
 
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) clearTimeout(hoverTimeoutRef.current);
@@ -71,91 +100,157 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
   };
 
   const handleMainIconClick = () => {
-    setSelectedReaction((prev) => (prev ? null : "LIKE"));
+    const newReaction = selectedReaction ? null : "LIKE";
+    setLocalSelectedReaction(newReaction);
   };
 
   const handleReactionSelect = (type: ReactionType) => {
-    setSelectedReaction(type);
+    setLocalSelectedReaction(type);
     setShowReactions(false);
   };
 
   // Envoie au serveur si la réaction a changé
   useEffect(() => {
-    if (selectedReaction === prevReaction.current) return;
+    if (localSelectedReaction === prevReaction.current) return;
 
     const sendReaction = async () => {
       const lastReaction = prevReaction.current;
 
+      // Update context immediately for visual feedback
+      handleReactionChange(content.contentId, localSelectedReaction, content.type);
+
       try {
-        if (selectedReaction === null) {
+        if (localSelectedReaction === null) {
           const response = await DeleteReaction(content.contentId);
           if (!response?.success) {
             toast.error("Impossible de supprimer la réaction.");
-            setSelectedReaction(lastReaction);
+            setLocalSelectedReaction(lastReaction);
+            // Revert context change
+            handleReactionChange(content.contentId, lastReaction, content.type);
+            return;
           }
         } else {
-          console.log(selectedReaction, "selectedReaction");
+          console.log(localSelectedReaction, "localSelectedReaction");
           const response = await UpdatedReaction({
-            type: selectedReaction,
+            type: localSelectedReaction,
             mediaId: content.contentId,
             contentType: content.type,
           });
           if (!response?.success) {
             toast.error("Impossible d'ajouter la réaction.");
-            setSelectedReaction(lastReaction);
+            setLocalSelectedReaction(lastReaction);
+            // Revert context change
+            handleReactionChange(content.contentId, lastReaction, content.type);
+            return;
           }
         }
       } catch (error) {
         console.error("Erreur réseau :", error);
         toast.error("Erreur réseau. Réessaye plus tard.");
-        setSelectedReaction(lastReaction);
-      } finally {
-        handleReactionChange(content.contentId, selectedReaction, content.type);
+        setLocalSelectedReaction(lastReaction);
+        // Revert context change
+        handleReactionChange(content.contentId, lastReaction, content.type);
+        return;
       }
 
-      prevReaction.current = selectedReaction;
+      prevReaction.current = localSelectedReaction;
     };
 
     sendReaction();
-  }, [selectedReaction, content.contentId, content.type]);
+  }, [localSelectedReaction, content.contentId, content.type, handleReactionChange]);
 
   const currentCount =
     reactionCounts[content.contentId] ?? content.reactionCount;
 
+  // Create a dynamic reaction summary that properly handles user's reaction changes
+  const reactionSummary = useMemo(() => {
+    const baseReactions = content.reactions || [];
+    const summary: Record<string, number> = {};
+    const originalReaction = content.reaction;
+    
+    // Count all existing reactions
+    baseReactions.forEach(reaction => {
+      summary[reaction.type] = (summary[reaction.type] || 0) + 1;
+    });
+    
+    // Now adjust for user's current selection vs original
+    if (originalReaction !== selectedReaction) {
+      // User changed their reaction or removed it
+      
+      // Remove original reaction if it existed
+      if (originalReaction && summary[originalReaction] > 0) {
+        summary[originalReaction] = summary[originalReaction] - 1;
+        if (summary[originalReaction] === 0) {
+          delete summary[originalReaction];
+        }
+      }
+      
+      // Add new reaction if user selected one
+      if (selectedReaction) {
+        summary[selectedReaction] = (summary[selectedReaction] || 0) + 1;
+      }
+    }
+    
+    return summary;
+  }, [content.reactions, selectedReaction, content.reaction]);
+
+  // Force re-render when reactionUpdates changes
+  const _ = reactionUpdates[content.contentId];
+
+  // Get top 3 most popular reactions
+  const topReactions = Object.entries(reactionSummary)
+    .sort(([,a], [,b]) => b - a)
+    .slice(0, 3);
+
   return (
-    <div className="relative group">
-      <div className="flex  items-center gap-2">
-        {/* Icône de réaction */}
+    <div className="relative group reaction-container">
+      <div className="flex items-center gap-2">
+        {/* Show top reactions or user's selected reaction */}
         <div
           className="flex items-center gap-1"
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {(() => {
-            const Icon =
-              ReactionIcon[selectedReaction as keyof typeof ReactionIcon] ||
-              ReactionIcon.LIKE;
+          {topReactions.length > 0 ? (
+            // Show popular reactions
+            <div className="flex items-center gap-0.5">
+              {topReactions.map(([type, count]) => {
+                const Icon = ReactionIcon[type as keyof typeof ReactionIcon];
+                return Icon && typeof Icon === "function" ? (
+                  <div key={type} className="relative">
+                    <Icon size={20} className="drop-shadow-sm" />
+                  </div>
+                ) : null;
+              })}
+            </div>
+          ) : (
+            // Fallback to user's reaction or default like button
+            (() => {
+              const Icon =
+                ReactionIcon[selectedReaction as keyof typeof ReactionIcon] ||
+                ReactionIcon.LIKE;
 
-            return typeof Icon === "function" ? (
-              <button
-                type="button"
-                onClick={handleMainIconClick}
-                className="cursor-pointer"
-                aria-label="Toggle reaction"
-              >
-                <Icon
-                  size={24}
-                  className="transition-all duration-200 cursor-pointer mt-0.5"
-                  {...(!selectedReaction ? { fill: "transparent" } : {})}
-                />
-              </button>
-            ) : (
-              Icon
-            );
-          })()}
+              return typeof Icon === "function" ? (
+                <button
+                  type="button"
+                  onClick={handleMainIconClick}
+                  className="cursor-pointer"
+                  aria-label="Toggle reaction"
+                >
+                  <Icon
+                    size={24}
+                    className="transition-all duration-200 cursor-pointer mt-0.5"
+                    {...(!selectedReaction ? { fill: "transparent" } : {})}
+                  />
+                </button>
+              ) : (
+                Icon
+              );
+            })()
+          )}
         </div>
 
-        {/* ✅ Compteur de réactions - utilise le contexte */}
+        {/* Reaction count */}
         {currentCount > 0 && (
           <span className="text-xs text-muted-foreground">{currentCount}</span>
         )}

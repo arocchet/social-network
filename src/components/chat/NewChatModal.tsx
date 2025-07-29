@@ -59,7 +59,7 @@ export function NewChatModal({ onStartChat }: NewChatModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-500 hover:bg-blue-600 text-white">
+        <Button className="bg-[var(--blue40)] hover:bg-[var(--blue60)] text-white">
           <Plus className="w-4 h-4 mr-2" />
           Nouveau chat
         </Button>
@@ -102,8 +102,8 @@ export function NewChatModal({ onStartChat }: NewChatModalProps) {
                     </Avatar>
                     <div className="flex-1">
                       <div className="font-medium">
-                        {user.firstName && user.lastName 
-                          ? `${user.firstName} ${user.lastName}` 
+                        {user.firstName && user.lastName
+                          ? `${user.firstName} ${user.lastName}`
                           : user.username}
                       </div>
                       <div className="text-sm text-gray-500">@{user.username}</div>
