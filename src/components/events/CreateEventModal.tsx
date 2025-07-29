@@ -41,12 +41,12 @@ interface CreateEventModalProps {
   groupTitle: string;
 }
 
-export function CreateEventModal({ 
-  isOpen, 
-  onClose, 
-  onEventCreated, 
-  groupId, 
-  groupTitle 
+export function CreateEventModal({
+  isOpen,
+  onClose,
+  onEventCreated,
+  groupId,
+  groupTitle
 }: CreateEventModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -112,7 +112,7 @@ export function CreateEventModal({
 
   // Get minimum date (today)
   const today = new Date().toISOString().split('T')[0];
-  
+
   // Get minimum time (current time if date is today)
   const now = new Date();
   const currentTime = now.toTimeString().slice(0, 5);
@@ -120,7 +120,7 @@ export function CreateEventModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-[var(--bgLevel1)] ">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5" />
@@ -130,8 +130,8 @@ export function CreateEventModal({
 
         <div className="space-y-4">
           {/* Group Info */}
-          <div className="bg-blue-50 rounded-lg p-3">
-            <div className="text-sm text-blue-800">
+          <div className="bg-[var(--bgLevel2)]  rounded-lg p-3">
+            <div className="text-sm ">
               <strong>Groupe :</strong> {groupTitle}
             </div>
           </div>
@@ -147,6 +147,7 @@ export function CreateEventModal({
           <div className="space-y-2">
             <Label htmlFor="title">Titre de l'événement *</Label>
             <Input
+              className='bg-[var(--bgLevel2)] '
               id="title"
               placeholder="Ex: Soirée pizza, Sortie au cinéma..."
               value={title}
@@ -202,14 +203,14 @@ export function CreateEventModal({
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-4">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={handleClose}
               disabled={isCreating}
             >
               Annuler
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateEvent}
               disabled={isCreating || !title.trim() || !description.trim() || !date || !time}
               className="bg-blue-500 hover:bg-blue-600 text-white"

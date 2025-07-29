@@ -8,12 +8,16 @@ interface ReactionContext {
     React.SetStateAction<Record<string, ReactionType | null>>
   >;
   reactionCounts: Record<string, number>;
+  reactionsData: Record<string, any[]>; // Store detailed reactions data
+  setReactionsData: React.Dispatch<React.SetStateAction<Record<string, any[]>>>;
+  reactionUpdates: Record<string, number>; // Timestamp of last update for each content
   handleReactionChange: (
     contentId: string,
     reaction: ReactionType | null,
     contentType: string
   ) => void;
-  initializeReactionCount: (contentId: string, count: number) => void; // ✅ NOUVEAU
+  initializeReactionCount: (contentId: string, count: number) => void;
+  initializeReactionsData: (contentId: string, reactions: any[]) => void;
 }
 
 const ReactionContext = createContext<ReactionContext | undefined>(undefined);
@@ -29,6 +33,12 @@ export const ReactionProvider = ({
   const [reactionCounts, setReactionCounts] = useState<Record<string, number>>(
     {}
   );
+  const [reactionsData, setReactionsData] = useState<Record<string, any[]>>(
+    {}
+  );
+  const [reactionUpdates, setReactionUpdates] = useState<Record<string, number>>(
+    {}
+  );
 
   // ✅ NOUVELLE FONCTION - Initialise les compteurs
   const initializeReactionCount = useCallback(
@@ -42,6 +52,17 @@ export const ReactionProvider = ({
           [contentId]: count,
         };
       });
+    },
+    []
+  );
+
+  // Initialize reactions data
+  const initializeReactionsData = useCallback(
+    (contentId: string, reactions: any[]) => {
+      setReactionsData((prev) => ({
+        ...prev,
+        [contentId]: reactions || [],
+      }));
     },
     []
   );
@@ -76,6 +97,14 @@ export const ReactionProvider = ({
         [contentId]: newCount,
       };
     });
+
+    // Just update the timestamp to trigger re-renders
+
+    // Update timestamp to trigger re-renders
+    setReactionUpdates(prev => ({
+      ...prev,
+      [contentId]: Date.now()
+    }));
   };
 
   return (
@@ -84,8 +113,12 @@ export const ReactionProvider = ({
         reactionMap,
         setReactionMap,
         reactionCounts,
+        reactionsData,
+        setReactionsData,
+        reactionUpdates,
         handleReactionChange,
         initializeReactionCount,
+        initializeReactionsData,
       }}
     >
       {children}

@@ -37,25 +37,31 @@ export function InviteUserModal({
   const [isInviting, setIsInviting] = useState(false);
   const [invitedUsers, setInvitedUsers] = useState<Set<string>>(new Set());
 
-  const handleSearch = async () => {
-    if (!searchQuery.trim()) {
+  const searchUsers = async (query: string) => {
+    if (!query.trim()) {
       setSearchResults([]);
       return;
     }
 
     setIsSearching(true);
     try {
-      const response = await fetch(`/api/private/users/search?q=${encodeURIComponent(searchQuery.trim())}`);
-      if (response.ok) {
-        const data = await response.json();
-        setSearchResults(data.users || []);
-      }
+      const response = await fetch(`/api/private/chat/search-users?q=${encodeURIComponent(query)}`);
+      const data = await response.json();
+      setSearchResults(data.users || []);
     } catch (error) {
       console.error('Error searching users:', error);
+      setSearchResults([]);
     } finally {
       setIsSearching(false);
     }
   };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    searchUsers(query);
+  };
+
 
   const handleInviteUser = async (userId: string) => {
     setIsInviting(true);
@@ -84,8 +90,8 @@ export function InviteUserModal({
   };
 
   const getUserDisplayName = (user: User) => {
-    return user.firstName && user.lastName 
-      ? `${user.firstName} ${user.lastName}` 
+    return user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
       : user.username;
   };
 
@@ -116,23 +122,15 @@ export function InviteUserModal({
             <div className="flex gap-2">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+
                 <Input
-                  id="search"
-                  type="text"
-                  placeholder="Nom d'utilisateur ou nom complet..."
+                  placeholder="Rechercher un utilisateur..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  onChange={handleSearchChange}
                   className="pl-10"
                 />
               </div>
-              <Button
-                onClick={handleSearch}
-                disabled={isSearching || !searchQuery.trim()}
-                size="sm"
-              >
-                {isSearching ? 'Recherche...' : 'Rechercher'}
-              </Button>
+
             </div>
           </div>
 
@@ -142,7 +140,7 @@ export function InviteUserModal({
               searchResults.map((user) => (
                 <div
                   key={user.id}
-                  className="flex items-center gap-3 p-3 border rounded-lg hover:bg-gray-50"
+                  className="flex items-center gap-3 p-3 border rounded-lg hover:bg-[var(--bgLevel2)]"
                 >
                   <Avatar className="w-10 h-10">
                     <AvatarImage src={user.avatar || "/placeholder.svg"} />
@@ -150,7 +148,7 @@ export function InviteUserModal({
                       {user.firstName?.[0] || user.username?.[0] || "U"}
                     </AvatarFallback>
                   </Avatar>
-                  
+
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm truncate">
                       {getUserDisplayName(user)}

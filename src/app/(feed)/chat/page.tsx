@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useConversations } from "@/hooks/use-conversations";
 import { formatDate } from "@/app/utils/dateFormat";
 import { ChatWindow } from "@/components/chat/ChatWindow";
+import { NotificationBadge } from "@/components/ui/notification-badge";
 import { useState, useEffect } from "react";
 
 interface MessagesPageProps {
@@ -105,10 +106,11 @@ export default function MessagesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const groupId = searchParams.get('group');
-  
-  const { conversations, isLoading, error } = useConversations();
+
+  const { conversations, isLoading, error, refreshConversations } = useConversations();
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [groupInfo, setGroupInfo] = useState<any>(null);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     // This would normally come from an auth context
@@ -144,17 +146,60 @@ export default function MessagesPage() {
     }
   }, [groupId]);
 
-  function onChatOpen(chatId: string, type: 'direct' | 'group' = 'direct') {
-    if (type === 'group') {
-      router.push(`/chat?group=${chatId}`);
-    } else {
-      router.push(`/chat/${chatId}`);
+  async function onChatOpen(chatId: string, type: 'direct' | 'group' = 'direct') {
+    // Mark conversation as seen when opening
+    try {
+      if (type === 'group') {
+        await fetch(`/api/private/conversations/${chatId}/mark-seen`, {
+          method: 'POST'
+        });
+      } else {
+        await fetch(`/api/private/direct-conversations/${chatId}/mark-seen`, {
+          method: 'POST'
+        });
+      }
+
+      // Refresh conversations to update unread counts
+      await refreshConversations();
+
+      // Navigate to chat
+      if (type === 'group') {
+        router.push(`/chat?group=${chatId}`);
+      } else {
+        router.push(`/chat/${chatId}`);
+      }
+    } catch (error) {
+      console.error('Error marking conversation as seen:', error);
+      // Still navigate even if marking as seen fails
+      if (type === 'group') {
+        router.push(`/chat?group=${chatId}`);
+      } else {
+        router.push(`/chat/${chatId}`);
+      }
     }
   }
 
   function handleStartNewChat(userId: string) {
     router.push(`/chat/${userId}`);
   }
+
+  // Filter conversations based on search query
+  const filteredConversations = conversations.filter(conversation => {
+    if (!searchQuery.trim()) return true;
+
+    const query = searchQuery.toLowerCase();
+    const isGroup = conversation.type === 'group';
+
+    if (isGroup) {
+      // Search in group title
+      return conversation.group?.title?.toLowerCase().includes(query);
+    } else {
+      // Search in user display name and username
+      const displayName = conversation.user?.displayName?.toLowerCase() || '';
+      const username = conversation.user?.username?.toLowerCase() || '';
+      return displayName.includes(query) || username.includes(query);
+    }
+  });
 
   // If we're viewing a group chat, show the chat window directly
   if (groupId && currentUserId) {
@@ -171,7 +216,7 @@ export default function MessagesPage() {
             >
               <ArrowLeft className="w-6 h-6" />
             </Button>
-            
+
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
                 <Users className="w-5 h-5 text-white" />
@@ -228,11 +273,7 @@ export default function MessagesPage() {
           <h1 className="font-semibold text-lg">Messages</h1>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/groups">
-            <Button variant="ghost" size="icon" className="hover:bg-[var(--bgLevel2)]">
-              <Users className="w-5 h-5" />
-            </Button>
-          </Link>
+
           <NewChatModal onStartChat={handleStartNewChat} />
           <ModeToggle />
         </div>
@@ -243,8 +284,10 @@ export default function MessagesPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--textMinimal)] w-4 h-4" />
           <Input
-            placeholder="Rechercher..."
+            placeholder="Rechercher des conversations..."
             className="pl-10 border-[var(--detailMinimal)]"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
       </div>
@@ -259,15 +302,26 @@ export default function MessagesPage() {
           <div className="text-center py-8">
             <div className="text-red-500">Erreur: {error}</div>
           </div>
-        ) : conversations.length === 0 ? (
+        ) : filteredConversations.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-[var(--textMinimal)]">Aucune conversation</div>
-            <div className="text-sm text-[var(--textMinimal)] mt-2">
-              Utilisez le bouton "Nouveau chat" pour commencer une conversation
-            </div>
+            {searchQuery.trim() ? (
+              <div>
+                <div className="text-[var(--textMinimal)]">Aucune conversation trouvée</div>
+                <div className="text-sm text-[var(--textMinimal)] mt-2">
+                  Essayez avec d'autres mots-clés
+                </div>
+              </div>
+            ) : conversations.length === 0 ? (
+              <div>
+                <div className="text-[var(--textMinimal)]">Aucune conversation</div>
+                <div className="text-sm text-[var(--textMinimal)] mt-2">
+                  Utilisez le bouton "Nouveau chat" pour commencer une conversation
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : (
-          conversations.map((conversation) => (
+          filteredConversations.map((conversation) => (
             <ConversationItem
               key={conversation.id}
               conversation={conversation}
@@ -287,15 +341,16 @@ interface ConversationItemProps {
 
 function ConversationItem({ conversation, onClick }: ConversationItemProps) {
   const isGroup = conversation.type === 'group';
-  const displayName = isGroup 
-    ? conversation.group?.title 
+  const displayName = isGroup
+    ? conversation.group?.title
     : conversation.user?.displayName;
-  
-  const avatar = isGroup 
-    ? null 
+
+  const avatar = isGroup
+    ? null
     : conversation.user?.avatar;
-  
+
   const isOnline = !isGroup && conversation.user?.isOnline;
+
 
   return (
     <div
@@ -321,6 +376,7 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
         {isOnline && (
           <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[var(--detailMinimal)] rounded-full" />
         )}
+        <NotificationBadge count={conversation.unreadCount} />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -350,11 +406,6 @@ function ConversationItem({ conversation, onClick }: ConversationItemProps) {
             {conversation.lastMessage.isFromMe && "Vous: "}
             {conversation.lastMessage.text}
           </span>
-          {conversation.unreadCount > 0 && (
-            <div className="ml-2 bg-[var(--pink20)] text-[var(--white10)] text-xs rounded-full w-5 h-5 flex items-center justify-center">
-              {conversation.unreadCount}
-            </div>
-          )}
         </div>
       </div>
     </div>

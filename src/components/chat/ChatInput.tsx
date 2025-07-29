@@ -38,6 +38,7 @@ export function ChatInput({ onSendMessage, isConnected }: ChatInputProps) {
   };
 
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim() || isSending || !isConnected) return;
@@ -79,7 +80,7 @@ export function ChatInput({ onSendMessage, isConnected }: ChatInputProps) {
           >
             <Send className="w-4 h-4" />
           </Button>
-          <div className='flex items-center'><GifPopover
+          <div className='flex items-center gap-2'><GifPopover
             apiKey={GIPHY_API_KEY!}
             onSelect={handleGifSelect}
           />

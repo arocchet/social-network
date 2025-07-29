@@ -91,12 +91,7 @@ export default function NavigationBar() {
               <CreatePost />
             </div>
 
-            <Link href="/reels">
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-[var(--bgLevel3)] text-[var(--textNeutral)] hover:bg-[var(--bgLevel4)] transition-colors">
-                <FaPlay className="w-5 h-5" />
-                <span>Reels</span>
-              </div>
-            </Link>
+
 
             <Link href="/settings">
               <div className="flex items-center gap-3 p-3 mt-2  rounded-lg text-[var(--textNeutral)] hover:bg-[var(--bgLevel3)] hover:text-[var(--textNeutral)] transition-colors">

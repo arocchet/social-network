@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Users, MessageCircle, Calendar, Plus, Settings, UserPlus } from 'lucide-react';
+import { ArrowLeft, Users, MessageCircle, Calendar, Plus, Settings, UserPlus, Trash2, LogOut } from 'lucide-react';
 import { CreateEventModal } from '@/components/events/CreateEventModal';
 import { EventCard } from '@/components/events/EventCard';
 import { InviteUserModal } from '@/components/groups/InviteUserModal';
@@ -95,7 +95,7 @@ export default function GroupDetailPage() {
     try {
       const response = await fetch(`/api/private/groups/${groupId}`);
       const data = await response.json();
-      
+
       if (data.group) {
         setGroup(data.group);
       } else {
@@ -112,7 +112,7 @@ export default function GroupDetailPage() {
       setIsLoading(true);
       const response = await fetch(`/api/private/events?groupId=${groupId}`);
       const data = await response.json();
-      
+
       if (data.events) {
         setEvents(data.events);
       }
@@ -128,16 +128,16 @@ export default function GroupDetailPage() {
   };
 
   const handleRsvpUpdate = (eventId: string, status: 'YES' | 'NO' | 'MAYBE' | null) => {
-    setEvents(prevEvents => 
+    setEvents(prevEvents =>
       prevEvents.map(event => {
         if (event.id === eventId) {
           const updatedCounts = { ...event.rsvpCounts };
-          
+
           if (event.userRsvp) {
             const prevStatus = event.userRsvp.toLowerCase() as 'yes' | 'no' | 'maybe';
             updatedCounts[prevStatus] = Math.max(0, updatedCounts[prevStatus] - 1);
           }
-          
+
           if (status) {
             const newStatus = status.toLowerCase() as 'yes' | 'no' | 'maybe';
             updatedCounts[newStatus] = updatedCounts[newStatus] + 1;
@@ -180,9 +180,53 @@ export default function GroupDetailPage() {
     loadGroup();
   };
 
+  const handleDeleteGroup = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce groupe ? Cette action est irréversible et supprimera tous les messages, événements et données associés.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/private/groups/${groupId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        router.push('/groups');
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Erreur lors de la suppression du groupe');
+      }
+    } catch (error) {
+      console.error('Error deleting group:', error);
+      alert('Erreur lors de la suppression du groupe');
+    }
+  };
+
+  const handleLeaveGroup = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir quitter ce groupe ?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/private/groups/${groupId}/leave`, {
+        method: 'POST',
+      });
+
+      if (response.ok) {
+        router.push('/groups');
+      } else {
+        const data = await response.json();
+        alert(data.error || 'Erreur lors de la sortie du groupe');
+      }
+    } catch (error) {
+      console.error('Error leaving group:', error);
+      alert('Erreur lors de la sortie du groupe');
+    }
+  };
+
   const getUserDisplayName = (user: Group['members'][0]) => {
-    return user.firstName && user.lastName 
-      ? `${user.firstName} ${user.lastName}` 
+    return user.firstName && user.lastName
+      ? `${user.firstName} ${user.lastName}`
       : user.username;
   };
 
@@ -221,6 +265,7 @@ export default function GroupDetailPage() {
           </p>
         </div>
         <div className="flex gap-2">
+
           <Link href={`/chat?group=${groupId}`}>
             <Button variant="outline">
               <MessageCircle className="w-4 h-4 mr-2" />
@@ -228,28 +273,43 @@ export default function GroupDetailPage() {
             </Button>
           </Link>
           {isMember && (
-            <Button 
-              onClick={() => setIsCreateEventModalOpen(true)}
-              className="bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Créer un événement
-            </Button>
+            <>
+              <Button
+                onClick={() => setIsCreateEventModalOpen(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Créer un événement
+              </Button>
+              {!isOwner && (
+                <Button
+                  onClick={handleLeaveGroup}
+                  variant="outline"
+                  className="text-red-600 border-red-600 hover:bg-red-50"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Quitter le groupe
+                </Button>
+              )}
+            </>
           )}
           {isOwner && (
             <>
-              <Button 
+              <Button
                 variant="outline"
                 onClick={() => setIsInviteModalOpen(true)}
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 Inviter
               </Button>
-              <Link href={`/groups/${groupId}/settings`}>
-                <Button variant="outline">
-                  <Settings className="w-4 h-4" />
-                </Button>
-              </Link>
+
+              <Button
+                onClick={handleDeleteGroup}
+                variant="destructive"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Supprimer le groupe
+              </Button>
             </>
           )}
         </div>
@@ -304,7 +364,7 @@ export default function GroupDetailPage() {
                   Soyez le premier à créer un événement pour ce groupe !
                 </p>
                 {isMember && (
-                  <Button 
+                  <Button
                     onClick={() => setIsCreateEventModalOpen(true)}
                     className="bg-blue-500 hover:bg-blue-600 text-white"
                   >
@@ -332,7 +392,7 @@ export default function GroupDetailPage() {
                   </div>
                 </div>
               )}
-              
+
               {pastEvents.length > 0 && (
                 <div>
                   <h3 className="text-lg font-semibold mb-4">Passés</h3>
