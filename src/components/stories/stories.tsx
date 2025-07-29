@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { StoryViewer } from "./story-viewer";
 import CreateStory from "./createStory";
 import AppLoader from "../ui/app-loader";
 import { useUserStories } from "@/hooks/use-user-stories";
-import { UserStoriesGroup } from "@/lib/schemas/stories/group";
+import type { UserStoriesGroup } from "@/lib/schemas/stories/group";
 import { useUser } from "@/hooks/use-user-data";
+import { useReactionContext } from "@/app/context/reaction-context";
 
 interface AdaptedStory {
   id: number;
@@ -15,7 +16,15 @@ interface AdaptedStory {
   image: string;
   timeAgo: string;
   isLiked?: boolean;
-  userReaction?: "LIKE" | "DISLIKE" | "LOVE" | "LAUGH" | "SAD" | "ANGRY" | null;
+  userReaction?:
+    | "LIKE"
+    | "DISLIKE"
+    | "LOVE"
+    | "LAUGH"
+    | "SAD"
+    | "ANGRY"
+    | "WOW"
+    | null;
   likesCount?: number;
 }
 
@@ -54,6 +63,20 @@ export function Stories() {
     }
   };
 
+  const { initializeReactionCount, reactionCounts } = useReactionContext();
+
+  // 👇 CORRECTION : Initialisation des counts dans un useEffect
+  useEffect(() => {
+    if (!storiesGroups) return;
+    storiesGroups.forEach((group) => {
+      group.stories.forEach((story) => {
+        if (story.id && story._count?.reactions !== undefined) {
+          initializeReactionCount(story.id, story._count.reactions);
+        }
+      });
+    });
+  }, [storiesGroups, initializeReactionCount]);
+
   const adaptStoryData = (storiesGroups: UserStoriesGroup[]): AdaptedUser[] => {
     return storiesGroups.map((group, groupIndex) => ({
       id: groupIndex + 1,
@@ -71,11 +94,9 @@ export function Stories() {
             (r) => r.type === "LIKE" && r.user.id === currentUser?.id
           ) || false,
         userReaction:
-          story.reactions?.find(
-            (r) => r.type === "LIKE" && r.user.id === currentUser?.id
-          )?.type || null,
-        likesCount:
-          story.reactions?.filter((r) => r.type === "LIKE").length || 0,
+          story.reactions.find((r) => r.user.id === currentUser?.id)?.type ||
+          null,
+        likesCount: story._count?.reactions ?? 0, // Garde l'initial, le contexte se chargera de la mise à jour
       })),
     }));
   };

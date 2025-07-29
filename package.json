@@ -47,6 +47,7 @@
     "@types/bcrypt": "^5.0.2",
     "@types/jsonwebtoken": "^9.0.9",
     "@typescript-eslint/parser": "^8.33.0",
+    "@upstash/redis": "^1.35.1",
     "bcrypt": "^6.0.0",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.6.1",

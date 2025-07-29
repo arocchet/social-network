@@ -1,4 +1,3 @@
-
 import { updatedReaction } from "@/lib/db/queries/reaction/updatedReaction";
 import { CreateReaction, ReactionSchemas } from "@/lib/schemas/reaction";
 import { respondError, respondSuccess } from "@/lib/server/api/response";
@@ -15,9 +14,13 @@ export async function PUT(req: NextRequest) {
   let parsedData: CreateReaction;
   try {
     parsedData = parseOrThrow(ReactionSchemas.Create, await req.json());
+    console.log("✅ Parsed reaction data:", parsedData);
   } catch (error) {
     if (error instanceof ValidationError) {
-      return NextResponse.json(respondError("Invalid body", error.fieldErrors), { status: 400 });
+      return NextResponse.json(
+        respondError("Invalid body", error.fieldErrors),
+        { status: 400 }
+      );
     }
     return NextResponse.json(
       respondError(
@@ -26,8 +29,7 @@ export async function PUT(req: NextRequest) {
       { status: 500 }
     );
   }
-
-
+  console.log(parsedData, "parsedData in PUT reaction");
   try {
     await updatedReaction(userId, parsedData);
 

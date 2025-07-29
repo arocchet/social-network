@@ -1,7 +1,6 @@
 import { db } from "../..";
 
 export async function getPostById(postId: string) {
-
   return await db.post.findUnique({
     where: { id: postId },
     include: {
@@ -11,8 +10,8 @@ export async function getPostById(postId: string) {
           username: true,
           firstName: true,
           lastName: true,
-          avatar: true
-        }
+          avatar: true,
+        },
       },
       comments: {
         include: {
@@ -22,30 +21,45 @@ export async function getPostById(postId: string) {
               username: true,
               firstName: true,
               lastName: true,
-              avatar: true
-            }
-          }
+              avatar: true,
+            },
+          },
+          Reaction: {
+            include: {
+              user: {
+                select: {
+                  id: true,
+                  username: true,
+                },
+              },
+            },
+          },
+          _count: {
+            select: {
+              Reaction: true,
+            },
+          },
         },
         orderBy: {
-          datetime: 'desc'
-        }
+          datetime: "desc",
+        },
       },
       reactions: {
         include: {
           user: {
             select: {
               id: true,
-              username: true
-            }
-          }
-        }
+              username: true,
+            },
+          },
+        },
       },
       _count: {
         select: {
           comments: true,
-          reactions: true
-        }
-      }
-    }
+          reactions: true,
+        },
+      },
+    },
   });
 }
