@@ -10,10 +10,10 @@ export const CommentSchema = z
     }),
     message: z.string(),
     user: UserForPostSchema,
-    reactions: z.array(ReactionSchema).optional(),
+    Reaction: z.array(ReactionSchema).optional(),
     _count: z
       .object({
-        reactions: z.number(),
+        Reaction: z.number(),
       })
       .optional(),
   })

@@ -63,9 +63,9 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
     setUpdatedPost((prev) =>
       prev
         ? {
-            ...prev,
-            comments: [newComment, ...prev.comments],
-          }
+          ...prev,
+          comments: [newComment, ...prev.comments],
+        }
         : prev
     );
   };
