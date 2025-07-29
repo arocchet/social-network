@@ -1,12 +1,17 @@
-"use client";
 
-import { useState } from "react";
+'use client';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ArrowLeft, Search, Edit } from "lucide-react";
+import { ArrowLeft, Search, Edit, Users, MessageCircle, Plus } from "lucide-react";
 import { ModeToggle } from "@/components/toggle-theme";
 import Link from "next/link";
+import { NewChatModal } from "@/components/chat/NewChatModal";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useConversations } from "@/hooks/use-conversations";
+import { formatDate } from "@/app/utils/dateFormat";
+import { ChatWindow } from "@/components/chat/ChatWindow";
+import { useState, useEffect } from "react";
 
 interface MessagesPageProps {
   onBack?: () => void;
@@ -96,18 +101,114 @@ const conversations = [
   },
 ];
 
-export default function MessagesPage({ onBack }: MessagesPageProps) {
-  const [searchQuery, setSearchQuery] = useState("");
+export default function MessagesPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const groupId = searchParams.get('group');
+  
+  const { conversations, isLoading, error } = useConversations();
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [groupInfo, setGroupInfo] = useState<any>(null);
 
-  const filteredConversations = conversations.filter(
-    (conv) =>
-      conv.user.displayName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      conv.user.username.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    // This would normally come from an auth context
+    // For now, we'll get it from the API response or context
+    const fetchCurrentUser = async () => {
+      try {
+        const response = await fetch('/api/user/me');
+        if (response.ok) {
+          const data = await response.json();
+          setCurrentUserId(data.user.id);
+        }
+      } catch (error) {
+        console.error('Error fetching current user:', error);
+      }
+    };
+    fetchCurrentUser();
+  }, []);
 
-  function onChatOpen(chatId: string) {
-    window.location.href = `/chat/${chatId}`;
+  useEffect(() => {
+    if (groupId) {
+      const fetchGroupInfo = async () => {
+        try {
+          const response = await fetch(`/api/private/groups/${groupId}`);
+          if (response.ok) {
+            const data = await response.json();
+            setGroupInfo(data.group);
+          }
+        } catch (error) {
+          console.error('Error fetching group info:', error);
+        }
+      };
+      fetchGroupInfo();
+    }
+  }, [groupId]);
+
+  function onChatOpen(chatId: string, type: 'direct' | 'group' = 'direct') {
+    if (type === 'group') {
+      router.push(`/chat?group=${chatId}`);
+    } else {
+      router.push(`/chat/${chatId}`);
+    }
   }
+
+  function handleStartNewChat(userId: string) {
+    router.push(`/chat/${userId}`);
+  }
+
+  // If we're viewing a group chat, show the chat window directly
+  if (groupId && currentUserId) {
+    return (
+      <div className="min-h-screen bg-[var(--bgLevel2)] flex flex-col">
+        {/* Header for group chat */}
+        <header className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)] sticky top-0 bg-[var(--bgLevel1)] z-40">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="hover:bg-[var(--bgLevel2)]"
+              onClick={() => router.back()}
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
+            
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                <Users className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="font-semibold text-lg">
+                  {groupInfo?.title || 'Groupe'}
+                </h1>
+                <p className="text-sm text-[var(--textMinimal)]">
+                  {groupInfo?.memberCount || 0} membres
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link href={`/groups/${groupId}/settings`}>
+              <Button variant="ghost" size="icon" className="hover:bg-[var(--bgLevel2)]">
+                <Edit className="w-5 h-5" />
+              </Button>
+            </Link>
+            <ModeToggle />
+          </div>
+        </header>
+
+        {/* Chat Window */}
+        <div className="flex-1 flex flex-col min-h-0">
+          <ChatWindow
+            currentUserId={currentUserId}
+            conversationId={groupId}
+            type="group"
+          />
+        </div>
+      </div>
+    );
+  }
+
+
 
   return (
     <div className="min-h-screen bg-[var(--bgLevel2)]">
@@ -126,7 +227,15 @@ export default function MessagesPage({ onBack }: MessagesPageProps) {
 
           <h1 className="font-semibold text-lg">Messages</h1>
         </div>
-        <ModeToggle />
+        <div className="flex items-center gap-2">
+          <Link href="/groups">
+            <Button variant="ghost" size="icon" className="hover:bg-[var(--bgLevel2)]">
+              <Users className="w-5 h-5" />
+            </Button>
+          </Link>
+          <NewChatModal onStartChat={handleStartNewChat} />
+          <ModeToggle />
+        </div>
       </header>
 
       {/* Search */}
@@ -135,8 +244,6 @@ export default function MessagesPage({ onBack }: MessagesPageProps) {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--textMinimal)] w-4 h-4" />
           <Input
             placeholder="Rechercher..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 border-[var(--detailMinimal)]"
           />
         </div>
@@ -144,19 +251,27 @@ export default function MessagesPage({ onBack }: MessagesPageProps) {
 
       {/* Conversations List */}
       <div className="pb-24">
-        {filteredConversations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-[var(--textMinimal)]">
-            <div className="text-lg font-medium mb-2">
-              Aucune conversation trouvée
+        {isLoading ? (
+          <div className="text-center py-8">
+            <div className="text-[var(--textMinimal)]">Chargement des conversations...</div>
+          </div>
+        ) : error ? (
+          <div className="text-center py-8">
+            <div className="text-red-500">Erreur: {error}</div>
+          </div>
+        ) : conversations.length === 0 ? (
+          <div className="text-center py-8">
+            <div className="text-[var(--textMinimal)]">Aucune conversation</div>
+            <div className="text-sm text-[var(--textMinimal)] mt-2">
+              Utilisez le bouton "Nouveau chat" pour commencer une conversation
             </div>
-            <div className="text-sm">Essayez un autre terme de recherche</div>
           </div>
         ) : (
-          filteredConversations.map((conversation) => (
+          conversations.map((conversation) => (
             <ConversationItem
               key={conversation.id}
               conversation={conversation}
-              onClick={() => onChatOpen?.(conversation.id)}
+              onClick={() => onChatOpen(conversation.id, conversation.type)}
             />
           ))
         )}
@@ -166,48 +281,71 @@ export default function MessagesPage({ onBack }: MessagesPageProps) {
 }
 
 interface ConversationItemProps {
-  conversation: (typeof conversations)[0];
+  conversation: any;
   onClick?: () => void;
 }
 
 function ConversationItem({ conversation, onClick }: ConversationItemProps) {
+  const isGroup = conversation.type === 'group';
+  const displayName = isGroup 
+    ? conversation.group?.title 
+    : conversation.user?.displayName;
+  
+  const avatar = isGroup 
+    ? null 
+    : conversation.user?.avatar;
+  
+  const isOnline = !isGroup && conversation.user?.isOnline;
+
   return (
     <div
       className="flex items-center gap-3 p-4 hover:bg-[var(--bgLevel1)] cursor-pointer border-b border-[var(--detailMinimal)]"
       onClick={onClick}
     >
       <div className="relative">
-        <Avatar className="w-14 h-14">
-          <AvatarImage
-            src={conversation.user.avatar || "/placeholder.svg"}
-            alt={conversation.user.username}
-          />
-          <AvatarFallback>
-            {conversation.user.displayName[0].toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
-        {conversation.user.isOnline && (
+        {isGroup ? (
+          <div className="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center">
+            <Users className="w-7 h-7 text-white" />
+          </div>
+        ) : (
+          <Avatar className="w-14 h-14">
+            <AvatarImage
+              src={avatar || "/placeholder.svg"}
+              alt={conversation.user?.username || 'User'}
+            />
+            <AvatarFallback>
+              {displayName?.[0]?.toUpperCase() || 'U'}
+            </AvatarFallback>
+          </Avatar>
+        )}
+        {isOnline && (
           <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-[var(--detailMinimal)] rounded-full" />
         )}
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <span className="font-medium text-[var(--textNeutral)] truncate">
-            {conversation.user.displayName}
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-[var(--textNeutral)] truncate">
+              {displayName}
+            </span>
+            {isGroup && (
+              <span className="text-xs text-[var(--textMinimal)] bg-[var(--bgLevel2)] px-2 py-1 rounded">
+                {conversation.group?.memberCount} membres
+              </span>
+            )}
+          </div>
           <span className="text-xs text-[var(--textMinimal)]">
-            {conversation.lastMessage.timestamp}
+            {formatDate(conversation.lastMessage.timestamp)}
           </span>
         </div>
         <div className="flex items-center justify-between">
           <span
-            className={`text-sm truncate ${
-              conversation.lastMessage.isRead ||
+            className={`text-sm truncate ${conversation.lastMessage.isRead ||
               conversation.lastMessage.isFromMe
-                ? "text-[var(--textMinimal)]"
-                : "text-[var(--textNeutral)] font-medium"
-            }`}
+              ? "text-[var(--textMinimal)]"
+              : "text-[var(--textNeutral)] font-medium"
+              }`}
           >
             {conversation.lastMessage.isFromMe && "Vous: "}
             {conversation.lastMessage.text}

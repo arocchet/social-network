@@ -24,14 +24,12 @@ model User {
   comments                                        Comment[]
   Conversation                                    Conversation[]
   conversationMembers                             ConversationMember[]
-  Event                                           Event[]
+  eventsCreated                                   Event[]              @relation("EventOwner")
   friendsWithMe                                   Friendship[]         @relation("FriendOf")
   friendships                                     Friendship[]         @relation("UserFriendships")
   GroupInvitation_GroupInvitation_invitedIdToUser GroupInvitation[]    @relation("GroupInvitation_invitedIdToUser")
   GroupInvitation_GroupInvitation_inviterIdToUser GroupInvitation[]    @relation("GroupInvitation_inviterIdToUser")
   GroupJoinRequest                                GroupJoinRequest[]
-  eventsCreated                                   Event[]               @relation("EventOwner")
-  rsvps Rsvp[]
   GroupMember                                     GroupMember[]
   groupMessages                                   GroupMessage[]
   receivedMessages                                Message[]            @relation("ReceivedMessages")
@@ -39,7 +37,7 @@ model User {
   notifications                                   Notification[]
   posts                                           Post[]
   reactions                                       Reaction[]
-  Rsvp                                            Rsvp[]
+  rsvps                                           Rsvp[]
   stories                                         Story[]
   userSettings                                    UserSettings?
   accounts                                        Account[]
@@ -117,14 +115,17 @@ model Reaction {
 }
 
 model Message {
-  id         String   @id @default(cuid())
+  id         String        @id @default(cuid())
   senderId   String
   receiverId String
   message    String
   image      String?
-  datetime   DateTime @default(now())
-  receiver   User     @relation("ReceivedMessages", fields: [receiverId], references: [id])
-  sender     User     @relation("SentMessages", fields: [senderId], references: [id])
+  datetime   DateTime      @default(now())
+  deliveredAt DateTime?    // When message was delivered to recipient
+  readAt     DateTime?     // When message was read by recipient
+  status     MessageStatus @default(SENT)
+  receiver   User          @relation("ReceivedMessages", fields: [receiverId], references: [id])
+  sender     User          @relation("SentMessages", fields: [senderId], references: [id])
 }
 
 model Friendship {
@@ -147,34 +148,40 @@ model Conversation {
   ownerId          String?
   User             User?                @relation(fields: [ownerId], references: [id])
   members          ConversationMember[]
-  Event            Event[]
+  events           Event[]
   GroupInvitation  GroupInvitation[]
   GroupJoinRequest GroupJoinRequest[]
   GroupMember      GroupMember[]
   messages         GroupMessage[]
-  events           Event[]
 }
 
 model ConversationMember {
-  id             String       @id @default(cuid())
-  userId         String
-  conversationId String
-  joinedAt       DateTime     @default(now())
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  user           User         @relation(fields: [userId], references: [id])
+  id               String       @id @default(cuid())
+  userId           String
+  conversationId   String
+  joinedAt         DateTime     @default(now())
+  lastSeenMessageId String?     // ID of the last message seen by this user
+  lastSeenAt       DateTime?    // When the user last viewed this conversation
+  conversation     Conversation @relation(fields: [conversationId], references: [id])
+  user             User         @relation(fields: [userId], references: [id])
 
   @@unique([userId, conversationId])
 }
 
 model GroupMessage {
-  id             String       @id @default(cuid())
+  id             String            @id @default(cuid())
   conversationId String
   senderId       String
   message        String
   image          String?
-  sentAt         DateTime     @default(now())
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  sender         User         @relation(fields: [senderId], references: [id])
+  eventId        String?           // Link to event for event messages
+  sentAt         DateTime          @default(now())
+  deliveredAt    DateTime?         // When message was delivered to recipient(s)
+  readAt         DateTime?         // When message was read by recipient(s)
+  status         MessageStatus     @default(SENT)
+  conversation   Conversation      @relation(fields: [conversationId], references: [id])
+  sender         User              @relation(fields: [senderId], references: [id])
+  event          Event?            @relation(fields: [eventId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
@@ -249,29 +256,27 @@ model GroupMember {
 }
 
 model Event {
-  id          String      @id @default(cuid())
+  id          String         @id @default(cuid())
   title       String
   description String
   datetime    DateTime
   groupId     String
   ownerId     String
-  createdAt   DateTime    @default(now())
-
-  group       Conversation @relation(fields: [groupId], references: [id])
-  owner       User         @relation("EventOwner", fields: [ownerId], references: [id])
+  createdAt   DateTime       @default(now())
+  group       Conversation   @relation(fields: [groupId], references: [id])
+  owner       User           @relation("EventOwner", fields: [ownerId], references: [id])
   rsvps       Rsvp[]
+  messages    GroupMessage[] // Messages related to this event
 }
 
-
 model Rsvp {
-  id        String      @id @default(cuid())
+  id        String     @id @default(cuid())
   userId    String
   eventId   String
   status    RsvpStatus
-  createdAt DateTime    @default(now())
-
-  user      User        @relation(fields: [userId], references: [id])
-  event     Event       @relation(fields: [eventId], references: [id])
+  createdAt DateTime   @default(now())
+  event     Event      @relation(fields: [eventId], references: [id])
+  user      User       @relation(fields: [userId], references: [id])
 
   @@unique([userId, eventId])
 }
@@ -307,4 +312,10 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   DECLINED
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
 }

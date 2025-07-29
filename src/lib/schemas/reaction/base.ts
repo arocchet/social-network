@@ -2,13 +2,13 @@ import { z } from "zod";
 import { ReactionUserSchema } from "../stories/user";
 
 export const ReactionTypeSchema = z.enum([
-  "LIKE",
-  "DISLIKE",
-  "LOVE",
-  "LAUGH",
-  "SAD",
-  "ANGRY",
-  "WOW",
+    "LIKE",
+    "DISLIKE",
+    "LOVE",
+    "LAUGH",
+    "SAD",
+    "ANGRY",
+    "WOW"
 ]);
 
 export const ReactionSchema = z
