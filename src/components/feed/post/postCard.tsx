@@ -122,7 +122,7 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
           {/* Header du post */}
           <div className="flex items-center justify-between p-4 border-b border-[var(--detailMinimal)]">
             <Link href={`/profile/${post.user.id}`}>
-              <div className="flex items-center gap-3 cursor-pointer">
+              <div className="flex items-center gap-3">
                 <Avatar className="w-10 h-10">
                   <AvatarImage
                     src={post.user?.avatar || post.user.avatar}
@@ -216,11 +216,11 @@ const PostCard = ({ isLiked, likesCount }: PostContent) => {
             <div className="text-xs text-[var(--textMinimal)] uppercase">
               {post.datetime
                 ? new Date(post.datetime).toLocaleDateString("fr-FR", {
-                    day: "numeric",
-                    month: "long",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                  day: "numeric",
+                  month: "long",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
                 : `Il y a ${Math.floor(Math.random() * 24)}h`}
             </div>
           </div>

@@ -30,6 +30,8 @@ model User {
   GroupInvitation_GroupInvitation_invitedIdToUser GroupInvitation[]    @relation("GroupInvitation_invitedIdToUser")
   GroupInvitation_GroupInvitation_inviterIdToUser GroupInvitation[]    @relation("GroupInvitation_inviterIdToUser")
   GroupJoinRequest                                GroupJoinRequest[]
+  eventsCreated                                   Event[]               @relation("EventOwner")
+  rsvps Rsvp[]
   GroupMember                                     GroupMember[]
   groupMessages                                   GroupMessage[]
   receivedMessages                                Message[]            @relation("ReceivedMessages")
@@ -86,14 +88,14 @@ model Story {
 }
 
 model Comment {
-  id        String     @id @default(cuid())
-  postId    String
-  userId    String
-  message   String
-  datetime  DateTime   @default(now())
-  post      Post       @relation(fields: [postId], references: [id])
-  user      User       @relation(fields: [userId], references: [id])
-  reactions Reaction[]
+  id       String     @id @default(cuid())
+  postId   String
+  userId   String
+  message  String
+  datetime DateTime   @default(now())
+  post     Post       @relation(fields: [postId], references: [id])
+  user     User       @relation(fields: [userId], references: [id])
+  Reaction Reaction[]
 }
 
 model Reaction {
@@ -150,6 +152,7 @@ model Conversation {
   GroupJoinRequest GroupJoinRequest[]
   GroupMember      GroupMember[]
   messages         GroupMessage[]
+  events           Event[]
 }
 
 model ConversationMember {
@@ -208,9 +211,8 @@ model Event {
   User         User         @relation(fields: [ownerId], references: [id])
   Rsvp         Rsvp[]
 }
-
 model GroupInvitation {
-  id                                   String           @id
+  id                                   String           @id @default(cuid())
   groupId                              String
   inviterId                            String
   invitedId                            String
@@ -224,7 +226,7 @@ model GroupInvitation {
 }
 
 model GroupJoinRequest {
-  id           String           @id
+  id           String           @id @default(cuid())
   groupId      String
   seeker       String
   status       InvitationStatus @default(PENDING)
@@ -236,7 +238,7 @@ model GroupJoinRequest {
 }
 
 model GroupMember {
-  id           String       @id
+  id           String       @id @default(cuid())
   groupId      String
   userId       String
   joinedAt     DateTime     @default(now())
@@ -246,16 +248,38 @@ model GroupMember {
   @@unique([groupId, userId])
 }
 
+model Event {
+  id          String      @id @default(cuid())
+  title       String
+  description String
+  datetime    DateTime
+  groupId     String
+  ownerId     String
+  createdAt   DateTime    @default(now())
+
+  group       Conversation @relation(fields: [groupId], references: [id])
+  owner       User         @relation("EventOwner", fields: [ownerId], references: [id])
+  rsvps       Rsvp[]
+}
+
+
 model Rsvp {
-  id        String     @id
+  id        String      @id @default(cuid())
   userId    String
   eventId   String
   status    RsvpStatus
-  createdAt DateTime   @default(now())
-  Event     Event      @relation(fields: [eventId], references: [id])
-  User      User       @relation(fields: [userId], references: [id])
+  createdAt DateTime    @default(now())
+
+  user      User        @relation(fields: [userId], references: [id])
+  event     Event       @relation(fields: [eventId], references: [id])
 
   @@unique([userId, eventId])
+}
+
+enum RsvpStatus {
+  YES
+  NO
+  MAYBE
 }
 
 enum Visibility {
@@ -283,10 +307,4 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   DECLINED
-}
-
-enum RsvpStatus {
-  YES
-  NO
-  MAYBE
 }

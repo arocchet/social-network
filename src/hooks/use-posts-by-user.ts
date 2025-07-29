@@ -51,7 +51,7 @@ export function useUserPosts({
                 params.append('userId', userId);
             }
 
-            const response = await fetch(`/api/private/post`, {
+            const response = await fetch(`/api/private/post/profile/${userId}`, {
                 method: 'GET',
                 credentials: 'include',
             });
@@ -63,7 +63,7 @@ export function useUserPosts({
 
             const data = await response.json();
 
-            const userPosts = data.user || [];
+            const userPosts = data.posts || [];
 
             if (append) {
                 setPosts(prev => [...prev, ...userPosts]);
