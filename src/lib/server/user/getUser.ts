@@ -21,6 +21,7 @@ export async function getUserByIdServer<T>(
                 birthDate: true,
                 firstName: true,
                 visibility: true,
+                friendsWithMe: true,
             },
         });
 

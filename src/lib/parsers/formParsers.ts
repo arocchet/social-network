@@ -2,12 +2,14 @@ import { CreatePost } from "@/lib/schemas/post/create";
 import { CreateStory } from "@/lib/schemas/stories/create";
 import cuid from "cuid";
 import { RegisterUserInput } from "../schemas/user/auth";
+import { Visibility } from "@prisma/client";
 
 export function parseCreateComment(formData: FormData): CreatePost {
   const content = formData.get("content") as string;
   // const media = formData.get('media') as File
   return {
     content,
+    visibility: Visibility.PUBLIC,
     // media
   };
 }
@@ -15,16 +17,22 @@ export function parseCreateComment(formData: FormData): CreatePost {
 export function parseCreatePost(formData: FormData): CreatePost {
   const content = formData.get("content") as string;
   const media = formData.get("media") as File;
+  const visibility = (formData.get("visibility") as Visibility) || Visibility.PUBLIC;
+  
   return {
     content,
     media,
+    visibility,
   };
 }
 
 export function parseCreateStory(formData: FormData): CreateStory {
   const media = formData.get("media") as File;
+  const visibility = (formData.get("visibility") as Visibility) || Visibility.PUBLIC;
+  
   return {
     media,
+    visibility,
   };
 }
 

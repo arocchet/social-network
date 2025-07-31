@@ -94,8 +94,38 @@ export function useUserPosts({
     }, [fetchPosts]);
 
     useEffect(() => {
-        fetchPosts(1, false);
-    }, [fetchPosts]);
+        if (userId) {
+            const fetchData = async () => {
+                try {
+                    setLoading(true);
+                    setError(null);
+
+                    const response = await fetch(`/api/private/post/profile/${userId}`, {
+                        method: 'GET',
+                        credentials: 'include',
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.message || 'Failed to fetch posts');
+                    }
+
+                    const data = await response.json();
+                    const userPosts = data.posts || [];
+
+                    setPosts(userPosts);
+                    setHasMore(data.pagination?.hasMore || false);
+                    setTotal(data.pagination?.total || userPosts.length);
+                } catch (err) {
+                    setError(err instanceof Error ? err.message : 'Unknown error');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            fetchData();
+        }
+    }, [userId]);
 
     return {
         posts,

@@ -101,6 +101,8 @@ export function useUserProfile(userIdFromParams?: string): UseUserProfileReturn 
                 }
 
                 const data = await response.json()
+
+                console.log("DATA", data)
                 setUser(data.user)
             }
         } catch (err) {

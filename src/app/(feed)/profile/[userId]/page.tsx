@@ -12,6 +12,8 @@ import {
   Video,
   Settings,
   Share,
+  Lock,
+  LockOpen
 } from "lucide-react";
 import Image from "next/image";
 import { ModeToggle } from "@/components/toggle-theme";
@@ -40,6 +42,10 @@ export default function ProfilePage() {
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const [selectedPostDetails, setSelectedPostDetails] = useState<any>(null);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [followStatus, setFollowStatus] = useState<string | null>(null); // followed, pending, accepted
+  const [friendshipStatus, setFriendshipStatus] = useState<string | null>(null); // pending, accepted pour les amis
+  const [isFriendRequestPending, setIsFriendRequestPending] = useState(false);
   const [followersCount, setFollowersCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
   const [postDetailsLoading, setPostDetailsLoading] = useState(false);
@@ -61,28 +67,67 @@ export default function ProfilePage() {
   });
   // Initialiser les états de suivi
 
-  useEffect(() => {
+  console.log("followStatus", followStatus)
+
+  // Vérifier si l'utilisateur actuel suit le profil
+  const checkFollowingStatus = async () => {
     if (!profileUser) return;
 
-    // Vérifier si l'utilisateur actuel suit le profil
-    const checkFollowingStatus = async () => {
-      try {
-        const response = await fetch(`/api/private/follow/${profileUser.id}/`, {
-          method: "GET",
-          credentials: "include",
-        });
+    try {
+      const response = await fetch(`/api/private/follow/${profileUser.id}/`, {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (!response.ok) {
-          setIsFollowing(false);
-          return;
-        } else {
-          setIsFollowing(true);
-          return;
-        }
-      } catch (err) {
-        console.error("Erreur lors de la vérification du suivi:", err);
+      if (!response.ok) {
+        setIsFollowing(false);
+        setFollowStatus(null);
+        return;
       }
-    };
+
+      const data = await response.json();
+      if (data.success && data.data) {
+        setIsFollowing(true);
+        setFollowStatus(data.data.status || "accepted");
+      } else {
+        setIsFollowing(false);
+        setFollowStatus(null);
+      }
+    } catch (err) {
+      console.error("Erreur lors de la vérification du suivi:", err);
+      setIsFollowing(false);
+      setFollowStatus(null);
+    }
+  };
+
+  // Vérifier le statut d'amitié séparément
+  const checkFriendshipStatus = async () => {
+    if (!profileUser) return;
+
+    try {
+      const response = await fetch(`/api/private/friend-requests/status/${profileUser.id}`, {
+        method: "GET",
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.data) {
+          setFriendshipStatus(data.data.status);
+        } else {
+          setFriendshipStatus(null);
+        }
+      } else {
+        setFriendshipStatus(null);
+      }
+    } catch (err) {
+      console.error("Erreur lors de la vérification de l'amitié:", err);
+      setFriendshipStatus(null);
+    }
+  };
+
+  useEffect(() => {
+    if (!profileUser) return;
 
     // Mettre à jour le nombre de followers
     const updateSatsCount = async () => {
@@ -107,16 +152,20 @@ export default function ProfilePage() {
     }
 
     checkFollowingStatus();
+    checkFriendshipStatus();
     updateSatsCount();
   }, [profileUser]);
 
+
+  console.log("profileUser", profileUser)
 
   // Fonction pour suivre/ne plus suivre un utilisateur
   const handleFollowToggle = async () => {
     if (!profileUser?.id || isOwnProfile) return;
 
     try {
-      ;
+      setIsPending(true);
+
       const response = await fetch(`/api/private/follow/${profileUser?.id}/`, {
         method: "POST",
         headers: {
@@ -129,19 +178,69 @@ export default function ProfilePage() {
       const data = await response.json();
 
       if (!data.success) {
-        console.log(response)
+        console.error("Erreur API:", data.message);
+        return;
       }
 
       if (data.data) {
-        setIsFollowing(true)
+        setIsFollowing(true);
+        setFollowStatus(data.data.status || "accepted");
+
+        // Augmenter le count des followers seulement pour les follows et amis acceptés
+        // Pas pour les demandes en attente
+        if (data.data.status === "followed" || data.data.status === "accepted") {
+          setFollowersCount((prev) => prev + 1);
+        }
       } else {
+        // Unfollow/Remove friend
         setIsFollowing(false);
+        setFollowStatus(null);
+        setFollowersCount((prev) => prev - 1);
       }
-
-
-      setFollowersCount(prev => isFollowing ? prev - 1 : prev + 1);
     } catch (err) {
       console.error("Erreur lors du suivi:", err);
+    } finally {
+      setIsPending(false);
+    }
+  };
+
+  // Fonction pour envoyer/annuler une demande d'amitié
+  const handleFriendRequest = async () => {
+    if (!profileUser?.id || isOwnProfile) return;
+
+    try {
+      setIsFriendRequestPending(true);
+
+      const response = await fetch(`/api/private/friend-requests`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ friendId: profileUser.id }),
+      });
+
+      const data = await response.json();
+
+      if (!data.success) {
+        console.error("Erreur API:", data.message);
+        return;
+      }
+
+      if (data.data) {
+        // Demande d'ami envoyée
+        setFriendshipStatus("pending");
+      } else {
+        // Demande annulée ou amitié supprimée
+        setFriendshipStatus(null);
+        // Après avoir supprimé l'amitié, on doit rafraîchir le statut de follow
+        // car les deux boutons redeviennent disponibles
+        checkFollowingStatus();
+      }
+    } catch (err) {
+      console.error("Erreur lors de la demande d'amitié:", err);
+    } finally {
+      setIsFriendRequestPending(false);
     }
   };
 
@@ -173,6 +272,9 @@ export default function ProfilePage() {
       setPostDetailsLoading(false);
     }
   };
+  const handleGoToSettings = () => {
+    router.push("/settings/profile")
+  }
 
   const handlePostClick = (post: any) => {
     setSelectedPost(post);
@@ -487,9 +589,11 @@ export default function ProfilePage() {
                     </h2>
                   )}
                   {(profileUser.firstName || profileUser.lastName) && (
-                    <h2 className="font-semibold text-base mb-1 text-[var(--textNeutral)]">
-                      {profileUser.firstName} {profileUser.lastName}
-                    </h2>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className="font-semibold text-base text-[var(--textNeutral)]">
+                        {profileUser.firstName} {profileUser.lastName}
+                      </h2>{profileUser.visibility === "PRIVATE" && (<Lock size={14} />)}</div>
+
                   )}
                   <p className="text-sm text-[var(--textMinimal)] mb-1">
                     @{profileUser.username}
@@ -514,30 +618,94 @@ export default function ProfilePage() {
                   {isOwnProfile ? (
                     <>
                       <Button
+                        onClick={handleGoToSettings}
                         variant="outline"
                         className="flex-1 mx-2 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
                       >
                         Modifier le profil
                       </Button>
-                      <Button className="flex-1 mx-2 bg-[var(--pink20)] hover:bg-[var(--pink40)] text-white">
-                        <Share className="w-4 h-4 mr-2" />
-                        Partager le profil
-                      </Button>
+
                     </>
                   ) : (
                     <>
-                      <Button
-                        onClick={handleFollowToggle}
-                        className={`flex-1 ${isFollowing
-                          ? "bg-[var(--greyFill)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
-                          : "bg-[var(--blue)] hover:bg-[var(--blue)] text-white"
-                          }`}
-                      >
-                        {isFollowing ? "Suivi(e)" : "Suivre"}
-                      </Button>
+                      {profileUser?.visibility === 'PRIVATE' ? (
+                        // Profil privé : seulement demande d'ami
+                        <Button
+                          onClick={handleFriendRequest}
+                          className={`flex-1 transition-opacity ${isFriendRequestPending
+                            ? "bg-gray-400 text-white cursor-not-allowed opacity-60"
+                            : friendshipStatus === "pending"
+                              ? "bg-orange-500 text-white hover:bg-orange-600"
+                              : friendshipStatus === "accepted"
+                                ? "bg-[var(--green60)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+                                : "bg-[var(--blue)] hover:bg-[var(--blue80)] text-white"
+                            }`}
+                          disabled={isFriendRequestPending}
+                        >
+                          {isFriendRequestPending
+                            ? "En cours..."
+                            : friendshipStatus === "pending"
+                              ? "Demande envoyée"
+                              : friendshipStatus === "accepted"
+                                ? "Ami(e)"
+                                : "Demander en ami"}
+                        </Button>
+                      ) : (
+                        // Profil public : logique conditionnelle
+                        <>
+                          {friendshipStatus === "accepted" ? (
+                            // Si on est ami, ne montrer que le bouton Ami(e)
+                            <Button
+                              onClick={handleFriendRequest}
+                              className="flex-1 transition-opacity bg-[var(--green60)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+                              disabled={isFriendRequestPending}
+                            >
+                              {isFriendRequestPending ? "En cours..." : "Ami(e)"}
+                            </Button>
+                          ) : (
+                            // Si on n'est pas ami, montrer Follow + Add Friend
+                            <>
+                              <Button
+                                onClick={handleFollowToggle}
+                                className={`flex-1 transition-opacity mr-1 ${isPending
+                                  ? "bg-gray-400 text-white cursor-not-allowed opacity-60"
+                                  : isFollowing && followStatus === "followed"
+                                    ? "bg-[var(--green60)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+                                    : "bg-[var(--blue)] hover:bg-[var(--blue80)] text-white"
+                                  }`}
+                                disabled={isPending}
+                              >
+                                {isPending
+                                  ? "En cours..."
+                                  : isFollowing && followStatus === "followed"
+                                    ? "Suivi(e)"
+                                    : "Suivre"}
+                              </Button>
+
+                              <Button
+                                onClick={handleFriendRequest}
+                                className={`flex-1 ml-1 transition-opacity ${isFriendRequestPending
+                                  ? "bg-gray-400 text-white cursor-not-allowed opacity-60"
+                                  : friendshipStatus === "pending"
+                                    ? "bg-orange-500 text-white hover:bg-orange-600"
+                                    : "bg-[var(--lavender)] hover:bg-[var(--lavender80)] text-white"
+                                  }`}
+                                disabled={isFriendRequestPending}
+                              >
+                                {isFriendRequestPending
+                                  ? "En cours..."
+                                  : friendshipStatus === "pending"
+                                    ? "Demande envoyée"
+                                    : "Ajouter en ami"}
+                              </Button>
+                            </>
+                          )}
+                        </>
+                      )}
+
                       <Button
                         variant="outline"
-                        className="flex-1 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
+                        className="flex-1 ml-2 border-[var(--detailMinimal)] text-[var(--textNeutral)] hover:bg-[var(--greyHighlighted)]"
                       >
                         Message
                       </Button>
@@ -574,26 +742,52 @@ export default function ProfilePage() {
             {/* Posts Grid */}
             <div className="bg-[var(--bgLevel2)]">
               <div className="p-4">
-                {!posts ? (
-                  <div className="flex justify-center py-8">
-                    <div className="text-[var(--textMinimal)]">Chargement des posts...</div>
-                  </div>
-                ) : filteredPosts.length === 0 ? (
-                  <div className="text-center py-8">
-                    <p className="text-[var(--textMinimal)]">
-                      {activeFilter === 'photos' && 'Aucune photo à afficher'}
-                      {activeFilter === 'videos' && 'Aucune vidéo à afficher'}
-                      {activeFilter === 'text' && 'Aucun post texte à afficher'}
-                      {activeFilter === 'all' && (isOwnProfile ? 'Vous n\'avez pas encore publié de contenu' : 'Aucun post à afficher')}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-3 gap-2">
-                    {filteredPosts.map((post) => (
-                      <PostItem key={post.id} post={post} />
-                    ))}
-                  </div>
-                )}
+                {(() => {
+                  // Si le compte est privé et qu'on n'est pas ami accepté
+                  if (profileUser?.visibility === 'PRIVATE' && !isOwnProfile && followStatus !== 'accepted') {
+                    return (
+                      <div className="text-center py-8">
+                        <div className="text-6xl mb-4">🔒</div>
+                        <p className="text-[var(--textMinimal)] text-lg font-medium mb-2">
+                          Ce compte est privé
+                        </p>
+                        <p className="text-[var(--textNeutral)] text-sm">
+                          Suivez @{profileUser.username} pour voir ses publications
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  // Affichage normal des posts
+                  if (!posts) {
+                    return (
+                      <div className="flex justify-center py-8">
+                        <div className="text-[var(--textMinimal)]">Chargement des posts...</div>
+                      </div>
+                    );
+                  }
+
+                  if (filteredPosts.length === 0) {
+                    return (
+                      <div className="text-center py-8">
+                        <p className="text-[var(--textMinimal)]">
+                          {activeFilter === 'photos' && 'Aucune photo à afficher'}
+                          {activeFilter === 'videos' && 'Aucune vidéo à afficher'}
+                          {activeFilter === 'text' && 'Aucun post texte à afficher'}
+                          {activeFilter === 'all' && (isOwnProfile ? 'Vous n\'avez pas encore publié de contenu' : 'Aucun post à afficher')}
+                        </p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="grid grid-cols-3 gap-2">
+                      {filteredPosts.map((post) => (
+                        <PostItem key={post.id} post={post} />
+                      ))}
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>

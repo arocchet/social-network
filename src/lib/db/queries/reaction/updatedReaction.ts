@@ -1,5 +1,7 @@
 import { db } from "@/lib/db";
 import { CreateReaction } from "@/lib/schemas/reaction";
+import { canUserSeePost } from "../post/visibilityFilters";
+import { canUserSeeStory } from "../stories/visibilityFilters";
 
 export async function updatedReaction(
   userId: string,
@@ -16,19 +18,23 @@ export async function updatedReaction(
     );
   }
 
-  let exists = null;
-
+  // Vérifier que le contenu existe ET que l'utilisateur peut le voir
   if (isPost) {
-    exists = await db.post.findUnique({ where: { id: data.mediaId } });
+    const canSee = await canUserSeePost(data.mediaId, userId);
+    if (!canSee) {
+      throw new Error("Post not found or access denied");
+    }
   } else if (isStory) {
-    exists = await db.story.findUnique({ where: { id: data.mediaId } });
+    const canSee = await canUserSeeStory(data.mediaId, userId);
+    if (!canSee) {
+      throw new Error("Story not found or access denied");
+    }
   } else if (isComment) {
-    exists = await db.comment.findUnique({ where: { id: data.mediaId } });
-  }
-
-  if (!exists) {
-    const entityType = isPost ? "Post" : isStory ? "Story" : "Comment";
-    throw new Error(`${entityType} with ID ${data.mediaId} not found`);
+    const exists = await db.comment.findUnique({ where: { id: data.mediaId } });
+    if (!exists) {
+      throw new Error("Comment not found");
+    }
+    // TODO: Ajouter la vérification de visibilité pour les commentaires si nécessaire
   }
 
   const where = isPost

@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     let storiesData;
 
     if (userId) {
-      const rawStories = await getStoriesByUserId(userId);
+      const rawStories = await getStoriesByUserId(userId, currentUserId);
       console.log("🔍 Raw story _count:", rawStories[0]?._count);
       console.log(
         "🔍 Raw story reactions length:",

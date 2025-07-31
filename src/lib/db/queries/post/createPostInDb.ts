@@ -1,10 +1,12 @@
 import { db } from "../..";
+import { Visibility } from "@prisma/client";
 
 type Params = {
     content: string;
     image?: string;
     userId: string;
-    mediaId?: string
+    mediaId?: string;
+    visibility?: Visibility;
 };
 
 export async function createPostInDb(post: Params) {
@@ -13,7 +15,7 @@ export async function createPostInDb(post: Params) {
             message: post.content,
             ...(post.image ? { image: post.image } : {}),
             ...(post.mediaId ? { mediaId: post.mediaId } : {}),
-            visibility: "PRIVATE",
+            visibility: post.visibility || Visibility.PUBLIC,
             userId: post.userId,
         },
         select: {

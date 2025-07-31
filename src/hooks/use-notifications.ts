@@ -20,10 +20,18 @@ export function useNotifications() {
     try {
       setIsLoading(true);
       
-      // Load invitation counts
+      // Load group invitation counts
       const invitationsResponse = await fetch('/api/private/invitations');
       const invitationsData = await invitationsResponse.json();
-      const invitationCount = invitationsData.invitations?.length || 0;
+      const groupInvitationCount = invitationsData.invitations?.length || 0;
+
+      // Load friend request counts
+      const friendRequestsResponse = await fetch('/api/private/friend-requests');
+      const friendRequestsData = await friendRequestsResponse.json();
+      const friendRequestCount = friendRequestsData.friendRequests?.length || 0;
+
+      // Total invitations = group invitations + friend requests
+      const totalInvitations = groupInvitationCount + friendRequestCount;
 
       // Load unread messages count
       const messagesResponse = await fetch('/api/private/notifications/unread-messages');
@@ -36,7 +44,7 @@ export function useNotifications() {
       const upcomingEventsCount = eventsData.count || 0;
 
       setCounts({
-        invitations: invitationCount,
+        invitations: totalInvitations,
         unreadMessages: unreadMessagesCount,
         upcomingEvents: upcomingEventsCount
       });
@@ -49,6 +57,11 @@ export function useNotifications() {
 
   useEffect(() => {
     loadNotificationCounts();
+    
+    // Rafraîchir les notifications toutes les 30 secondes
+    const interval = setInterval(loadNotificationCounts, 30000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const markInvitationsAsRead = () => {

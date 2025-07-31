@@ -1,17 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { redisdb } from '@/lib/server/websocket/redis';
 import { db } from '@/lib/db';
+import { canSendMessageTo } from '@/lib/db/queries/messages/visibilityFilters';
 
 export async function POST(request: NextRequest) {
   try {
     // Get the authenticated user ID from the middleware
     const userId = request.headers.get('x-user-id');
-    
+
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const { receiverId, conversationId, message, type } = await request.json();
+
+    // Check if user can send message based on privacy settings
+    // Only apply visibility checks for direct messages, not group messages
+    if (type === 'direct' && receiverId) {
+      const canSend = await canSendMessageTo(userId, receiverId);
+      if (!canSend) {
+        return NextResponse.json({
+          error: 'Cannot send message to this user. They have a private account and you are not friends.'
+        }, { status: 403 });
+      }
+    }
+    // Group messages are not affected by individual user privacy settings
+    // since group membership allows communication between all members
 
     // Save message to database
     const savedMessage = type === 'direct'
@@ -57,7 +71,7 @@ export async function POST(request: NextRequest) {
       receiverId: type === 'direct' ? receiverId : undefined,
       conversationId: type === 'group' ? conversationId : undefined,
       message,
-      timestamp: (savedMessage.datetime || savedMessage.sentAt || new Date()).toISOString(),
+      timestamp: (savedMessage.datetime || savedMessage.deliveredAt || new Date()).toISOString(),
       type,
       status: savedMessage.status || 'SENT', // Ensure status is included
       deliveredAt: savedMessage.deliveredAt?.toISOString(),

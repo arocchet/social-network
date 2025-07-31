@@ -40,15 +40,16 @@ export async function GET(
 			userId: userId,
 		});
 
-		if (!existingFriendship) {
+		// On ne retourne que les relationships de type "followed"
+		if (!existingFriendship || existingFriendship.status !== "followed") {
 			return NextResponse.json(
-				respondError("Friendship not found"),
+				respondError("Follow relationship not found"),
 				{ status: 404 }
 			);
 		}
 
 		return NextResponse.json(
-			respondSuccess(null, "Follower retrieved successfully"),
+			respondSuccess({ status: existingFriendship.status }, "Follow status retrieved successfully"),
 			{ status: 200 }
 		);
 	} catch (err) {
@@ -97,13 +98,27 @@ export async function POST(
 			userId: userId,
 		});
 
-		// If the friendship exists, cancel it if it's pending, otherwise return success
+		// If the relationship exists, cancel it
 		if (existingFriendship) {
-			if (existingFriendship.status === "pending" || existingFriendship.status === "accepted") {
-				deleteFriendshipInDb({
-					followId: followId,
-					userId: userId,
-				})
+			// Supprimer la relation principale
+			await deleteFriendshipInDb({
+				followId: followId,
+				userId: userId,
+			});
+
+			// Si c'était une amitié acceptée, supprimer aussi l'amitié inverse
+			if (existingFriendship.status === "accepted") {
+				const reverseFriendship = await checkFriendshipInDb({
+					followId: userId,
+					userId: followId,
+				});
+
+				if (reverseFriendship) {
+					await deleteFriendshipInDb({
+						followId: userId,
+						userId: followId,
+					});
+				}
 			}
 
 			return NextResponse.json(
@@ -119,8 +134,19 @@ export async function POST(
 				);
 			}
 
-			// Create a new friendship
-			const status = follow.visibility === 'PUBLIC' as ProfileVisibility ? "accepted" : "pending";
+			// Create a new follow relationship (only for PUBLIC accounts)
+			console.log('Follow visibility:', follow.visibility, 'ProfileVisibility.PUBLIC:', ProfileVisibility.PUBLIC);
+			
+			// On ne peut follow que les comptes publics
+			if (follow.visibility !== ProfileVisibility.PUBLIC) {
+				return NextResponse.json(
+					respondError("Cannot follow private accounts. Use friend request instead."),
+					{ status: 400 }
+				);
+			}
+			
+			const status = "followed";
+			console.log('Follow status will be:', status);
 
 			const newFriendship = await createFriendshipInDb({
 				followId: followId,
@@ -134,6 +160,9 @@ export async function POST(
 					{ status: 500 }
 				);
 			}
+
+			// Si c'est un follow (compte public), pas besoin de relation bidirectionnelle
+			// Seuls les amis acceptés ont une relation bidirectionnelle
 
 			// If the follow is pending, we can send a notification or handle it accordingly
 			if (status === "pending") {

@@ -58,6 +58,7 @@ export async function GET(
             banner: userData.banner,
             biography: userData.biography,
             birthDate: userData.birthDate,
+            visibility: userData.visibility,
             // Add any other public fields you need
 
         };

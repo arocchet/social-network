@@ -8,7 +8,7 @@ export const PostSchema = z
     message: z.string(),
     image: z.string().url().nullable(),
     datetime: z.string(),
-    visibility: z.enum(["PUBLIC", "PRIVATE"]),
+    visibility: z.enum(["PUBLIC", "PRIVATE", "FRIENDS"]),
     reactions: z.array(ReactionSchema),
     _count: z.object({ comments: z.number(), reactions: z.number() }),
     user: UserForPostSchema,
