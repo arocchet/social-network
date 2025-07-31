@@ -67,7 +67,7 @@ model Post {
   message    String
   datetime   DateTime   @default(now())
   image      String?
-  visibility Visibility
+  visibility Visibility @default(PUBLIC)
   mediaId    String?
   comments   Comment[]
   user       User       @relation(fields: [userId], references: [id])
@@ -79,7 +79,7 @@ model Story {
   userId     String
   datetime   DateTime   @default(now())
   media      String?
-  visibility Visibility
+  visibility Visibility @default(PUBLIC)
   mediaId    String?
   reactions  Reaction[]
   user       User       @relation(fields: [userId], references: [id])

@@ -39,7 +39,7 @@ interface AdaptedUser {
 export function Stories() {
   const { user: currentUser } = useUser();
   const { storiesGroups, loading, error, refetch } = useUserStories({
-    publicOnly: true,
+    publicOnly: false, // Changer à false pour voir toutes les stories selon les règles de visibilité
     includeExpired: false,
   });
 
@@ -126,6 +126,14 @@ export function Stories() {
     currentViewingUser &&
     currentStoryIndex >= 0 &&
     currentStoryIndex < currentViewingUser.stories.length;
+    
+  // Debug logs pour comprendre pourquoi le StoryViewer pourrait disparaître
+  console.log('🔍 Render conditions:');
+  console.log('  - viewingStory:', viewingStory);
+  console.log('  - isValidUserIndex:', isValidUserIndex);
+  console.log('  - isValidStoryIndex:', isValidStoryIndex);
+  console.log('  - currentStoryIndex:', currentStoryIndex);
+  console.log('  - currentViewingUser stories length:', currentViewingUser?.stories?.length);
 
   const handleStoryClick = (storyIndex: number) => {
     if (adaptedStories[storyIndex].isOwn) return;
@@ -143,12 +151,18 @@ export function Stories() {
   };
 
   const handleNext = () => {
+    console.log('🔍 handleNext called - currentUserIndex:', currentUserIndex, 'currentStoryIndex:', currentStoryIndex);
+    console.log('🔍 isValidUserIndex:', isValidUserIndex);
+    console.log('🔍 viewableStories.length:', viewableStories.length);
+    
     if (!isValidUserIndex) {
+      console.log('🔍 Invalid user index, closing viewer');
       setViewingStory(null);
       return;
     }
 
     const currentViewingUser = viewableStories[currentUserIndex];
+    console.log('🔍 currentViewingUser:', currentViewingUser);
 
     // Vérifier que l'utilisateur a des stories
     if (
@@ -156,16 +170,22 @@ export function Stories() {
       !currentViewingUser.stories ||
       currentViewingUser.stories.length === 0
     ) {
+      console.log('🔍 No stories for current user, closing viewer');
       setViewingStory(null);
       return;
     }
 
+    console.log('🔍 Navigation logic - currentStoryIndex:', currentStoryIndex, 'stories.length:', currentViewingUser.stories.length);
+    
     if (currentStoryIndex < currentViewingUser.stories.length - 1) {
+      console.log('🔍 Moving to next story in same user');
       setCurrentStoryIndex((prevIndex) => prevIndex + 1);
     } else if (currentUserIndex < viewableStories.length - 1) {
+      console.log('🔍 Moving to next user');
       setCurrentUserIndex((prevIndex) => prevIndex + 1);
       setCurrentStoryIndex(0);
     } else {
+      console.log('🔍 End of all stories, closing viewer');
       setViewingStory(null);
     }
   };

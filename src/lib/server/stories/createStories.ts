@@ -5,7 +5,7 @@ import { handleImagePostUploads, handleVideoPostUploads } from "@/lib/uploads/po
 
 export async function createStoriesServer(story: CreateStory, userId: string) {
     try {
-        const { media } = story;
+        const { media, visibility } = story;
 
         let storyMediaUrl: string | undefined;
         let storyMediaId: string | undefined;
@@ -29,6 +29,7 @@ export async function createStoriesServer(story: CreateStory, userId: string) {
             userId,
             media: storyMediaUrl,
             mediaId: storyMediaId,
+            visibility,
         };
 
         return await createStoriesInDb(storyData);

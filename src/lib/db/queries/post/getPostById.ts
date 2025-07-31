@@ -1,6 +1,12 @@
 import { db } from "../..";
+import { canUserSeePost } from "./visibilityFilters";
 
-export async function getPostById(postId: string) {
+export async function getPostById(postId: string, currentUserId?: string) {
+  // Vérifier si l'utilisateur peut voir ce post
+  const canSee = await canUserSeePost(postId, currentUserId);
+  if (!canSee) {
+    return null;
+  }
   return await db.post.findUnique({
     where: { id: postId },
     include: {

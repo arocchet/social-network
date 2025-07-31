@@ -23,7 +23,17 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const posts = await getPaginatedPosts(skip, take);
+    console.log('🔍 Debug: userId =', userId, 'skip =', skip, 'take =', take);
+    
+    const posts = await getPaginatedPosts(skip, take, userId);
+    
+    console.log('📊 Debug: Found', posts.length, 'posts');
+    console.log('📋 Debug: Posts preview:', posts.slice(0, 2).map(p => ({
+      id: p.id,
+      message: p.message.substring(0, 50) + '...',
+      visibility: p.visibility,
+      userId: p.userId
+    })));
 
     return NextResponse.json(
       respondSuccess(

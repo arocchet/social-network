@@ -1,18 +1,69 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
 import { ArrowLeft } from "lucide-react"
+import { useUser } from "@/hooks/use-user-data"
+import { toast } from "sonner"
 
 interface PrivacyPageProps {
   onBack?: () => void
 }
 
 export function PrivacyPage({ onBack }: PrivacyPageProps) {
+  const { user, loading, refetch } = useUser()
   const [isPrivate, setIsPrivate] = useState(false)
   const [allowFollows, setAllowFollows] = useState<'everyone' | 'approved'>('everyone')
   const [showActivityStatus, setShowActivityStatus] = useState(true)
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  // Sync with user data
+  useEffect(() => {
+    if (user) {
+      setIsPrivate(user.visibility === 'PRIVATE')
+    }
+  }, [user])
+
+  const handlePrivacyToggle = async (checked: boolean) => {
+    if (!user || isUpdating) return
+
+    setIsUpdating(true)
+    try {
+      const response = await fetch('/api/private/user/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          visibility: checked ? 'PRIVATE' : 'PUBLIC'
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to update privacy settings')
+      }
+
+      setIsPrivate(checked)
+      refetch() // Refresh user data
+      toast.success(checked ? 'Compte passé en privé' : 'Compte passé en public')
+    } catch (error) {
+      console.error('Error updating privacy:', error)
+      toast.error('Erreur lors de la mise à jour des paramètres')
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[var(--bgLevel1)] flex items-center justify-center">
+        <div className="text-[var(--textMinimal)]">Chargement...</div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-[var(--bgLevel1)]">
@@ -30,11 +81,15 @@ export function PrivacyPage({ onBack }: PrivacyPageProps) {
             <span className="text-lg font-medium text-[var(--textMinimal)]">Compte privé</span>
             <Switch 
               checked={isPrivate}
-              onCheckedChange={setIsPrivate}
+              onCheckedChange={handlePrivacyToggle}
+              disabled={isUpdating}
             />
           </div>
           <p className="text-sm text-[var(--textNeutral)]">
-            Seules les personnes que vous approuvez peuvent voir votre contenu lorsque votre compte est privé.
+            {isPrivate 
+              ? "Votre compte est privé. Seules les personnes que vous approuvez peuvent vous suivre et voir votre contenu."
+              : "Votre compte est public. Tout le monde peut vous suivre et voir votre contenu."
+            }
           </p>
         </div>
 

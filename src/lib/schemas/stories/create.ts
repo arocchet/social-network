@@ -25,6 +25,7 @@ export const CreateStorySchema = z.object({
             message:
                 "Unsupported file format. Allowed: GIF, AVIF, JPEG, PNG, WEBP, MP4, WEBM, OGG, MOV.",
         }),
+    visibility: z.enum(["PUBLIC", "PRIVATE", "FRIENDS"]).default("PUBLIC"),
 }).describe('CreateStorySchema');
 
 export type CreateStory = z.infer<typeof CreateStorySchema>

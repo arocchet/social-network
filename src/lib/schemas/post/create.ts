@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Visibility } from "@prisma/client";
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
@@ -27,6 +28,7 @@ export const CreatePostSchema = z
         message:
           "Unsupported file format. Allowed: GIF, AVIF, JPEG, PNG, WEBP, MP4, WEBM, OGG, MOV.",
       }),
+    visibility: z.nativeEnum(Visibility).default(Visibility.PUBLIC),
   })
   .describe("CreatePostSchema");
 

@@ -8,7 +8,7 @@ import { PostWithCountsSchema } from "@/lib/schemas/post/count";
 
 export async function createPostServer(post: CreatePost, userId: string) {
     try {
-        const { content, media } = post;
+        const { content, media, visibility } = post;
         let postMediaUrl: string | undefined;
         let postMediaId: string | undefined
 
@@ -30,6 +30,7 @@ export async function createPostServer(post: CreatePost, userId: string) {
         const postData = {
             content,
             userId,
+            visibility,
             ...(postMediaUrl && { image: postMediaUrl }),
             ...(postMediaId && { mediaId: postMediaId })
         };

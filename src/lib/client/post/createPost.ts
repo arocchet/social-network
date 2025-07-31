@@ -4,6 +4,7 @@ import { fetcher } from "@/lib/server/api/fetcher";
 export async function createPostClient(post: CreatePost) {
   const formData = new FormData();
   formData.append("content", post.content);
+  formData.append("visibility", post.visibility);
 
   if (post.media) {
     formData.append("media", post.media);

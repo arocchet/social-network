@@ -1,78 +1,14 @@
 import { db } from "@/lib/db";
 import { PostWithDetails } from "@/lib/schemas/post";
 import { serializeDates } from "@/lib/utils/serializeDates";
+import { getUserPosts } from "@/lib/db/queries/post/getAllPosts";
 
 export async function getPostsByUserIdServer(
-  userId: string
+  userId: string,
+  currentUserId?: string
 ): Promise<PostWithDetails[]> {
   try {
-    const posts = await db.post.findMany({
-      where: {
-        userId: userId,
-      },
-      include: {
-        user: {
-          select: {
-            id: true,
-            username: true,
-            firstName: true,
-            lastName: true,
-            avatar: true,
-          },
-        },
-        comments: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                username: true,
-                firstName: true,
-                lastName: true,
-                avatar: true,
-              },
-            },
-            Reaction: {
-              include: {
-                user: {
-                  select: {
-                    id: true,
-                    username: true,
-                  },
-                },
-              },
-            },
-            _count: {
-              select: {
-                Reaction: true,
-              },
-            },
-          },
-          orderBy: {
-            datetime: "desc",
-          },
-        },
-        reactions: {
-          include: {
-            user: {
-              select: {
-                id: true,
-                username: true,
-              },
-            },
-          },
-        },
-        _count: {
-          select: {
-            comments: true,
-            reactions: true,
-          },
-        },
-      },
-      orderBy: {
-        datetime: "desc",
-      },
-    });
-
+    const posts = await getUserPosts(userId, 0, 50, currentUserId);
     return serializeDates(posts);
   } catch (error) {
     console.error("Database error in getPostsByUserIdServer:", error);

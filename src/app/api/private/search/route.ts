@@ -5,11 +5,14 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const query = searchParams.get("q") || "";
+    
+    // Récupérer l'ID de l'utilisateur connecté depuis les headers
+    const currentUserId = req.headers.get("x-user-id") || undefined;
 
     try {
         const [users, posts] = await Promise.all([
             searchUsers(query),
-            searchPosts(query),
+            searchPosts(query, currentUserId),
         ]);
 
         const userResults = users.map((user) => ({

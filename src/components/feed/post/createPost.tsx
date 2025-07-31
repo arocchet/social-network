@@ -30,6 +30,8 @@ import { useUserContext } from "@/app/context/user-context";
 import AppLoader from "@/components/ui/app-loader";
 import { CreatePost as CreatePostType } from "@/lib/schemas/post/";
 import { PostSchemas } from "@/lib/schemas/post";
+import { VisibilitySelect } from "@/components/ui/visibility-select";
+import { Visibility } from "@prisma/client";
 
 type MediaFile = {
   file: File;
@@ -44,6 +46,7 @@ const CreatePost: React.FC = () => {
   const [postContent, setPostContent] = useState("");
   const [mediaFiles, setMediaFiles] = useState<MediaFile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [visibility, setVisibility] = useState<Visibility>(Visibility.PUBLIC);
   const { user, loading } = useUserContext();
   const { setAllPosts, allposts } = usePostContext();
 
@@ -119,6 +122,7 @@ const CreatePost: React.FC = () => {
     const data = {
       content: postContent,
       media: media,
+      visibility: visibility,
     };
 
     console.log("type", media instanceof File);
@@ -150,6 +154,7 @@ const CreatePost: React.FC = () => {
       setAllPosts([newPost, ...allposts]);
       setPostContent("");
       setMediaFiles([]);
+      setVisibility(Visibility.PUBLIC);
       setIsDialogOpen(false);
     } catch (error) {
       toast.error("Erreur critique", {
@@ -192,7 +197,7 @@ const CreatePost: React.FC = () => {
               </Avatar>
               <div>
                 <p className="font-medium text-lg">{user?.username}</p>
-                <p className="text-xs text-[var(--textNeutral)]">Public</p>
+                <VisibilitySelect value={visibility} onChange={setVisibility} />
               </div>
             </div>
             <DialogClose asChild></DialogClose>

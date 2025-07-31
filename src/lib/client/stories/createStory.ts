@@ -7,6 +7,8 @@ export async function createStoryClient(story: CreateStory) {
     if (story.media) {
         formData.append("media", story.media);
     }
+    
+    formData.append("visibility", story.visibility);
     try {
         const response = await fetcher<void>("/api/private/stories", {
             method: "POST",

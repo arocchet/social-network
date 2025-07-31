@@ -8,11 +8,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Plus, X, ImagePlus } from "lucide-react";
+import { Plus, X, ImagePlus, Globe, Users, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { createStoryClient } from "@/lib/client/stories/createStory";
 import { CreateStory as CreateStoryType } from "@/lib/schemas/stories/";
 import { StorySchemas } from "@/lib/schemas/stories";
+import { VisibilitySelect } from "@/components/ui/visibility-select";
+import { Visibility } from "@prisma/client";
 
 type MediaFile = {
   file: File;
@@ -28,6 +30,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onStoryCreated }) => {
   const [mediaFile, setMediaFile] = useState<MediaFile | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [visibility, setVisibility] = useState<Visibility>(Visibility.PUBLIC);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -106,6 +109,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onStoryCreated }) => {
 
     const data: CreateStoryType = {
       media: mediaFile.file,
+      visibility,
     };
 
     const result = StorySchemas.Create.safeParse(data);
@@ -149,6 +153,16 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onStoryCreated }) => {
     }
   }
 
+  // Obtenir le libellé de visibilité pour l'affichage
+  const getVisibilityLabel = (vis: Visibility) => {
+    switch (vis) {
+      case Visibility.PUBLIC: return "Public";
+      case Visibility.FRIENDS: return "Amis";
+      case Visibility.PRIVATE: return "Privé";
+      default: return "Public";
+    }
+  };
+
   // Nettoyage lors de la fermeture
   const handleDialogClose = (open: boolean) => {
     if (!open && mediaFile) {
@@ -177,7 +191,7 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onStoryCreated }) => {
               <div>
                 <p className="font-medium text-sm">Créer une story</p>
                 <p className="text-xs text-[var(--textNeutral)]">
-                  Visible 24h • Public
+                  Visible 24h • {getVisibilityLabel(visibility)}
                 </p>
               </div>
             </div>
@@ -247,6 +261,18 @@ const CreateStory: React.FC<CreateStoryProps> = ({ onStoryCreated }) => {
 
           {/* Footer */}
           <div className="p-4 border-t bg-[var(--bgLevel1)] rounded-b-xl">
+            {/* Sélecteur de visibilité */}
+            <div className="mb-3">
+              <label className="block text-sm font-medium text-[var(--textNeutral)] mb-2">
+                Qui peut voir cette story ?
+              </label>
+              <VisibilitySelect 
+                value={visibility} 
+                onChange={setVisibility}
+              />
+            </div>
+            
+            {/* Boutons d'action */}
             <div className="flex gap-3">
               <Button
                 variant="outline"

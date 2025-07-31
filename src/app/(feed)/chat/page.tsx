@@ -183,6 +183,9 @@ export default function MessagesPage() {
     router.push(`/chat/${userId}`);
   }
 
+  ;
+
+
   // Filter conversations based on search query
   const filteredConversations = conversations.filter(conversation => {
     if (!searchQuery.trim()) return true;
@@ -200,6 +203,15 @@ export default function MessagesPage() {
       return displayName.includes(query) || username.includes(query);
     }
   });
+
+  const validConversations = filteredConversations.filter((conversation) => {
+    if (conversation.type === "group") {
+      return conversation.group && conversation.group.title;
+    }
+
+    // Pour les conversations directes : s’assurer que user est présent
+    return conversation.user && conversation.user.username;
+  })
 
   // If we're viewing a group chat, show the chat window directly
   if (groupId && currentUserId) {
@@ -321,7 +333,7 @@ export default function MessagesPage() {
             ) : null}
           </div>
         ) : (
-          filteredConversations.map((conversation) => (
+          validConversations.map((conversation) => (
             <ConversationItem
               key={conversation.id}
               conversation={conversation}
