@@ -40,7 +40,8 @@ export const ReactionProvider = ({
     {}
   );
 
-  // ✅ NOUVELLE FONCTION - Initialise les compteurs
+  // ✅ NOUVELLE FONCTION - Initialise les compteurs seulement si pas déjà défini
+
   const initializeReactionCount = useCallback(
     (contentId: string, count: number) => {
       setReactionCounts((prev) => {
@@ -55,6 +56,7 @@ export const ReactionProvider = ({
     },
     []
   );
+
 
   // Initialize reactions data
   const initializeReactionsData = useCallback(

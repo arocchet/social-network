@@ -153,7 +153,7 @@ export function useStoryPlayback({
       videoRef.current.pause();
       videoRef.current.currentTime = 0;
     }
-  }, [currentStoryContent, clearTimer]);
+  }, [currentStoryContent?.id, currentStoryContent?.image, clearTimer]);
 
   useEffect(() => {
     return () => clearTimer();

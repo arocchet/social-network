@@ -169,22 +169,25 @@ export function StoryViewer({
     COMMENT = "comment",
   }
 
-  const reactionContent = useMemo(
-    () => ({
+  const reactionContent = useMemo(() => {
+    const currentReaction = reactionMap[currentStoryContent.storyId] ?? currentStoryContent?.userReaction ?? null;
+    const currentCount = reactionCounts[currentStoryContent.storyId] ?? currentStoryContent.likesCount ?? 0;
+
+    return {
       contentId: currentStoryContent.storyId,
-      reaction:
-        reactionMap[currentStoryContent.storyId] ??
-        currentStoryContent?.userReaction ??
-        null,
-      reactionCount:
-        reactionCounts[currentStoryContent.storyId] ??
-        currentStoryContent.likesCount ??
-        0,
-      reactions: currentStoryContent?.reactions,
+      reaction: currentReaction,
+      reactionCount: currentCount,
+      reactions: currentStoryContent?.Reaction,
       type: ContentType.STORY,
-    }),
-    [currentStoryContent, reactionMap, reactionCounts] // ✅ AJOUTER reactionCounts
-  );
+    };
+  }, [
+    currentStoryContent.storyId,
+    currentStoryContent?.userReaction,
+    currentStoryContent.likesCount,
+    currentStoryContent?.Reaction,
+    reactionMap[currentStoryContent.storyId],
+    reactionCounts[currentStoryContent.storyId]
+  ]);
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col">

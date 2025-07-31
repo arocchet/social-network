@@ -71,6 +71,7 @@ export function Stories() {
     storiesGroups.forEach((group) => {
       group.stories.forEach((story) => {
         if (story.id && story._count?.reactions !== undefined) {
+          // Utiliser initializeReactionCount pour ne pas écraser les changements locaux
           initializeReactionCount(story.id, story._count.reactions);
         }
       });

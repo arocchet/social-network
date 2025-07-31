@@ -92,6 +92,7 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
           if (!response?.success) {
             toast.error("Impossible de supprimer la réaction.");
             setSelectedReaction(lastReaction);
+            return;
           }
         } else {
           console.log(selectedReaction, "selectedReaction");
@@ -103,14 +104,16 @@ export function ReactionComponent({ content }: ReactionComponentParams) {
           if (!response?.success) {
             toast.error("Impossible d'ajouter la réaction.");
             setSelectedReaction(lastReaction);
+            return;
           }
         }
+        
+        // ✅ Appeler handleReactionChange seulement si la requête a réussi
+        handleReactionChange(content.contentId, selectedReaction, content.type);
       } catch (error) {
         console.error("Erreur réseau :", error);
         toast.error("Erreur réseau. Réessaye plus tard.");
         setSelectedReaction(lastReaction);
-      } finally {
-        handleReactionChange(content.contentId, selectedReaction, content.type);
       }
 
       prevReaction.current = selectedReaction;
