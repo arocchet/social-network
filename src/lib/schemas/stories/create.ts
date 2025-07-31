@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const MAX_FILE_SIZE = 5 * 1024 * 1024;
+export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 export const ACCEPTED_FILE_TYPES = [
     "image/jpeg",
@@ -19,7 +19,7 @@ export const CreateStorySchema = z.object({
         .instanceof(File)
         .optional()
         .refine((file) => !file || file.size <= MAX_FILE_SIZE, {
-            message: "File must be less than 5MB.",
+            message: "File must be less than 10MB.",
         })
         .refine((file) => !file || ACCEPTED_FILE_TYPES.includes(file.type), {
             message:

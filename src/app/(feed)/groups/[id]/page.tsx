@@ -248,7 +248,7 @@ export default function GroupDetailPage() {
   const isMember = group.members.some(member => member.id === currentUserId);
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-[var(--bgLevel1)]">
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <Button
@@ -276,7 +276,7 @@ export default function GroupDetailPage() {
             <>
               <Button
                 onClick={() => setIsCreateEventModalOpen(true)}
-                className="bg-blue-500 hover:bg-blue-600 text-white"
+                className="bg-[var(--blue40)] hover:bg-[var(--blue60)] text-white"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Créer un événement
@@ -329,8 +329,8 @@ export default function GroupDetailPage() {
 
         <TabsContent value="events" className="space-y-6">
           {/* Events Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+            <Card className='bg-[var(--bgLevel2)]'>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Événements à venir</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -339,7 +339,7 @@ export default function GroupDetailPage() {
                 <div className="text-2xl font-bold">{upcomingEvents.length}</div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className='bg-[var(--bgLevel2)]'>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Événements passés</CardTitle>
                 <Calendar className="h-4 w-4 text-muted-foreground" />
@@ -356,7 +356,7 @@ export default function GroupDetailPage() {
               <div className="text-gray-500">Chargement des événements...</div>
             </div>
           ) : events.length === 0 ? (
-            <Card className="text-center py-12">
+            <Card className="text-center py-12 bg-[var(--bgLevel2)]">
               <CardContent>
                 <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Aucun événement</h3>
@@ -366,7 +366,7 @@ export default function GroupDetailPage() {
                 {isMember && (
                   <Button
                     onClick={() => setIsCreateEventModalOpen(true)}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    className="bg-[var(--blue40)] hover:bg-[var(--blue60)] text-white"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Créer le premier événement
@@ -412,7 +412,7 @@ export default function GroupDetailPage() {
           )}
         </TabsContent>
 
-        <TabsContent value="members" className="space-y-6">
+        <TabsContent value="members" className="space-y-6 ">
           <div className="grid gap-4">
             {group.members.map((member) => (
               <Card key={member.id}>

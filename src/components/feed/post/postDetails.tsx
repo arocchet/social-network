@@ -533,7 +533,6 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
             reaction: comment.Reaction?.[0]?.type || null,
             reactionCount:
               reactionCounts[comment.id] ?? comment._count?.Reaction ?? 0,
-            reactions: comment.Reaction,
             type: "comment",
           }}
         />
