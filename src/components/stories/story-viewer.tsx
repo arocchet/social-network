@@ -169,25 +169,29 @@ export function StoryViewer({
     COMMENT = "comment",
   }
 
-  const reactionContent = useMemo(() => {
-    const currentReaction = reactionMap[currentStoryContent.storyId] ?? currentStoryContent?.userReaction ?? null;
-    const currentCount = reactionCounts[currentStoryContent.storyId] ?? currentStoryContent.likesCount ?? 0;
-
-    return {
+  const reactionContent = useMemo(
+    () => ({
       contentId: currentStoryContent.storyId,
-      reaction: currentReaction,
-      reactionCount: currentCount,
-      reactions: currentStoryContent?.Reaction,
+      reaction:
+        reactionMap[currentStoryContent.storyId] ??
+        currentStoryContent?.userReaction ??
+        null,
+      reactionCount:
+        reactionCounts[currentStoryContent.storyId] ??
+        currentStoryContent.likesCount ??
+        0,
+      reactions: currentStoryContent?.Reaction
+        ? currentStoryContent.Reaction.filter(r => r.user)
+          .map(r => ({
+            type: r.type,
+            id: r.id,
+            user: r.user!, // user is guaranteed here
+          }))
+        : undefined,
       type: ContentType.STORY,
-    };
-  }, [
-    currentStoryContent.storyId,
-    currentStoryContent?.userReaction,
-    currentStoryContent.likesCount,
-    currentStoryContent?.Reaction,
-    reactionMap[currentStoryContent.storyId],
-    reactionCounts[currentStoryContent.storyId]
-  ]);
+    }),
+    [currentStoryContent, reactionMap, reactionCounts]
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col">
