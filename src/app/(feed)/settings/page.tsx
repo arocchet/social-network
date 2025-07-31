@@ -172,13 +172,13 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
           <div className="p-4 pb-2">
             <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Contenu que vous voyez</h2>
           </div>
-
+          {/*
           <SettingsItem
             icon={<Eye className="w-5 h-5" />}
             title="Péréférences de contenu"
             subtitle="Gérer les sujets et les comptes"
             onClick={() => setCurrentView("content-preferences")}
-          />
+          /> */}
 
           <SettingsItem
             icon={<Heart className="w-5 h-5" />}
@@ -194,12 +194,12 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             onClick={() => setCurrentView("blocked")}
           />
 
-          <SettingsItem
+          {/* <SettingsItem
             icon={<Globe className="w-5 h-5" />}
             title="Langue"
             subtitle="Français"
             onClick={() => setCurrentView("language")}
-          />
+          /> */}
         </div>
 
         {/* Comment les autres peuvent interagir avec vous */}
@@ -224,18 +224,18 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
         </div> */}
 
         {/* Votre activité */}
-        <div className="border-b-1 border-[var(--detailMinimal)]">
+        {/* <div className="border-b-1 border-[var(--detailMinimal)]">
           <div className="p-4 pb-2">
             <h2 className="font-semibold text-[var(--textNeutral)] mb-3">Votre activité</h2>
-          </div>
+          </div> */}
 
-          <SettingsItem
+        {/* <SettingsItem
             icon={<Clock className="w-5 h-5" />}
             title="Temps passé"
             subtitle="Tableau de bord d'activité"
             onClick={() => setCurrentView("time-spent")}
-          />
-
+          /> */}
+        {/* 
           <SettingsItem
             icon={<Archive className="w-5 h-5" />}
             title="Archive"
@@ -246,8 +246,8 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
             icon={<Download className="w-5 h-5" />}
             title="Télécharger vos informations"
             subtitle="Demander un téléchargement"
-          />
-        </div>
+          /> */}
+        {/* </div> */}
 
         {/* Plus d'infos et assistance */}
         <div className="border-b-1 border-[var(--detailMinimal)]">
@@ -290,7 +290,7 @@ export default function SettingsPage({ onBack }: SettingsPageProps) {
           />
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 

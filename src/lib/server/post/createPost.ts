@@ -4,6 +4,7 @@ import { CreatePost } from "@/lib/schemas/post/create";
 import { handleImagePostUploads, handleVideoPostUploads } from "@/lib/uploads/postUploads";
 import { parseOrThrow } from "../../utils/";
 import { serializeDates } from "@/lib/utils/serializeDates";
+import { PostWithCountsSchema } from "@/lib/schemas/post/count";
 
 export async function createPostServer(post: CreatePost, userId: string) {
     try {
@@ -35,7 +36,7 @@ export async function createPostServer(post: CreatePost, userId: string) {
 
         const newPost = await createPostInDb(postData)
 
-        return parseOrThrow(PostSchemas.full, serializeDates(newPost));
+        return parseOrThrow(PostWithCountsSchema, serializeDates(newPost));
     } catch (error) {
         console.error("❌ Error in createPostServer:", error);
         throw new Error("Failed to create post");

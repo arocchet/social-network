@@ -36,6 +36,18 @@ export async function createPostInDb(post: Params) {
                     comments: true,
                     reactions: true
                 }
+            },
+            reactions: {
+                select: {
+                    id: true,
+                    type: true,
+                    user: {
+                        select: {
+                            id: true,
+                            username: true,
+                        }
+                    }
+                }
             }
         }
     });
