@@ -34,7 +34,10 @@ export function useRealTimeChat({
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [typingUsers, setTypingUsers] = useState<Set<string>>(new Set());
+  const [typingUsersData, setTypingUsersData] = useState<Map<string, any>>(new Map());
   const eventSourceRef = useRef<EventSource | null>(null);
+  const typingEventSourceRef = useRef<EventSource | null>(null);
 
   // Load initial messages
   useEffect(() => {
@@ -132,6 +135,101 @@ export function useRealTimeChat({
     };
   }, [receiverId, conversationId, type]);
 
+  // Set up typing indicator connection
+  useEffect(() => {
+    const params = new URLSearchParams({
+      type,
+      ...(type === 'direct' && receiverId ? { conversationId: receiverId } : {}),
+      ...(type === 'group' && conversationId ? { conversationId } : {}),
+    });
+
+    const typingEventSource = new EventSource(`/api/private/chat/typing/listen?${params}`);
+    typingEventSourceRef.current = typingEventSource;
+
+    typingEventSource.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'connected') {
+          console.log('Connected to typing indicator');
+          return;
+        }
+
+        if (data.type === 'typing_status') {
+          setTypingUsers(prev => {
+            const newSet = new Set(prev);
+            if (data.isTyping) {
+              newSet.add(data.userId);
+              // Store user data
+              setTypingUsersData(prevData => {
+                const newData = new Map(prevData);
+                newData.set(data.userId, {
+                  userId: data.userId,
+                  username: data.username,
+                  firstName: data.firstName,
+                  lastName: data.lastName,
+                });
+                return newData;
+              });
+            } else {
+              newSet.delete(data.userId);
+              // Remove user data
+              setTypingUsersData(prevData => {
+                const newData = new Map(prevData);
+                newData.delete(data.userId);
+                return newData;
+              });
+            }
+            return newSet;
+          });
+
+          // Auto-remove typing status after 5 seconds
+          if (data.isTyping) {
+            setTimeout(() => {
+              setTypingUsers(prev => {
+                const newSet = new Set(prev);
+                newSet.delete(data.userId);
+                return newSet;
+              });
+              setTypingUsersData(prevData => {
+                const newData = new Map(prevData);
+                newData.delete(data.userId);
+                return newData;
+              });
+            }, 5000);
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing typing status:', error);
+      }
+    };
+
+    return () => {
+      typingEventSource.close();
+      typingEventSourceRef.current = null;
+    };
+  }, [receiverId, conversationId, type]);
+
+  // Fonction pour envoyer le statut de frappe
+  const sendTypingStatus = async (isTyping: boolean) => {
+    try {
+      await fetch('/api/private/chat/typing', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          receiverId: type === 'direct' ? receiverId : undefined,
+          conversationId: type === 'group' ? conversationId : undefined,
+          type,
+          isTyping,
+        }),
+      });
+    } catch (error) {
+      console.error('Error sending typing status:', error);
+    }
+  };
+
   const sendMessage = async (message: string) => {
     try {
       const response = await fetch('/api/private/chat/send', {
@@ -164,5 +262,8 @@ export function useRealTimeChat({
     sendMessage,
     isConnected,
     isLoading,
+    typingUsers,
+    typingUsersData,
+    sendTypingStatus,
   };
 }

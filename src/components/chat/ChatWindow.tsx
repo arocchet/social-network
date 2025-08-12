@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
+import { TypingIndicator } from './TypingIndicator';
 import { useRealTimeChat } from '@/hooks/use-real-time-chat';
 
 interface ChatWindowProps {
@@ -18,17 +19,66 @@ export function ChatWindow({
   conversationId,
   type = 'direct'
 }: ChatWindowProps) {
-  const { messages, sendMessage, isConnected, isLoading } = useRealTimeChat({
+  const {
+    messages,
+    sendMessage,
+    isConnected,
+    isLoading,
+    typingUsers,
+    typingUsersData,
+    sendTypingStatus
+  } = useRealTimeChat({
     receiverId,
     conversationId,
     type,
-  });
+  }); const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Handle typing functionality
+  const handleTyping = useCallback(() => {
+    if (!isTyping) {
+      setIsTyping(true);
+      sendTypingStatus(true);
+    }
+
+    // Reset the timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Stop typing after 3 seconds of inactivity
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      sendTypingStatus(false);
+    }, 3000);
+  }, [isTyping, sendTypingStatus]);
+
+  const handleStopTyping = useCallback(() => {
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    if (isTyping) {
+      setIsTyping(false);
+      sendTypingStatus(false);
+    }
+  }, [isTyping, sendTypingStatus]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+      if (isTyping) {
+        sendTypingStatus(false);
+      }
+    };
+  }, [isTyping, sendTypingStatus]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages, typingUsers]); // Also scroll when typing status changes
 
   // Mark conversation as seen when messages are loaded or updated
   useEffect(() => {
@@ -36,10 +86,10 @@ export function ChatWindow({
       const markAsSeen = async () => {
         try {
           const chatId = conversationId || receiverId;
-          const apiPath = type === 'direct' 
+          const apiPath = type === 'direct'
             ? `/api/private/direct-conversations/${chatId}/mark-seen`
             : `/api/private/conversations/${chatId}/mark-seen`;
-          
+
           await fetch(apiPath, {
             method: 'POST'
           });
@@ -49,7 +99,7 @@ export function ChatWindow({
           console.error('Error marking conversation as seen:', error);
         }
       };
-      
+
       markAsSeen();
     }
   }, [messages, conversationId, receiverId, type]);
@@ -87,10 +137,19 @@ export function ChatWindow({
             />
           ))
         )}
+
+        {/* Typing indicator */}
+        <TypingIndicator typingUsers={typingUsers} typingUsersData={typingUsersData} />
+
         <div ref={messagesEndRef} />
       </div>
 
-      <ChatInput onSendMessage={sendMessage} isConnected={isConnected} />
+      <ChatInput
+        onSendMessage={sendMessage}
+        isConnected={isConnected}
+        onTyping={handleTyping}
+        onStopTyping={handleStopTyping}
+      />
     </div>
   );
 }
