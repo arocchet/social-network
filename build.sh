@@ -14,6 +14,17 @@ docker build -t "$IMAGE_NAME:$TAG" "$DOCKERFILE_PATH"
 # Vérification du succès
 if [ $? -eq 0 ]; then
     echo "✅ Image construite avec succès : $IMAGE_NAME:$TAG"
+
+    echo "🚀 Lancement du conteneur..."
+    docker run -d --name "${IMAGE_NAME}_container" -p 3000:3000 "$IMAGE_NAME:$TAG"
+
+    if [ $? -eq 0 ]; then
+        echo "✅ Conteneur lancé avec succès : ${IMAGE_NAME}_container"
+        echo "🌍 Accessible sur http://localhost:8080"
+    else
+        echo "❌ Erreur lors du lancement du conteneur."
+        exit 1
+    fi
 else
     echo "❌ Erreur lors de la construction de l'image."
     exit 1

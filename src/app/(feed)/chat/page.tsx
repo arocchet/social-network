@@ -12,7 +12,7 @@ import { useConversations } from "@/hooks/use-conversations";
 import { formatDate } from "@/app/utils/dateFormat";
 import { ChatWindow } from "@/components/chat/ChatWindow";
 import { NotificationBadge } from "@/components/ui/notification-badge";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 
 interface MessagesPageProps {
   onBack?: () => void;
@@ -103,6 +103,14 @@ const conversations = [
 ];
 
 export default function MessagesPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-screen"><div className="text-[var(--textMinimal)]">Chargement...</div></div>}>
+      <MessagesPageContent />
+    </Suspense>
+  );
+}
+
+function MessagesPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const groupId = searchParams.get('group');

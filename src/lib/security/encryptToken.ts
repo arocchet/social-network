@@ -1,12 +1,12 @@
 import { EncryptJWT, jwtDecrypt } from "jose";
 
-const ENCRYPTION_SECRET = process.env.OAUTH_TOKEN_ENCRYPTION_KEY!;
-if (!ENCRYPTION_SECRET) {
-    throw new Error("Missing OAUTH_TOKEN_ENCRYPTION_KEY env variable");
-}
-
 // Convertit ta string secrète en clé de chiffrement AES
 export async function getEncryptionKey() {
+    const ENCRYPTION_SECRET = process.env.OAUTH_TOKEN_ENCRYPTION_KEY;
+    if (!ENCRYPTION_SECRET) {
+        throw new Error("Missing OAUTH_TOKEN_ENCRYPTION_KEY env variable");
+    }
+    
     const encoder = new TextEncoder();
     const encoded = encoder.encode(ENCRYPTION_SECRET);
 
