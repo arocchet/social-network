@@ -1,6 +1,11 @@
 import { NextRequest } from 'next/server';
 import { redisdb } from '@/lib/server/websocket/redis';
 
+interface MessageData {
+  id: string;
+  [key: string]: any;
+}
+
 export async function GET(request: NextRequest) {
   // Get the authenticated user ID from the middleware
   const userId = request.headers.get('x-user-id');
@@ -39,10 +44,11 @@ export async function GET(request: NextRequest) {
 
             for (const channel of channels) {
               const messageData = await redisdb.get(channel);
-              if (messageData && typeof messageData === 'object') {
+              if (messageData && typeof messageData === 'object' && 'id' in messageData) {
+                const typedMessageData = messageData as MessageData;
                 // Check if this is a new message
-                if (messageData.id !== lastMessageId) {
-                  lastMessageId = messageData.id;
+                if (typedMessageData.id !== lastMessageId) {
+                  lastMessageId = typedMessageData.id;
 
                   // Send the message to the client
                   controller.enqueue(

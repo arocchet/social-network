@@ -7,7 +7,7 @@ import { respondError, respondSuccess } from "@/lib/server/api/response";
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const userId = req.headers.get("x-user-id");
@@ -26,7 +26,13 @@ export async function POST(
 
         const comment = parseOrThrow(PostSchemas.create, rawComment);
 
-        const createdComment = await createCommentServer(postId, comment, userId);
+        // Ensure visibility is always defined
+        const commentWithVisibility = {
+            ...comment,
+            visibility: comment.visibility ?? "PUBLIC" as const,
+        };
+
+        const createdComment = await createCommentServer(postId, commentWithVisibility, userId);
 
         return NextResponse.json(respondSuccess(createdComment, "Comment created"), { status: 201 });
     } catch (error) {

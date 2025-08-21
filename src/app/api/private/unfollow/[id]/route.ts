@@ -6,10 +6,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function DELETE(
     _req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const { id: followId } = params;
+        const { id: followId } = await params;
         if (!followId) {
             return NextResponse.json(respondError("Follow ID is required"), {
                 status: 400,

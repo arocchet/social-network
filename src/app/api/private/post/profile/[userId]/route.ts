@@ -4,7 +4,7 @@ import { getPostsByUserIdServer } from "@/lib/server/post/getPost";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { userId: string } }
+    { params }: { params: Promise<{ userId: string }> }
 ) {
     const { userId } = await params;
     const currentUserId = req.headers.get("x-user-id");

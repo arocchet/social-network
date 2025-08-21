@@ -12,11 +12,11 @@ function isValidAction(action: string): action is ActionType {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const userId = req.headers.get("x-user-id");
-    const groupId = params.id;
+    const { id: groupId } = await params;
     const { requestId, action } = await req.json();
 
     if (!userId) {

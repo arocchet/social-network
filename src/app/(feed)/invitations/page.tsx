@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Users, Check, X, Mail, Clock, ArrowLeft, UserPlus, Tabs } from 'lucide-react';
+import { Users, Check, X, Mail, Clock, ArrowLeft, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import Link from 'next/link';
 import { SuccessModal } from '@/components/ui/success-modal';

@@ -1,10 +1,10 @@
-import { Visibility } from "@prisma/client";
+import { Visibility, ProfileVisibility } from "@prisma/client";
 
 interface VisibilityFilterOptions {
   currentUserId?: string;
   targetUserId?: string; // Pour filtrer les posts d'un utilisateur spécifique
   showPrivatePosts?: boolean; // Si on veut voir ses propres posts privés
-  targetUserAccountVisibility?: "PUBLIC" | "PRIVATE"; // Visibilité du compte cible
+  targetUserAccountVisibility?: ProfileVisibility; // Visibilité du compte cible
 }
 
 /**
@@ -32,7 +32,7 @@ export function buildPostVisibilityFilter({
 
     // Si l'utilisateur cible a un compte PRIVATE, il faut une amitié ACCEPTED
     // ET seuls les posts PUBLIC et FRIENDS sont visibles
-    if (targetUserAccountVisibility === "PRIVATE") {
+    if (targetUserAccountVisibility === ProfileVisibility.PRIVATE) {
       return {
         AND: [
           // D'abord vérifier l'amitié
@@ -115,14 +115,14 @@ export function buildPostVisibilityFilter({
         {
           AND: [
             { visibility: Visibility.PUBLIC },
-            { user: { visibility: "PUBLIC" } },
+            { user: { visibility: ProfileVisibility.PUBLIC } },
           ],
         },
         // Posts de comptes publics avec visibilité FRIENDS (pour les amis)
         {
           AND: [
             { visibility: Visibility.FRIENDS },
-            { user: { visibility: "PUBLIC" } },
+            { user: { visibility: ProfileVisibility.PUBLIC } },
             {
               user: {
                 OR: [
@@ -150,7 +150,7 @@ export function buildPostVisibilityFilter({
         // Posts de comptes privés (seulement pour les amis acceptés)
         {
           AND: [
-            { user: { visibility: "PRIVATE" } },
+            { user: { visibility: ProfileVisibility.PRIVATE } },
             {
               OR: [
                 { visibility: Visibility.PUBLIC },
@@ -196,14 +196,14 @@ export function buildPostVisibilityFilter({
       {
         AND: [
           { visibility: Visibility.PUBLIC },
-          { user: { visibility: "PUBLIC" } },
+          { user: { visibility: ProfileVisibility.PUBLIC } },
         ],
       },
       // Posts FRIENDS de comptes publics - seulement pour les AMIS (status: "accepted")
       {
         AND: [
           { visibility: Visibility.FRIENDS },
-          { user: { visibility: "PUBLIC" } },
+          { user: { visibility: ProfileVisibility.PUBLIC } },
           {
             user: {
               OR: [
@@ -231,7 +231,7 @@ export function buildPostVisibilityFilter({
       // Posts de comptes privés - seulement pour les AMIS acceptés
       {
         AND: [
-          { user: { visibility: "PRIVATE" } },
+          { user: { visibility: ProfileVisibility.PRIVATE } },
           {
             OR: [
               { visibility: Visibility.PUBLIC },

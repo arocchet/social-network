@@ -5,7 +5,7 @@ import { db } from "@/lib/db";
 // GET: Vérifier le statut d'amitié avec un utilisateur spécifique
 export async function GET(
   req: NextRequest,
-  { params }: { params: { userId: string } }
+  { params }: any
 ) {
   const token = req.cookies.get("token")?.value;
 
@@ -21,7 +21,7 @@ export async function GET(
   }
 
   const currentUserId = payload.userId;
-  const { userId: targetUserId } = await params;
+  const { userId: targetUserId } = params;
 
   try {
     // Chercher une relation d'amitié dans les deux sens

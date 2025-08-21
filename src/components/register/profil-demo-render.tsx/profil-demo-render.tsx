@@ -21,7 +21,7 @@ const ProfileDemoRender = () => {
   const { userInfo } = useUserForm();
 
   const currentAvatarImage = userInfo.avatar?.previewUrl || "";
-  const currentCoverImage = userInfo.cover?.previewUrl || "";
+  const currentBannerImage = userInfo.banner?.previewUrl || "";
 
   const isMounted = useIsMounted();
 
@@ -39,10 +39,10 @@ const ProfileDemoRender = () => {
         />
       </div>
       <div className="relative">
-        {currentCoverImage ? (
+        {currentBannerImage ? (
           <img
-            src={currentCoverImage}
-            alt="Cover"
+            src={currentBannerImage}
+            alt="Banner"
             className="w-full bg-[var(--bgLevel2)] h-40 object-cover border-y-1 border-[var(--detailMinimal)]"
           />
         ) : (

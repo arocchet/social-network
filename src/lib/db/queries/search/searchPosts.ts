@@ -14,14 +14,10 @@ export async function searchPosts(query: string, currentUserId?: string, limit =
         where: {
             AND: [
                 { message: { contains: query, mode: "insensitive" } },
-                visibilityFilter,
+                ...(Array.isArray(visibilityFilter) ? visibilityFilter : [visibilityFilter]),
             ],
         },
-        select: {
-            id: true,
-            message: true,
-            datetime: true,
-            image: true,
+        include: {
             user: {
                 select: {
                     id: true,
