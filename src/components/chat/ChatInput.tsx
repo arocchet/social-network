@@ -19,9 +19,11 @@ const GIPHY_API_KEY = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
 interface ChatInputProps {
   onSendMessage: (message: string) => Promise<void>;
   isConnected: boolean;
+  onTyping?: () => void;
+  onStopTyping?: () => void;
 }
 
-export function ChatInput({ onSendMessage, isConnected }: ChatInputProps) {
+export function ChatInput({ onSendMessage, isConnected, onTyping, onStopTyping }: ChatInputProps) {
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
@@ -45,6 +47,10 @@ export function ChatInput({ onSendMessage, isConnected }: ChatInputProps) {
 
     setIsSending(true);
     try {
+      // Stop typing when sending message
+      if (onStopTyping) {
+        onStopTyping();
+      }
       await onSendMessage(message.trim());
       setMessage('');
     } catch (error) {
@@ -62,7 +68,13 @@ export function ChatInput({ onSendMessage, isConnected }: ChatInputProps) {
           <div className=" flex-1 items-center">
             <Input
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
+              onChange={(e) => {
+                setMessage(e.target.value);
+                // Trigger typing indicator when user types
+                if (onTyping && e.target.value.length > 0) {
+                  onTyping();
+                }
+              }}
               placeholder={isConnected ? "Tapez votre message..." : "Connexion en cours..."}
               disabled={isSending || !isConnected}
               className="w-full pr-10"
