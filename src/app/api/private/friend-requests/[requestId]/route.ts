@@ -10,7 +10,7 @@ const UpdateFriendRequestSchema = z.object({
 // PATCH: Accepter ou refuser une demande d'ami
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { requestId: string } }
+  { params }: any
 ) {
   const token = req.cookies.get("token")?.value;
 
@@ -26,7 +26,7 @@ export async function PATCH(
   }
 
   const userId = payload.userId;
-  const { requestId } = await params;
+  const { requestId } = params;
 
   try {
     const body = await req.json();

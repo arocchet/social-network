@@ -117,10 +117,22 @@ export async function POST(
           title: updatedEvent.title,
           description: updatedEvent.description,
           datetime: updatedEvent.datetime,
-          owner: updatedEvent.owner,
+          owner: {
+            id: updatedEvent.owner.id,
+            username: updatedEvent.owner.username || 'Unknown User',
+            firstName: updatedEvent.owner.firstName || undefined,
+            lastName: updatedEvent.owner.lastName || undefined,
+            avatar: updatedEvent.owner.avatar || undefined
+          },
           rsvps: updatedEvent.rsvps.map(rsvp => ({
             status: rsvp.status as 'YES' | 'NO' | 'MAYBE',
-            user: rsvp.user
+            user: {
+              id: rsvp.user.id,
+              username: rsvp.user.username || 'Unknown',
+              firstName: rsvp.user.firstName || undefined,
+              lastName: rsvp.user.lastName || undefined,
+              avatar: rsvp.user.avatar || undefined
+            }
           }))
         });
 

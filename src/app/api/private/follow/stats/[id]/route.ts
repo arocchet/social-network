@@ -9,10 +9,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
 	_req: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: any
 ) {
 	try {
-		const { id: searchId } = await params;
+		const { id: searchId } = params;
 		if (!searchId) {
 			return NextResponse.json(respondError("Follow ID is required"), {
 				status: 400,

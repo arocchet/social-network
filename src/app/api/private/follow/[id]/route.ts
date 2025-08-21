@@ -8,10 +8,10 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
 	_req: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: any
 ) {
 	try {
-		const { id: followId } = await params;
+		const { id: followId } = params;
 		if (!followId) {
 			return NextResponse.json(respondError("Follow ID is required"), {
 				status: 400,
@@ -65,10 +65,10 @@ export async function GET(
 
 export async function POST(
 	_req: NextRequest,
-	{ params }: { params: { id: string } }
+	{ params }: any 
 ) {
 	try {
-		const { id: followId } = await params;
+		const { id: followId } = params;
 		if (!followId) {
 			return NextResponse.json(respondError("Follow ID is required"), {
 				status: 400,
@@ -145,8 +145,7 @@ export async function POST(
 				);
 			}
 			
-			const status = "followed";
-			console.log('Follow status will be:', status);
+			const status = "accepted";
 
 			const newFriendship = await createFriendshipInDb({
 				followId: followId,
@@ -159,14 +158,6 @@ export async function POST(
 					respondError("Failed to create friendship"),
 					{ status: 500 }
 				);
-			}
-
-			// Si c'est un follow (compte public), pas besoin de relation bidirectionnelle
-			// Seuls les amis acceptés ont une relation bidirectionnelle
-
-			// If the follow is pending, we can send a notification or handle it accordingly
-			if (status === "pending") {
-				// TODO: Implement notification logic here
 			}
 
 			return NextResponse.json(

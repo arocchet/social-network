@@ -4,11 +4,11 @@ import { createGroupInvitation } from "@/lib/db/queries/groups/createGroupInvita
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const inviterId = req.headers.get("x-user-id");
-    const { id: groupId } = params;
+    const { id: groupId } = await params;
     const { invitedId } = await req.json();
 
     if (!inviterId) {

@@ -101,10 +101,16 @@ export async function POST(req: NextRequest) {
 
     let parsedData: CreateStory;
     try {
-      parsedData = parseOrThrow(
+      const rawData = parseOrThrow(
         StorySchemas.Create,
         parseCreateStory(await req.formData())
       );
+      
+      // Ensure visibility is always defined
+      parsedData = {
+        ...rawData,
+        visibility: rawData.visibility ?? "PUBLIC" as const,
+      };
     } catch (error) {
       if (error instanceof ValidationError) {
         return NextResponse.json(

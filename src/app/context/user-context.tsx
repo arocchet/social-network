@@ -4,10 +4,10 @@ import { useUser } from "@/hooks/use-user-data";
 import { UserPublic } from "@/lib/schemas/user";
 
 interface UserContextType {
-    user: UserPublic | undefined;
+    user: UserPublic | null;
     loading: boolean;
     error: any;
-    refetch: () => Promise<UserPublic | undefined>;
+    refetch: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);

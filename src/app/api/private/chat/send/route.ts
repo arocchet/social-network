@@ -65,17 +65,27 @@ export async function POST(request: NextRequest) {
       });
 
     // Store the latest message in Redis for real-time updates
+    const getTimestamp = (): Date => {
+      if ('datetime' in savedMessage) {
+        return savedMessage.datetime;
+      }
+      if ('sentAt' in savedMessage) {
+        return savedMessage.sentAt;
+      }
+      return new Date();
+    };
+
     const messageData = {
       id: savedMessage.id,
       senderId: userId,
       receiverId: type === 'direct' ? receiverId : undefined,
       conversationId: type === 'group' ? conversationId : undefined,
       message,
-      timestamp: (savedMessage.datetime || savedMessage.deliveredAt || new Date()).toISOString(),
+      timestamp: getTimestamp().toISOString(),
       type,
       status: savedMessage.status || 'SENT', // Ensure status is included
-      deliveredAt: savedMessage.deliveredAt?.toISOString(),
-      readAt: savedMessage.readAt?.toISOString(),
+      deliveredAt: 'deliveredAt' in savedMessage ? savedMessage.deliveredAt?.toISOString() : undefined,
+      readAt: 'readAt' in savedMessage ? savedMessage.readAt?.toISOString() : undefined,
       sender: savedMessage.sender,
     };
 

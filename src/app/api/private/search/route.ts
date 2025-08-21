@@ -23,23 +23,40 @@ export async function GET(req: NextRequest) {
             image: user.avatar ?? "",
         }));
 
-        const postResults = posts.map((post) => ({
-            id: post.id,
-            type: "posts",
-            content: post.message,
-            createdAt: post.datetime,
-            images: post.image,
-            user: {
-                id: post.user.id,
-                username: post.user.username ?? "",
-                displayName: `${post.user.firstName ?? ""} ${post.user.lastName ?? ""}`.trim(),
-                image: post.user.avatar ?? "",
-            },
-            stats: {
-                likes: post._count.reactions,
-                comments: post._count.comments,
-            },
-        }));
+        const postResults = posts.map((post) => {
+            // Type assertion to handle include vs select TypeScript issue
+            const postWithUser = post as typeof post & {
+                user: {
+                    id: string;
+                    username: string | null;
+                    firstName: string | null;
+                    lastName: string | null;
+                    avatar: string | null;
+                };
+                _count: {
+                    reactions: number;
+                    comments: number;
+                };
+            };
+
+            return {
+                id: postWithUser.id,
+                type: "posts" as const,
+                content: postWithUser.message,
+                createdAt: postWithUser.datetime,
+                images: postWithUser.image,
+                user: {
+                    id: postWithUser.user.id,
+                    username: postWithUser.user.username ?? "",
+                    displayName: `${postWithUser.user.firstName ?? ""} ${postWithUser.user.lastName ?? ""}`.trim(),
+                    image: postWithUser.user.avatar ?? "",
+                },
+                stats: {
+                    likes: postWithUser._count.reactions,
+                    comments: postWithUser._count.comments,
+                },
+            };
+        });
 
         const results = [...userResults, ...postResults];
 

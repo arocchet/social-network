@@ -18,7 +18,13 @@ export async function POST(req: NextRequest) {
         const rawPost = parseCreatePost(formData);
         const parsedData = parseOrThrow(PostSchemas.create, rawPost);
 
-        const createdPost = await createPostServer(parsedData, userId);
+        // Ensure visibility is always defined
+        const postWithVisibility = {
+            ...parsedData,
+            visibility: parsedData.visibility ?? "PUBLIC" as const,
+        };
+
+        const createdPost = await createPostServer(postWithVisibility, userId);
 
         return NextResponse.json(respondSuccess(createdPost), { status: 201 });
     } catch (err) {

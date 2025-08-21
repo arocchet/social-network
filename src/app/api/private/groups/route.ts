@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Filter out duplicates and the creator from memberIds to avoid conflicts
-    const uniqueMemberIds = [...new Set(memberIds)].filter((memberId: string) => memberId !== userId);
+    const uniqueMemberIds = [...new Set(memberIds as string[])].filter((memberId) => memberId !== userId);
 
     // Create the group
     const group = await db.conversation.create({

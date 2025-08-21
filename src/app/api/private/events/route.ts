@@ -182,7 +182,13 @@ export async function POST(request: NextRequest) {
       title: event.title,
       description: event.description,
       datetime: event.datetime,
-      owner: event.owner,
+      owner: {
+        id: event.owner.id,
+        username: event.owner.username || 'Unknown User',
+        firstName: event.owner.firstName || undefined,
+        lastName: event.owner.lastName || undefined,
+        avatar: event.owner.avatar || undefined
+      },
       rsvps: [] // No RSVPs yet for a new event
     });
 

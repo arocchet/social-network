@@ -42,9 +42,6 @@ import { AboutPage } from "@/components/settings/about-page"
 import { ModeToggle } from "@/components/toggle-theme"
 import { useUserContext } from "@/app/context/user-context"
 
-interface SettingsPageProps {
-  onBack?: () => void
-}
 
 type SettingsView =
   | "main"
@@ -70,7 +67,7 @@ const settingsData = {
   },
 }
 
-export default function SettingsPage({ onBack }: SettingsPageProps) {
+export default function SettingsPage() {
   const [currentView, setCurrentView] = useState<SettingsView>("main")
 
   const handleBackToMain = () => {
