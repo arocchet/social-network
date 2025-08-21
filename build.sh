@@ -20,7 +20,7 @@ if [ $? -eq 0 ]; then
 
     if [ $? -eq 0 ]; then
         echo "✅ Conteneur lancé avec succès : ${IMAGE_NAME}_container"
-        echo "🌍 Accessible sur http://localhost:8080"
+        echo "🌍 Accessible sur http://localhost:3000"
     else
         echo "❌ Erreur lors du lancement du conteneur."
         exit 1
