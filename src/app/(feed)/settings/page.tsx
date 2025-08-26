@@ -28,6 +28,8 @@ import {
   LogOut,
   Slash,
 } from "lucide-react"
+import { logout } from '@/lib/client/user/logout';
+import { useRouter } from 'next/navigation';
 
 // Import sub-pages
 import { PrivacyPage } from "@/components/settings/privacy-page"
@@ -69,6 +71,7 @@ const settingsData = {
 
 export default function SettingsPage() {
   const [currentView, setCurrentView] = useState<SettingsView>("main")
+  const router = useRouter();
 
   const handleBackToMain = () => {
     setCurrentView("main")
@@ -284,6 +287,10 @@ export default function SettingsPage() {
             icon={<LogOut className="w-5 h-5 text-red-500" />}
             title="Se déconnecter"
             titleColor="text-red-500"
+            onClick={async () => {
+              await logout();
+              router.push('/login');
+            }}
           />
         </div>
       </div>
