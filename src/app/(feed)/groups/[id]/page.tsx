@@ -293,15 +293,17 @@ export default function GroupDetailPage() {
               )}
             </>
           )}
+
+          <Button
+            variant="outline"
+            onClick={() => setIsInviteModalOpen(true)}
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Inviter
+          </Button>
           {isOwner && (
             <>
-              <Button
-                variant="outline"
-                onClick={() => setIsInviteModalOpen(true)}
-              >
-                <UserPlus className="w-4 h-4 mr-2" />
-                Inviter
-              </Button>
+
 
               <Button
                 onClick={handleDeleteGroup}

@@ -23,7 +23,7 @@ import { formatDate } from "@/app/utils/dateFormat";
 import { useUserPosts } from "@/hooks/use-posts-by-user";
 import { useState, useMemo, useRef, useEffect } from "react";
 import { PostProvider } from "@/app/context/post-context";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { LoadingState, ErrorState, MediaSection, CommentsSection, PostHeader, PostFooter } from "@/components/feed/post/postDetails";
 import { useParams, useRouter } from "next/navigation";
 import { set } from "date-fns";
@@ -50,6 +50,10 @@ export default function ProfilePage() {
   const [followingCount, setFollowingCount] = useState(0);
   const [postDetailsLoading, setPostDetailsLoading] = useState(false);
   const [postDetailsError, setPostDetailsError] = useState<string | null>(null);
+
+  const [followers, setFollowers] = useState<any[]>([]);
+  const [following, setFollowing] = useState<any[]>([]);
+
   const contentRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -67,17 +71,19 @@ export default function ProfilePage() {
   });
   // Initialiser les états de suivi
 
-  console.log("followStatus", followStatus)
 
   // Vérifier si l'utilisateur actuel suit le profil
   const checkFollowingStatus = async () => {
     if (!profileUser) return;
 
+    console.log("---------1------------", profileUser.id)
     try {
-      const response = await fetch(`/api/private/follow/${profileUser.id}/`, {
+      const response = await fetch(`/api/private/follow/${profileUser.id}`, {
         method: "GET",
         credentials: "include",
       });
+      console.log("followStatus", followStatus)
+
 
       if (!response.ok) {
         setIsFollowing(false);
@@ -86,6 +92,7 @@ export default function ProfilePage() {
       }
 
       const data = await response.json();
+      console.log("data follow", data)
       if (data.success && data.data) {
         setIsFollowing(true);
         setFollowStatus(data.data.status || "accepted");
@@ -132,7 +139,7 @@ export default function ProfilePage() {
     // Mettre à jour le nombre de followers
     const updateSatsCount = async () => {
       try {
-        const response = await fetch(`/api/private/follow/stats/${profileUser.id}/`, {
+        const response = await fetch(`/api/private/follow/stats/${profileUser.id}`, {
           method: "GET",
           credentials: "include",
         });
@@ -157,7 +164,6 @@ export default function ProfilePage() {
   }, [profileUser]);
 
 
-  console.log("profileUser", profileUser)
 
   // Fonction pour suivre/ne plus suivre un utilisateur
   const handleFollowToggle = async () => {
@@ -243,6 +249,44 @@ export default function ProfilePage() {
       setIsFriendRequestPending(false);
     }
   };
+
+  // ------------------------
+
+
+  const fetchFollowers = async () => {
+    if (!profileUser?.id) return;
+    try {
+      const response = await fetch(`/api/private/follow/${profileUser.id}/followers`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (data.success) {
+        setFollowers(data.data || []);
+      }
+    } catch (err) {
+      console.error("Erreur lors du fetch des followers:", err);
+    }
+  };
+
+  const fetchFollowing = async () => {
+    if (!profileUser?.id) return;
+    try {
+      const response = await fetch(`/api/private/follow/${profileUser.id}/following`, {
+        method: "GET",
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (data.success) {
+        setFollowing(data.data || []);
+      }
+    } catch (err) {
+      console.error("Erreur lors du fetch des following:", err);
+    }
+  };
+
+
+  // ------------------------
 
   const fetchPostDetails = async (targetPostId: string) => {
     if (!targetPostId) return;
@@ -560,23 +604,82 @@ export default function ProfilePage() {
                           {(posts?.length || 0) > 1 ? 'publications' : 'publication'}
                         </div>
                       </div>
-                      <div className="flex flex-col items-center">
-                        <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                          {followersCount}
-                        </div>
-                        <div className="text-sm text-[var(--textMinimal)]">
-                          abonnés
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-center">
-                        <div className="font-semibold text-lg text-[var(--textNeutral)]">
-                          {followingCount}
 
-                        </div>
-                        <div className="text-sm text-[var(--textMinimal)]">
-                          abonnements
-                        </div>
-                      </div>
+
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button
+                            className="flex flex-col items-center"
+                            onClick={fetchFollowers} // fetch juste avant d’ouvrir
+                          >
+                            {followersCount} abonnés
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Abonnés</DialogTitle>
+                          </DialogHeader>
+
+                          <div className="max-h-[400px] overflow-y-auto">
+                            {followers.length === 0 ? (
+                              <p className="text-sm text-[var(--textMinimal)]">Aucun abonné</p>
+                            ) : (
+                              followers.map((f) => (
+                                <div
+                                  key={f.id}
+                                  className="flex items-center gap-2 p-2 border-b border-[var(--detailMinimal)]"
+                                >
+                                  <Avatar className="w-8 h-8">
+                                    <AvatarImage src={f.avatar || "/placeholder.svg"} alt={f.username} />
+                                    <AvatarFallback>{f.username[0]?.toUpperCase()}</AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-[var(--textNeutral)] font-medium">
+                                    {f.username}
+                                  </span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button
+                            className="flex flex-col items-center"
+                            onClick={fetchFollowers} // fetch juste avant d’ouvrir
+                          >
+                            {followingCount} abonnements
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Abonnés</DialogTitle>
+                          </DialogHeader>
+
+                          <div className="max-h-[400px] overflow-y-auto">
+                            {followers.length === 0 ? (
+                              <p className="text-sm text-[var(--textMinimal)]">Aucun abonné</p>
+                            ) : (
+                              followers.map((f) => (
+                                <div
+                                  key={f.id}
+                                  className="flex items-center gap-2 p-2 border-b border-[var(--detailMinimal)]"
+                                >
+                                  <Avatar className="w-8 h-8">
+                                    <AvatarImage src={f.avatar || "/placeholder.svg"} alt={f.username} />
+                                    <AvatarFallback>{f.username[0]?.toUpperCase()}</AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-[var(--textNeutral)] font-medium">
+                                    {f.username}
+                                  </span>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+
                     </div>
                   </div>
                 </div>
@@ -599,7 +702,7 @@ export default function ProfilePage() {
                     @{profileUser.username}
                   </p>
                   <p className="text-sm text-[var(--textMinimal)] mb-1">
-                    @{profileUser.email}
+                    {profileUser.email}
                   </p>
                   <div className="text-sm whitespace-pre-line text-[var(--textMinimal)] mb-2">
                     {profileUser.biography || (isOwnProfile ? "Aucune bio pour le moment" : "Aucune biographie")}
@@ -747,6 +850,16 @@ export default function ProfilePage() {
               <div className="p-4">
                 {(() => {
                   // Si le compte est privé et qu'on n'est pas ami accepté
+                  if (profileUser?.visibility === 'PRIVATE' && !isOwnProfile && followStatus == 'accepted') {
+                    return (
+                      <div className="grid grid-cols-3 gap-2">
+                        {filteredPosts.map((post) => (
+                          <PostItem key={post.id} post={post} />
+                        ))}
+                      </div>
+                    );
+                  }
+
                   if (profileUser?.visibility === 'PRIVATE' && !isOwnProfile && followStatus !== 'accepted') {
                     return (
                       <div className="text-center py-8">

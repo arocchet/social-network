@@ -12,14 +12,14 @@ export async function GET(
 	{ params }: any
 ) {
 	try {
-		const { id: searchId } = params;
-		if (!searchId) {
+		const { id } = await params;
+		if (!id) {
 			return NextResponse.json(respondError("Follow ID is required"), {
 				status: 400,
 			});
 		}
 
-		const searchUser = await getUser({ userId: searchId });
+		const searchUser = await getUser({ userId: id });
 
 		// Check if the user exists
 		if (!searchUser) {

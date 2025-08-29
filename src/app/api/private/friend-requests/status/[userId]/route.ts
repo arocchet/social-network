@@ -21,7 +21,7 @@ export async function GET(
   }
 
   const currentUserId = payload.userId;
-  const { userId: targetUserId } = params;
+  const { userId: targetUserId } = await params;
 
   try {
     // Chercher une relation d'amitié dans les deux sens
@@ -61,8 +61,8 @@ export async function GET(
 
   } catch (error) {
     console.error("Error checking friendship status:", error);
-    return NextResponse.json({ 
-      message: "Internal server error" 
+    return NextResponse.json({
+      message: "Internal server error"
     }, { status: 500 });
   }
 }

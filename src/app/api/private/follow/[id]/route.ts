@@ -11,7 +11,7 @@ export async function GET(
 	{ params }: any
 ) {
 	try {
-		const { id: followId } = params;
+		const { id: followId } = await params;
 		if (!followId) {
 			return NextResponse.json(respondError("Follow ID is required"), {
 				status: 400,
@@ -23,7 +23,7 @@ export async function GET(
 		// Check if the user exists
 		if (!follow) {
 			return NextResponse.json(respondError("Follower not found"), {
-				status: 404,
+				status: 400,
 			});
 		}
 
@@ -40,16 +40,18 @@ export async function GET(
 			userId: userId,
 		});
 
+		console.log("FRIENDSHIP: ", { existingFriendship })
+
 		// On ne retourne que les relationships de type "followed"
-		if (!existingFriendship || existingFriendship.status !== "followed") {
+		if (!existingFriendship || existingFriendship.status !== "accepted") {
 			return NextResponse.json(
 				respondError("Follow relationship not found"),
-				{ status: 404 }
+				{ status: 400 }
 			);
 		}
 
 		return NextResponse.json(
-			respondSuccess({ status: existingFriendship.status }, "Follow status retrieved successfully"),
+			respondSuccess(existingFriendship, "Follow status retrieved successfully"),
 			{ status: 200 }
 		);
 	} catch (err) {
@@ -65,7 +67,7 @@ export async function GET(
 
 export async function POST(
 	_req: NextRequest,
-	{ params }: any 
+	{ params }: any
 ) {
 	try {
 		const { id: followId } = params;
@@ -136,7 +138,7 @@ export async function POST(
 
 			// Create a new follow relationship (only for PUBLIC accounts)
 			console.log('Follow visibility:', follow.visibility, 'ProfileVisibility.PUBLIC:', ProfileVisibility.PUBLIC);
-			
+
 			// On ne peut follow que les comptes publics
 			if (follow.visibility !== ProfileVisibility.PUBLIC) {
 				return NextResponse.json(
@@ -144,7 +146,7 @@ export async function POST(
 					{ status: 400 }
 				);
 			}
-			
+
 			const status = "accepted";
 
 			const newFriendship = await createFriendshipInDb({
