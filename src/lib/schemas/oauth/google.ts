@@ -4,7 +4,7 @@ export const GoogleOAuthSchema = z.object({
     email: z.string().email({ message: "Invalid email address" }).nullable().optional(),
     family_name: z.string().nullable().optional(),
     given_name: z.string().nullable().optional(),
-    googleId: z.string().nullable().optional(),
+    id: z.string().nullable().optional(),
     name: z.string().nullable().optional(),
     picture: z.string().url({ message: "Picture URL is invalid" }).nullable().optional(),
 });

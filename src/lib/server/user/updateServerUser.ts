@@ -1,6 +1,6 @@
 import { db } from "@/lib/db"
 import { UserSchemas } from "@/lib/schemas/user";
-import { parseOrThrow } from "@/lib/utils/";
+import { parseOrThrow } from "@/lib/utils/validation";
 
 export async function updateUserServer(userId: string, data: unknown) {
     const updates = parseOrThrow(UserSchemas.Update, data);

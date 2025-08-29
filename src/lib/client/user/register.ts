@@ -21,6 +21,8 @@ export async function register(data: RegisterUserFormData) {
         formData.append("biography", data.biography);
     }
 
+    console.log("FormDate", formData)
+
     const res = await fetch("/api/public/auth/register", {
         method: "POST",
         body: formData,

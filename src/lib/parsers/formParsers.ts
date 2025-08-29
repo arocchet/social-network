@@ -18,7 +18,7 @@ export function parseCreatePost(formData: FormData): CreatePost {
   const content = formData.get("content") as string;
   const media = formData.get("media") as File;
   const visibility = (formData.get("visibility") as Visibility) || Visibility.PUBLIC;
-  
+
   return {
     content,
     media,
@@ -29,7 +29,7 @@ export function parseCreatePost(formData: FormData): CreatePost {
 export function parseCreateStory(formData: FormData): CreateStory {
   const media = formData.get("media") as File;
   const visibility = (formData.get("visibility") as Visibility) || Visibility.PUBLIC;
-  
+
   return {
     media,
     visibility,
@@ -47,6 +47,7 @@ export async function mapRegisterFormToInput(
   const firstName = formData.get("firstname") as string;
   const lastName = formData.get("lastname") as string;
   const birthDateStr = formData.get("dateOfBirth") as string;
+  const biography = formData.get("biography") as string;
   const birthDate = birthDateStr ? new Date(birthDateStr) : undefined;
 
   return {
@@ -57,6 +58,7 @@ export async function mapRegisterFormToInput(
     firstName,
     lastName,
     birthDate,
+    biography,
     source: "credentials",
   };
 }
