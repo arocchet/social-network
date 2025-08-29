@@ -31,20 +31,17 @@ export async function GET(request: NextRequest) {
             OR: [
               {
                 username: {
-                  contains: searchTerm,
-                  mode: 'insensitive'
+                  contains: searchTerm
                 }
               },
               {
                 firstName: {
-                  contains: searchTerm,
-                  mode: 'insensitive'
+                  contains: searchTerm
                 }
               },
               {
                 lastName: {
-                  contains: searchTerm,
-                  mode: 'insensitive'
+                  contains: searchTerm
                 }
               }
             ]

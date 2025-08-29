@@ -29,25 +29,21 @@ export async function GET(request: NextRequest) {
               {
                 username: {
                   contains: query,
-                  mode: 'insensitive',
                 },
               },
               {
                 firstName: {
                   contains: query,
-                  mode: 'insensitive',
                 },
               },
               {
                 lastName: {
                   contains: query,
-                  mode: 'insensitive',
                 },
               },
               {
                 email: {
                   contains: query,
-                  mode: 'insensitive',
                 },
               },
             ],

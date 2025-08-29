@@ -55,8 +55,7 @@ export async function POST(
       data: newMemberIds.map((memberId: string) => ({
         conversationId: groupId,
         userId: memberId
-      })),
-      skipDuplicates: true
+      }))
     });
 
     // Get updated group with members
