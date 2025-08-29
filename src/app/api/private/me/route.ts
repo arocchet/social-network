@@ -4,7 +4,7 @@ import { getUserByIdServer } from "@/lib/server/user/getUser";
 import { updateUserServer } from "@/lib/server/user/updateServerUser";
 import { NextRequest, NextResponse } from "next/server";
 import { respondSuccess, respondError } from "@/lib/server/api/response";
-import { ValidationError } from "@/lib/utils/";
+import { ValidationError } from "@/lib/utils/validation";
 
 
 export async function GET(req: NextRequest) {

@@ -12,7 +12,7 @@ type Params = {
 
 export async function registerGoogleOAuthUser({ userInfo, tokens, source }: Params) {
     if (!userInfo.email) throw new Error("Email is required");
-    if (!userInfo.googleId) throw new Error("Google ID is required");
+    if (!userInfo.id) throw new Error("Google ID is required");
     if (!source) throw new Error("Source is required");
 
     const encryptedAccessToken = tokens.access_token
@@ -28,7 +28,7 @@ export async function registerGoogleOAuthUser({ userInfo, tokens, source }: Para
         lastName: userInfo.family_name ?? undefined,
         avatar: userInfo.picture ?? undefined,
         source,
-        providerAccountId: userInfo.googleId,
+        providerAccountId: userInfo.id,
         firstName: userInfo.given_name ?? undefined,
         tokens: {
             access_token: encryptedAccessToken ?? undefined,

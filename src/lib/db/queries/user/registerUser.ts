@@ -1,8 +1,8 @@
 import { db } from '@/lib/db';
 import { RegisterUserInput, UserPublic, UserSchemas } from '@/lib/schemas/user';
 import { hashPassword } from '@/lib/security/hash';
-import { generateUsername } from '@/lib/utils/';
-import { parseOrThrow } from '@/lib/utils/';
+import { generateUsername } from '@/lib/utils/generate-username';
+import { parseOrThrow } from '@/lib/utils/validation';
 import { Prisma } from '@prisma/client';
 
 export async function register(input: RegisterUserInput): Promise<UserPublic> {
@@ -50,7 +50,7 @@ export async function register(input: RegisterUserInput): Promise<UserPublic> {
     const newUser = await db.user.create({
         data: {
             id: id ?? undefined,
-            email,
+            email: email.toLowerCase(),
             password: password ? await hashPassword(password) : null,
             username: username ? username : generateUsername(email),
             firstName,
