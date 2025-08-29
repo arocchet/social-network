@@ -598,6 +598,9 @@ export default function ProfilePage() {
                   <p className="text-sm text-[var(--textMinimal)] mb-1">
                     @{profileUser.username}
                   </p>
+                  <p className="text-sm text-[var(--textMinimal)] mb-1">
+                    @{profileUser.email}
+                  </p>
                   <div className="text-sm whitespace-pre-line text-[var(--textMinimal)] mb-2">
                     {profileUser.biography || (isOwnProfile ? "Aucune bio pour le moment" : "Aucune biographie")}
                   </div>

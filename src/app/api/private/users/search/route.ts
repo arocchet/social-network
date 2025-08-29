@@ -31,7 +31,8 @@ export async function GET(request: NextRequest) {
             OR: [
               {
                 username: {
-                  contains: searchTerm
+                  contains: searchTerm,
+                  mode: "insensitive"
                 }
               },
               {
