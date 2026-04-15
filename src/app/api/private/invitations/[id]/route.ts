@@ -8,7 +8,7 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const userId = await getUserIdFromRequest(request);
-  
+
   if (!userId) {
     return NextResponse.json(respondError('Unauthorized'), { status: 401 });
   }
@@ -43,49 +43,65 @@ export async function PUT(
       return NextResponse.json(respondError('Invitation has already been responded to'), { status: 400 });
     }
 
-    const newStatus = action === 'accept' ? 'ACCEPTED' : 'DECLINED';
-
-    // Update the invitation status
-    const updatedInvitation = await db.groupInvitation.update({
-      where: { id: invitationId },
-      data: { status: newStatus },
-      include: {
-        Conversation: {
-          select: {
-            id: true,
-            title: true
-          }
-        },
-        User_GroupInvitation_inviterIdToUser: {
-          select: {
-            id: true,
-            username: true,
-            firstName: true,
-            lastName: true,
-            avatar: true
-          }
-        }
-      }
-    });
-
-    // If accepted, add user to the group
     if (action === 'accept') {
-      await db.conversationMember.create({
-        data: {
-          userId: userId,
-          conversationId: invitation.groupId
+      // Update status to ACCEPTED and add user to the group
+      const updatedInvitation = await db.groupInvitation.update({
+        where: { id: invitationId },
+        data: { status: 'ACCEPTED' },
+        include: {
+          Conversation: {
+            select: {
+              id: true,
+              title: true
+            }
+          },
+          User_GroupInvitation_inviterIdToUser: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true,
+              avatar: true
+            }
+          }
         }
       });
-    }
 
-    return NextResponse.json(respondSuccess({
-      id: updatedInvitation.id,
-      groupId: updatedInvitation.groupId,
-      group: updatedInvitation.Conversation,
-      inviter: updatedInvitation.User_GroupInvitation_inviterIdToUser,
-      status: updatedInvitation.status,
-      createdAt: updatedInvitation.createdAt.toISOString()
-    }, action === 'accept' ? 'Invitation accepted' : 'Invitation declined'));
+      await db.conversationMember.upsert({
+        where: {
+          userId_conversationId: {
+            userId,
+            conversationId: invitation.groupId,
+          },
+        },
+        update: {},
+        create: {
+          userId,
+          conversationId: invitation.groupId,
+        },
+      });
+
+      // Allégé la DB: supprimer l'invitation après acceptation
+      await db.groupInvitation.delete({ where: { id: invitationId } });
+
+      return NextResponse.json(
+        respondSuccess(
+          {
+            id: updatedInvitation.id,
+            groupId: updatedInvitation.groupId,
+            group: updatedInvitation.Conversation,
+            inviter: updatedInvitation.User_GroupInvitation_inviterIdToUser,
+            status: updatedInvitation.status,
+            createdAt: updatedInvitation.createdAt.toISOString(),
+          },
+          'Invitation accepted'
+        )
+      );
+    } else {
+      // Decline: simply delete the invitation (no DECLINED state in DB)
+      await db.groupInvitation.delete({ where: { id: invitationId } });
+      return NextResponse.json(respondSuccess(null, 'Invitation declined'));
+    }
   } catch (error) {
     console.error('Error responding to invitation:', error);
     return NextResponse.json(respondError('Failed to respond to invitation'), { status: 500 });
@@ -97,7 +113,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const userId = await getUserIdFromRequest(request);
-  
+
   if (!userId) {
     return NextResponse.json(respondError('Unauthorized'), { status: 401 });
   }

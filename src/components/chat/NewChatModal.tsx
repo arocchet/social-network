@@ -33,7 +33,6 @@ export function NewChatModal({ onStartChat }: NewChatModalProps) {
     onStartChat(userId);
     setIsOpen(false);
     setSearchQuery("");
-    setSearchResults([]);
   };
 
   return (
@@ -77,7 +76,7 @@ export function NewChatModal({ onStartChat }: NewChatModalProps) {
                     <Avatar className="w-10 h-10">
                       <AvatarImage
                         src={user.avatar || "/placeholder.svg"}
-                        alt={user.username}
+                        alt={user?.username || "Anonymous"}
                       />
                       <AvatarFallback>
                         {user.firstName?.[0] || user.username?.[0] || "U"}

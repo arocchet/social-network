@@ -25,10 +25,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     return NextResponse.json(respondSuccess(response, "Invitation updated"), { status: 200 });
 
   } catch (err) {
-    console.error("POST api/groups/[id]/events error:", err);
-    return NextResponse.json(
-      respondError(err instanceof Error ? err.message : "Unexpected error"),
-      { status: 500 }
-    );
+    console.error("Respond invite error:", err);
+    const message = err instanceof Error ? err.message : "Unexpected error";
+    const status =
+      message === "Unauthorized" ? 403 : message === "Invalid request" ? 400 : 500;
+    return NextResponse.json(respondError(message), { status });
   }
 }

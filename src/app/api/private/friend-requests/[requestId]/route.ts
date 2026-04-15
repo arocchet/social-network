@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 import { getUserIdFromRequest } from "@/lib/server/api/getUserId";
 import { respondError, respondSuccess } from "@/lib/server/api/response";
+import { InvitationStatus } from "@prisma/client";
 
 const UpdateFriendRequestSchema = z.object({
   action: z.enum(["ACCEPT", "DECLINE"]),
@@ -26,7 +27,7 @@ export async function PATCH(
       where: {
         id: requestId,
         friendId: userId,
-        status: "pending",
+        status: InvitationStatus.PENDING,
       },
     });
 
@@ -40,7 +41,7 @@ export async function PATCH(
         // 1. Accepter la demande existante
         await tx.friendship.update({
           where: { id: requestId },
-          data: { status: "accepted" },
+          data: { status: InvitationStatus.ACCEPTED },
         });
 
         // 2. Créer l'amitié inverse (bidirectionnelle)
@@ -66,7 +67,7 @@ export async function PATCH(
               data: {
                 userId: existingFriendship.friendId,
                 friendId: existingFriendship.userId,
-                status: "accepted",
+                status: InvitationStatus.ACCEPTED,
               },
             });
           }
@@ -86,7 +87,7 @@ export async function PATCH(
 
   } catch (error) {
     console.error("Error updating friend request:", error);
-    
+
     if (error instanceof z.ZodError) {
       return NextResponse.json(respondError("Invalid request data"), { status: 400 });
     }

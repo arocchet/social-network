@@ -1,7 +1,6 @@
 import { db } from "@/lib/db";
-import { InvitationStatus } from "@prisma/client";
-import { NextResponse } from "next/server";
-
+// No NextResponse here; helper returns plain objects or throws
+// TODO : Potentiellement modifier la logique pour s'aligner avec le reste
 interface RespondInput {
   userId: string;
   requestId: string;
@@ -23,50 +22,35 @@ async function getInvitation(requestId: string, groupId: string) {
   return request;
 }
 
-async function updateInvitationStatus(requestId: string, action: string) {
-  const status =
-    action === "ACCEPT" ? InvitationStatus.ACCEPTED : InvitationStatus.DECLINED;
-  return db.groupInvitation.update({
-    where: { id: requestId },
-    data: { status },
-  });
-}
+// No DECLINED enum in InvitationStatus. We avoid updating status for REJECT.
 
 async function addUserToGroupIfNotExists(userId: string, groupId: string) {
-  const exists = await db.conversationMember.findUnique({
+  await db.conversationMember.upsert({
     where: { userId_conversationId: { userId, conversationId: groupId } },
+    update: {},
+    create: { conversationId: groupId, userId },
   });
-
-  if (!exists) {
-    await db.conversationMember.create({
-      data: { conversationId: groupId, userId },
-    });
-  }
 }
 
 export async function respondInvite(data: RespondInput) {
   const { userId, requestId, action, groupId } = data;
 
   if (!(await isGroupOwner(userId, groupId))) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    throw new Error("Unauthorized");
   }
 
   const request = await getInvitation(requestId, groupId);
   if (!request) {
-    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+    throw new Error("Invalid request");
   }
-
-  const updated = await updateInvitationStatus(requestId, action);
 
   if (action === "ACCEPT") {
-    await addUserToGroupIfNotExists(updated.invitedId, groupId);
-  }
-
-  if (["ACCEPT", "REJECT"].includes(action)) {
+    await addUserToGroupIfNotExists(request.invitedId, groupId);
     await db.groupInvitation.delete({ where: { id: requestId } });
+    return { message: "Request accepted" };
   }
 
-  return NextResponse.json({
-    message: `Request ${action === "ACCEPT" ? "accepted" : "declined"}`,
-  });
+  // REJECT: simply delete the invitation (no DECLINED state in DB)
+  await db.groupInvitation.delete({ where: { id: requestId } });
+  return { message: "Request declined" };
 }

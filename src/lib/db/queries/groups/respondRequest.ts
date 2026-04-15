@@ -1,7 +1,6 @@
 // lib/server/groups/respondJoinRequest.ts
 
 import { db } from "@/lib/db";
-import { InvitationStatus } from "@prisma/client";
 
 export type ActionType = "ACCEPT" | "REJECT";
 
@@ -33,36 +32,22 @@ export async function respondJoinRequest(data : RespondJoinInput) {
     throw new Error("Invalid request");
   }
 
-  const updated = await db.groupJoinRequest.update({
-    where: { id: requestId },
-    data: {
-      status:
-        action === "ACCEPT"
-          ? InvitationStatus.ACCEPTED
-          : InvitationStatus.DECLINED,
-    },
-  });
-
   if (action === "ACCEPT") {
-    const exists = await db.conversationMember.findUnique({
+    await db.conversationMember.upsert({
       where: {
         userId_conversationId: {
-          userId: updated.seeker,
+          userId: request.seeker,
           conversationId: groupId,
         },
       },
+      update: {},
+      create: { conversationId: groupId, userId: request.seeker },
     });
-
-    if (!exists) {
-      await db.conversationMember.create({
-        data: { conversationId: groupId, userId: updated.seeker },
-      });
-    }
+    await db.groupJoinRequest.delete({ where: { id: requestId } });
+    return { message: "Request accepted" };
   }
 
+  // REJECT: simply delete the join request (no DECLINED status in enum)
   await db.groupJoinRequest.delete({ where: { id: requestId } });
-
-  return {
-    message: `Request ${action === "ACCEPT" ? "accepted" : "declined"}`,
-  };
+  return { message: "Request declined" };
 }

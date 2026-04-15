@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { respondError, respondSuccess } from "@/lib/server/api/response";
 import { getUserIdFromRequest } from "@/lib/server/api/getUserId";
-import { getUser } from "@/lib/db/user/getUser";
 import { db } from "@/lib/db";
 import { countFollow } from "@/lib/db/friendship/countFollow";
 import { ProfileVisibility, InvitationStatus } from "@prisma/client";
-import { serializeDates } from "@/lib/utils/serializeDates";
 import { parseOrThrow } from "@/lib/utils/validation";
 import { ProfileSummarySchema } from "@/lib/schemas/profile/summary";
+import { getUserByIdServer } from "@/lib/server/user/getUser";
+import { UserPublic, UserSchemas } from "@/lib/schemas/user";
 
 export async function GET(req: NextRequest, ctx: { params: Promise<{ userId: string }> }) {
   try {
@@ -18,8 +18,8 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ userId: str
 
     const currentUserId = await getUserIdFromRequest(req);
 
-    // Fetch target user
-    const user = await getUser({ userId: targetUserId });
+    // Fetch target user with public schema (typed and serialized)
+    const user = await getUserByIdServer<UserPublic>(targetUserId, UserSchemas.Public);
     if (!user) {
       return NextResponse.json(respondError("User not found"), { status: 404 });
     }
@@ -61,18 +61,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ userId: str
       friendshipStatus === InvitationStatus.ACCEPTED;
 
     const payload = {
-      user: serializeDates({
-        id: user.id,
-        username: user.username ?? undefined,
-        email: user.email,
-        firstName: user.firstName ?? null,
-        lastName: user.lastName ?? null,
-        avatar: user.avatar ?? null,
-        banner: user.banner ?? null,
-        biography: user.biography ?? null,
-        birthDate: user.birthDate ?? null,
-        visibility: user.visibility,
-      }),
+      user,
       relationship: {
         followStatus,
         friendshipStatus,

@@ -7,7 +7,8 @@ export async function getPostById(postId: string, currentUserId?: string) {
   if (!canSee) {
     return null;
   }
-  return await db.post.findUnique({
+
+  const post = await db.post.findUnique({
     where: { id: postId },
     include: {
       user: {
@@ -68,4 +69,21 @@ export async function getPostById(postId: string, currentUserId?: string) {
       },
     },
   });
+
+  if (!post) return null;
+
+  // Adapter la structure pour coller aux schémas Zod côté client
+  const mapped = {
+    ...post,
+    comments: post.comments.map((c: any) => ({
+      id: c.id,
+      datetime: c.datetime,
+      message: c.message,
+      user: c.user,
+      reactions: c.reaction ?? [],
+      _count: c._count ? { reactions: c._count.Reaction ?? 0 } : undefined,
+    })),
+  } as any;
+
+  return mapped;
 }

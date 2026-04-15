@@ -3,6 +3,11 @@ FROM oven/bun:1 AS builder
 
 WORKDIR /app
 
+# Ensure OpenSSL is available for Prisma (detects and links engines correctly)
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copie uniquement les fichiers nécessaires à l'installation
 COPY package.json bun.lock ./
 
@@ -23,14 +28,21 @@ FROM oven/bun:1 AS runner
 
 WORKDIR /app
 
+# OpenSSL also required at runtime for Prisma engines
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copie uniquement le build et les node_modules depuis le builder
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/public ./public
-COPY .env .env
+COPY --from=builder /app/prisma ./prisma
 
 ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 EXPOSE 3000
 
-CMD ["bun", "run", "start"]
+# Apply pending Prisma migrations on startup, then launch Next.js
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun run start"]

@@ -38,3 +38,31 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 globbing
 cypress
 e2e
+
+## Docker
+
+Voici deux façons de lancer l'application avec Docker.
+
+- Option A — Docker Compose (recommandé):
+  1) Dupliquez votre fichier d'environnement: `cp .env.exemple .env` et renseignez au minimum `JWT_SECRET`.
+  2) Lancez: `docker compose up --build`.
+  3) L'application est disponible sur http://localhost:3000.
+
+  Notes:
+  - La base Postgres tourne dans le service `db`. La variable `DATABASE_URL` est sur `postgresql://postgres:postgres@db:5432/social?schema=public` via `docker-compose.yml`.
+  - Les migrations Prisma sont appliquées automatiquement au démarrage du conteneur applicatif.
+
+- Option B — Image seule (DB externe):
+  1) Construisez: `docker build -t social-network .`
+  2) Lancez en pointant vers votre base: `docker run --env-file .env -e DATABASE_URL="postgresql://USER:PASS@HOST:5432/DB?schema=public" -p 3000:3000 social-network`
+
+- Option C — Mode développement (hot reload sans rebuild):
+  1) Assurez-vous d'avoir `.env` et que le port Postgres local n'entre pas en conflit (voir `docker-compose.yml`).
+  2) Lancez uniquement le profil dev: `docker compose --profile dev up app-dev db`.
+  3) Modifiez le code localement: l'app se recharge automatiquement (volumes montés + `bun dev`).
+  4) Les dépendances sont installées dans un volume dédié (`app-node-modules`), et les migrations Prisma se déploient automatiquement.
+
+Fichiers liés:
+- `Dockerfile`
+- `docker-compose.yml`
+- `.dockerignore`

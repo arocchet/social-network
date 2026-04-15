@@ -1,9 +1,10 @@
 import { checkFriendshipInDb } from "@/lib/db/friendship/checkFriendship";
 import { deleteFriendshipInDb } from "@/lib/db/friendship/deleteFriendship";
-import { getUser } from "@/lib/db/user/getUser";
 import { respondSuccess, respondError } from "@/lib/server/api/response";
 import { NextRequest, NextResponse } from "next/server";
 import { getUserIdFromRequest } from "@/lib/server/api/getUserId";
+import { getUserByIdServer } from "@/lib/server/user/getUser";
+import { UserPublic, UserSchemas } from "@/lib/schemas/user";
 
 export async function DELETE(
     _req: NextRequest,
@@ -17,7 +18,7 @@ export async function DELETE(
             });
         }
 
-        const follow = await getUser({ userId: followId });
+        const follow = await getUserByIdServer<UserPublic>(followId, UserSchemas.Public);
 
         // Check if the user exists
         if (!follow) {

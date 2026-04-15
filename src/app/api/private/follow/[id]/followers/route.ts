@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
+import { InvitationStatus } from "@prisma/client";
 import { respondError, respondSuccess } from "@/lib/server/api/response";
 import { db } from "@/lib/db";
 
+
 export async function GET(
     _req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const { id: userId } = await params;
@@ -13,13 +15,13 @@ export async function GET(
         }
 
         const followers = await db.friendship.findMany({
-            where: { friendId: userId, status: "ACCEPTED" },
-            include: { user: true } // info sur le follower
+            where: { friendId: userId, status: InvitationStatus.ACCEPTED },
+            include: { user: true },
         });
 
         return NextResponse.json(
             respondSuccess(
-                followers.map(f => f.user),
+                followers.map((f) => f.user),
                 "Followers retrieved successfully"
             ),
             { status: 200 }

@@ -21,6 +21,7 @@ import type { Comment } from "@/lib/schemas/comment";
 import { usePostById } from "@/hooks/use-post-by-id";
 import { ReactionComponent } from "@/components/reaction/toggleLike";
 import { useReactionContext } from "@/app/context/reaction-context";
+import Image from "next/image";
 
 interface PostDetailsProps {
   postId: string;
@@ -33,7 +34,7 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
   const [updatedPost, setUpdatedPost] = useState<PostWithDetails>();
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const { post, loading } = usePostById(postId);
+  const { post, loading, error, refetch } = usePostById(postId);
 
   // ✅ AJOUTER CES 2 LIGNES
   const { initializeReactionCount } = useReactionContext();
@@ -42,7 +43,7 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
     if (post?.id && post._count?.reactions !== undefined) {
       initializeReactionCount(post.id, post._count.reactions);
     }
-  }, [post?.id]);
+  }, [post?.id, post?._count?.reactions, initializeReactionCount]);
 
   useEffect(() => {
     setUpdatedPost(post);
@@ -94,7 +95,9 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
           <DialogTitle className="sr-only">Commentaires du post</DialogTitle>
           <DialogDescription asChild>
             <div className="flex h-[80vh] max-h-[83vh] w-full rounded-md overflow-hidden">
-              {!loading && updatedPost ? (
+              {error && !loading ? (
+                <ErrorState error={String(error)} onRetry={refetch} />
+              ) : !loading && updatedPost ? (
                 <div className="flex w-full h-full">
                   <MediaSection post={updatedPost} />
                   <div className="flex flex-col w-[500px] bg-[var(--bgLevel1)] border-l border-[var(--detailMinimal)]">
@@ -112,7 +115,9 @@ function PostDetails({ postId, trigger, onClose }: PostDetailsProps) {
                     />
                   </div>
                 </div>
-              ) : null}
+              ) : (
+                <LoadingState />
+              )}
             </div>
           </DialogDescription>
         </DialogHeader>
@@ -214,11 +219,16 @@ export function MediaSection({ post }: { post: PostWithDetails }) {
               className="max-w-full max-h-full object-contain"
             />
           ) : (
-            <img
-              src={post.image || "/placeholder.svg"}
-              alt="Post content"
-              className="max-w-full max-h-full object-contain"
-            />
+            <div className="relative w-full h-full">
+              <Image
+                src={post.image || "/placeholder.svg"}
+                alt="Post content"
+                fill
+                sizes="100vw"
+                className="object-contain"
+                priority={false}
+              />
+            </div>
           )}
         </div>
       ) : (
@@ -422,14 +432,11 @@ interface CommentItemProps {
 }
 
 const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
-  const [reactionCount, setReactionCount] = useState(
-    comment._count?.Reaction ?? 0
-  );
   const { initializeReactionCount, reactionCounts } = useReactionContext();
 
   useEffect(() => {
-    if (comment.id && comment._count?.Reaction !== undefined) {
-      initializeReactionCount(comment.id, comment._count.Reaction);
+    if (comment.id && comment._count?.reactions !== undefined) {
+      initializeReactionCount(comment.id, comment._count.reactions);
     }
   }, [comment.id]);
 
@@ -483,25 +490,30 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
             } else if (part.type === "image") {
               return (
                 <div key={index} className="mt-2">
-                  <img
-                    src={part.content || "/placeholder.svg"}
-                    alt="Contenu du commentaire"
-                    className="max-w-full max-h-48 rounded-md object-contain border border-[var(--detailMinimal)]"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = "none";
-                      const linkElement = document.createElement("a");
-                      linkElement.href =
-                        (part as any).originalUrl || part.content;
-                      linkElement.textContent =
-                        (part as any).originalUrl || part.content;
-                      linkElement.target = "_blank";
-                      linkElement.rel = "noopener noreferrer";
-                      linkElement.className =
-                        "text-blue-500 hover:underline text-sm break-all";
-                      target.parentNode?.insertBefore(linkElement, target);
-                    }}
-                  />
+                  <div className="relative w-full h-48">
+                    <Image
+                      src={part.content || "/placeholder.svg"}
+                      alt="Contenu du commentaire"
+                      fill
+                      sizes="100vw"
+                      className="rounded-md object-contain border border-[var(--detailMinimal)]"
+                      unoptimized
+                      onError={(e) => {
+                        const img = e.currentTarget as unknown as HTMLImageElement;
+                        // Masquer l'image et afficher un lien vers l'URL originale
+                        const parent = img.parentElement;
+                        if (!parent) return;
+                        parent.style.display = "none";
+                        const linkElement = document.createElement("a");
+                        linkElement.href = (part as any).originalUrl || part.content;
+                        linkElement.textContent = (part as any).originalUrl || part.content;
+                        linkElement.target = "_blank";
+                        linkElement.rel = "noopener noreferrer";
+                        linkElement.className = "text-blue-500 hover:underline text-sm break-all";
+                        parent.parentNode?.insertBefore(linkElement, parent);
+                      }}
+                    />
+                  </div>
                 </div>
               );
             } else if (part.type === "link") {
@@ -529,9 +541,9 @@ const CommentItem: React.FC<CommentItemProps> = ({ comment }) => {
         <ReactionComponent
           content={{
             contentId: comment.id,
-            reaction: comment.Reaction?.[0]?.type || null,
+            reaction: comment.reactions?.[0]?.type || null,
             reactionCount:
-              reactionCounts[comment.id] ?? comment._count?.Reaction ?? 0,
+              reactionCounts[comment.id] ?? comment._count?.reactions ?? 0,
             type: "comment",
           }}
         />

@@ -1,10 +1,7 @@
-import { checkFriendshipInDb } from "@/lib/db/friendship/checkFriendship";
 import { countFollow } from "@/lib/db/friendship/countFollow";
-import { createFriendshipInDb } from "@/lib/db/friendship/createFriendship";
-import { deleteFriendshipInDb } from "@/lib/db/friendship/deleteFriendship";
-import { getUser } from "@/lib/db/user/getUser";
+import { UserPublic, UserSchemas } from "@/lib/schemas/user";
 import { respondSuccess, respondError } from "@/lib/server/api/response";
-import { ProfileVisibility } from "@prisma/client";
+import { getUserByIdServer } from "@/lib/server/user/getUser";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
@@ -19,7 +16,7 @@ export async function GET(
 			});
 		}
 
-		const searchUser = await getUser({ userId: id });
+		const searchUser = await getUserByIdServer<UserPublic>(id, UserSchemas.Public);
 
 		// Check if the user exists
 		if (!searchUser) {

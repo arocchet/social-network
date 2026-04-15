@@ -90,7 +90,7 @@ export async function PUT(
     const statusKey = `status_update:${message.senderId}:${messageId}:${Date.now()}`;
     await redisdb.set(statusKey, statusUpdate, { ex: 300 }); // 5 minutes TTL
 
-    (`Status update sent to Redis for user ${message.senderId}:`, statusUpdate);
+    // (`Status update sent to Redis for user ${message.senderId}:`, statusUpdate);
 
     return NextResponse.json(respondSuccess({
       id: updatedMessage.id,
