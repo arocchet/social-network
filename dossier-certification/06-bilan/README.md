@@ -146,7 +146,7 @@ Présenter le retour d'expérience sur le projet, les acquis techniques, les lim
 - **Performance** : Lighthouse audit, optimisation d'images, compression — relevés réels à compléter.
 - **Monitoring** : Intégrer Sentry pour suivi des erreurs en production, formaliser supervision et alertes.
 - **Load tests** : Vérifier la scalabilité sous charge (Upstash REST, connexions DB).
-- **RGPD** : Implémenter les droits manquants — suppression de compte (droit à l'oubli) et export des données (droit à la portabilité). Voir l'audit complet dans [04-developpement/securite-rgpd.md](../04-developpement/securite-rgpd.md).
+- **RGPD** : Droit à l'oubli implémenté (`DELETE /api/private/me`). Reste à implémenter : export des données (droit à la portabilité, RGPD art. 20). Voir l'audit complet dans [04-developpement/securite-rgpd.md](../04-developpement/securite-rgpd.md).
 - **XSS** : Corrigée dans `ChatMessage.tsx` via `DOMPurify.sanitize()` — ALLOWED_TAGS restreints à `strong`, `em`, `br`.
 - **Rate limiting** : Déjà en place sur `/login` et `/register` (5 req/60s/IP). À étendre sur `/chat/send` et les endpoints de création de contenu.
 - **Tests E2E** : Implémenter les 5 parcours Playwright critiques (auth, post, chat, groupe, notifications) — setup technique documenté dans `04-developpement/tests-strategy.md`, prêt à déployer.

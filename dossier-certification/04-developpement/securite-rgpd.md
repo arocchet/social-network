@@ -128,18 +128,16 @@ Les payloads d'API sont validés via Zod avant tout traitement métier. Exemples
 // next.config.ts — pas de section "headers"
 ```
 
-**Headers manquants :**
+**Headers implémentés dans `next.config.ts` :**
 
 | Header | Effet | Statut |
 |---|---|---|
-| `Strict-Transport-Security` | Force HTTPS pour toutes les requêtes futures |  (Vercel le fournit par défaut côté edge) |
-| `Content-Security-Policy` | Limite les sources de scripts / styles → mitige XSS |  |
-| `X-Frame-Options` ou `frame-ancestors` | Empêche le clickjacking via iframe |  |
+| `Strict-Transport-Security` | Force HTTPS pour toutes les requêtes futures |  (max-age=63072000; includeSubDomains; preload) |
+| `Content-Security-Policy` | Limite les sources de scripts / styles → mitige XSS |  (default-src 'self', img-src Cloudinary, connect-src Upstash) |
+| `X-Frame-Options: DENY` | Empêche le clickjacking via iframe |  |
 | `X-Content-Type-Options: nosniff` | Empêche le MIME-sniffing |  |
-| `Referrer-Policy` | Contrôle l'info Referer envoyée aux tiers |  |
-| `Permissions-Policy` | Limite l'accès aux APIs navigateur (caméra, micro, etc.) |  |
-
-Ces headers sont triviaux à ajouter via la clé `headers` de `next.config.ts`. Inscrit en roadmap.
+| `Referrer-Policy` | Contrôle l'info Referer envoyée aux tiers |  (strict-origin-when-cross-origin) |
+| `Permissions-Policy` | Limite l'accès aux APIs navigateur (caméra, micro, etc.) |  (camera=(), microphone=(), geolocation=()) |
 
 ### 2.6 Rate limiting
 
@@ -198,13 +196,13 @@ Tous les champs sauf `email` sont **optionnels** dans le schéma Prisma. L'inscr
 |---|---|
 | **Droit d'accès** (consulter ses données) |  Partiellement : `GET /api/private/me` retourne le profil mais pas l'intégralité (posts, messages…) |
 | **Droit de rectification** |  `PUT /api/private/me` + `PATCH /api/private/user/settings` |
-| **Droit à l'effacement / oubli** |  **Endpoint de suppression de compte non implémenté** |
+| **Droit à l'effacement / oubli** |  `DELETE /api/private/me` — suppression en cascade via Prisma + cookie effacé (RGPD Art. 17) |
 | **Droit à la limitation du traitement** |  Indirect via `visibility: PRIVATE` mais non normalisé |
 | **Droit à la portabilité** |  **Pas d'export structuré (JSON/CSV) des données utilisateur** |
 | **Droit d'opposition** |  Notifications désactivables via `notificationsEnabled` |
 | **Décision automatisée / profilage** |  N/A (pas d'algorithme de recommandation automatisé) |
 
-**Points critiques à adresser pour une mise en production :** droit à l'oubli et droit à la portabilité. Ce sont des **obligations légales** dès qu'il y a des utilisateurs en UE.
+**Point critique restant pour une mise en production :** droit à la portabilité (export JSON/CSV des données). Le droit à l'oubli est couvert. Ce sont des **obligations légales** dès qu'il y a des utilisateurs en UE.
 
 ### 4.4 Consentement et âge
 
@@ -239,10 +237,10 @@ Priorisé par impact / facilité d'implémentation.
 
 | # | Action | Effort | Bénéfice |
 |---|---|---|---|
-| 1 | **Endpoint `DELETE /api/private/me`** : suppression de compte avec cascade sur les contenus | 1-2 j | Conformité RGPD art. 17 (droit à l'oubli) |
+| 1 | **Endpoint `DELETE /api/private/me`** : suppression de compte avec cascade sur les contenus | ✅ fait | Conformité RGPD art. 17 (droit à l'oubli) |
 | 2 | **Endpoint `GET /api/private/me/export`** : export JSON de toutes les données utilisateur | 1-2 j | Conformité RGPD art. 20 (portabilité) |
 | 3 | **Sanitization du chat** : `DOMPurify.sanitize()` implémenté sur `dangerouslySetInnerHTML` dans `ChatMessage.tsx` — ALLOWED_TAGS restreints | ✅ fait | Vulnérabilité XSS corrigée |
-| 4 | **Headers de sécurité** dans `next.config.ts` (CSP, X-Frame-Options, Referrer-Policy, X-Content-Type-Options) | 0,5 j | Couvre clickjacking, MIME sniffing, fuite Referer |
+| 4 | **Headers de sécurité** dans `next.config.ts` (CSP, X-Frame-Options, Referrer-Policy, X-Content-Type-Options) | ✅ fait | Couvre clickjacking, MIME sniffing, fuite Referer |
 | 5 | **Pages Mentions légales + Politique de confidentialité** | 0,5 j | Obligation légale UE |
 
 ### Important — sous 1 mois post-prod
@@ -282,9 +280,9 @@ Priorisé par impact / facilité d'implémentation.
 **Ce que j'assume avec honnêteté :**
 
 - Rate limiting en place sur `/login` et `/register` (5 req/60s/IP via `@upstash/ratelimit`) — pas encore étendu à `/chat/send` et aux endpoints de création.
-- Pas de headers de sécurité personnalisés → à ajouter en 30 min dans `next.config.ts`.
+- Headers de sécurité en place dans `next.config.ts` (CSP, X-Frame-Options, HSTS, Referrer-Policy, Permissions-Policy).
 - XSS dans `ChatMessage.tsx` corrigée via `DOMPurify.sanitize()` — ALLOWED_TAGS: `['strong', 'em', 'br']`, ALLOWED_ATTR: `[]`.
-- Droit à l'oubli et droit à la portabilité RGPD non implémentés → bloquant pour une mise en prod réelle, listé en priorité critique.
+- Droit à l'oubli implémenté (`DELETE /api/private/me` avec cascade Prisma). Droit à la portabilité (export JSON) non implémenté → axe d'amélioration.
 - Pas de page mentions légales / privacy → obligatoire UE, à rédiger.
 
 **Ce que je présente comme axe de progression :**
