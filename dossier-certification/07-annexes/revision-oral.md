@@ -49,7 +49,7 @@
 | **Middleware JWT** | Vérification systématique du token à chaque requête vers `/api/private/*`. Si token absent → 401. Si token expiré → redirection /login. Si token valide → `x-user-id` injecté dans les headers. |
 | **OWASP Top 10** | Liste des 10 vulnérabilités web les plus courantes (SQL injection, XSS, CSRF, etc.). Le projet adresse les principales via Prisma (SQL), cookies httpOnly (XSS), SameSite (CSRF). |
 | **Injection SQL** | Attaque qui consiste à injecter du SQL dans un champ (`' OR 1=1--`). Prisma paramétrise toutes les requêtes automatiquement — attaque impossible. |
-| **XSS** | Injection de JavaScript malveillant dans une page. Les cookies httpOnly limitent l'impact. Vulnérabilité résiduelle identifiée dans `ChatMessage.tsx` (markdown non sanitisé). |
+| **XSS** | Injection de JavaScript malveillant dans une page. Les cookies httpOnly limitent l'impact. Corrigé dans `ChatMessage.tsx` via `DOMPurify.sanitize()` sur `dangerouslySetInnerHTML`. |
 | **Énumération utilisateurs** | Technique pour deviner les emails enregistrés. Le projet retourne le même message `"Invalid email or password"` que l'email existe ou non — anti-énumération. |
 | **OAuth 2.0** | Protocole qui permet de se connecter avec un compte Google sans donner son mot de passe à l'application. Le projet l'implémente manuellement (pas next-auth). |
 
@@ -176,7 +176,7 @@
 ### Questions pièges courantes
 
 **Q : Vous dites que le projet est sécurisé — qu'est-ce qui ne l'est pas ?**
-> J'assume les limites : XSS résiduelle dans le rendu markdown de `ChatMessage.tsx` (DOMPurify non intégré), pas de révocation JWT avant expiration (architecture stateless pur — une liste noire Redis résoudrait ça). En revanche le rate limiting est bien en place sur `/login` et `/register` — sliding window 5 tentatives / 60s via `@upstash/ratelimit`, avec fail-open en local si Redis n'est pas configuré.
+> J'assume une limite principale : pas de révocation JWT avant expiration (architecture stateless pur — une liste noire Redis résoudrait ça). En revanche le rate limiting est en place sur `/login` et `/register` (5 req/60s via `@upstash/ratelimit`), et la XSS dans `ChatMessage.tsx` est corrigée via `DOMPurify.sanitize()`.
 
 **Q : Pourquoi pas de refresh tokens ?**
 > Choix délibéré de simplicité. JWT stateless avec expiration 480min. À la déconnexion, le cookie est supprimé. Après expiration, l'utilisateur se reconnecte. Un système de refresh tokens aurait nécessité du stockage serveur, contrairement à l'objectif serverless. C'est un axe d'amélioration identifié.

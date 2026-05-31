@@ -241,7 +241,7 @@ Priorisé par impact / facilité d'implémentation.
 |---|---|---|---|
 | 1 | **Endpoint `DELETE /api/private/me`** : suppression de compte avec cascade sur les contenus | 1-2 j | Conformité RGPD art. 17 (droit à l'oubli) |
 | 2 | **Endpoint `GET /api/private/me/export`** : export JSON de toutes les données utilisateur | 1-2 j | Conformité RGPD art. 20 (portabilité) |
-| 3 | **Sanitization du chat** : utiliser `DOMPurify` ou retirer `dangerouslySetInnerHTML` et appliquer le markdown via `react-markdown` (déjà installé) | 0,5 j | Élimine la vulnérabilité XSS dans `ChatMessage.tsx` |
+| 3 | **Sanitization du chat** : `DOMPurify.sanitize()` implémenté sur `dangerouslySetInnerHTML` dans `ChatMessage.tsx` — ALLOWED_TAGS restreints | ✅ fait | Vulnérabilité XSS corrigée |
 | 4 | **Headers de sécurité** dans `next.config.ts` (CSP, X-Frame-Options, Referrer-Policy, X-Content-Type-Options) | 0,5 j | Couvre clickjacking, MIME sniffing, fuite Referer |
 | 5 | **Pages Mentions légales + Politique de confidentialité** | 0,5 j | Obligation légale UE |
 
@@ -283,7 +283,7 @@ Priorisé par impact / facilité d'implémentation.
 
 - Rate limiting en place sur `/login` et `/register` (5 req/60s/IP via `@upstash/ratelimit`) — pas encore étendu à `/chat/send` et aux endpoints de création.
 - Pas de headers de sécurité personnalisés → à ajouter en 30 min dans `next.config.ts`.
-- Vulnérabilité XSS résiduelle dans `ChatMessage.tsx` (`dangerouslySetInnerHTML` sur input markdown non sanitisé) → à corriger avec `DOMPurify` ou `react-markdown`.
+- XSS dans `ChatMessage.tsx` corrigée via `DOMPurify.sanitize()` — ALLOWED_TAGS: `['strong', 'em', 'br']`, ALLOWED_ATTR: `[]`.
 - Droit à l'oubli et droit à la portabilité RGPD non implémentés → bloquant pour une mise en prod réelle, listé en priorité critique.
 - Pas de page mentions légales / privacy → obligatoire UE, à rédiger.
 

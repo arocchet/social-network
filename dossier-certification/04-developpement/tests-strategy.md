@@ -151,7 +151,7 @@ Playwright permet de mocker les services externes (Cloudinary, Google OAuth) en 
 #### 3.5 Tests de sécurité
 
 - Injection SQL : tentative `' OR 1=1--` dans les champs login / search → doit échouer
-- XSS : injection `<script>alert(1)</script>` dans un post / message de chat → ne doit pas s'exécuter (à corriger pour `ChatMessage.tsx`, voir [securite-rgpd.md](./securite-rgpd.md))
+- XSS : injection `<script>alert(1)</script>` dans un message de chat → ne doit pas s'exécuter (corrigé via `DOMPurify.sanitize()` dans `ChatMessage.tsx`)
 - CSRF : tentative POST cross-site → cookie SameSite=Lax bloque
 - Force brute login : 100 tentatives → doit déclencher rate limiting (implémenté — 5 req/60s/IP via `@upstash/ratelimit`, retourne 429)
 - Privilege escalation : utilisateur A tente de modifier le profil de B → 403
@@ -234,7 +234,7 @@ Tableau récapitulatif des cas que les tests doivent couvrir, organisé par fonc
 | # | Composant | Entrée | Résultat attendu | Couvert |
 |---|---|---|---|---|
 | SE-01 | SQLi | `' OR 1=1--` dans login email | Zod rejette ou Prisma traite comme string |  |
-| SE-02 | XSS | `<script>` dans message chat | doit être échappé / sanitisé (vulnérabilité connue) |  |
+| SE-02 | XSS | `<script>` dans message chat | échappé via DOMPurify.sanitize() dans ChatMessage.tsx |  |
 | SE-03 | Path traversal | `..\..\` dans paramètres URL | ne donne pas accès à des ressources hors scope |  |
 | SE-04 | Privilege escalation | user A appelle `PUT /api/private/me` pour user B | non possible (handlers utilisent `x-user-id`) |  |
 | SE-05 | JWT tampering | modification du payload | `jwtVerify` échoue → redirection /login |  |
