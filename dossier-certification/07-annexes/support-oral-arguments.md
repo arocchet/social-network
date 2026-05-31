@@ -70,7 +70,7 @@
 ## ARGUMENT 6 — "Qu'est-ce qui n'est pas sécurisé ?"
 
 **Ce que tu dis (argument d'honnêteté — le jury teste ça) :**
-> "Je assume deux limites réelles. Un : XSS résiduelle dans ChatMessage.tsx — le markdown n'est pas sanitisé, DOMPurify n'est pas intégré. Deux : pas de révocation JWT avant expiration — architecture stateless pur, une liste noire Redis résoudrait ça. En revanche le rate limiting est bien implémenté sur /login et /register : sliding window 5 tentatives par IP sur 60 secondes via @upstash/ratelimit — ça protège contre le brute force en production."
+> "J'assume une limite principale : pas de révocation JWT avant expiration — architecture stateless pur, une liste noire Redis résoudrait ça. En revanche le rate limiting est en place sur /login et /register (5 req/60s via @upstash/ratelimit), et la XSS dans ChatMessage.tsx est corrigée via DOMPurify.sanitize() avec ALLOWED_TAGS restreints."
 
 **Pourquoi cet argument est important :** un développeur qui connaît ses limites est plus crédible qu'un développeur qui prétend que tout est parfait.
 
@@ -121,7 +121,7 @@
 ## CE QUE LE JURY VEUT ENTENDRE
 
 - **Tu as fait des choix** — pas juste utilisé des outils (pourquoi Next.js, pourquoi SSE, pourquoi JWT)
-- **Tu connais tes limites** — XSS résiduelle, pas de refresh tokens, rate limiting partiel (actif sur auth, pas encore sur chat/send)
+- **Tu connais tes limites** — pas de révocation JWT, rate limiting à étendre sur /chat/send, pas de refresh tokens
 - **Tu comprends ce que tu as codé** — middleware, bcrypt, N+1
 - **Tu sais travailler en équipe** — GitHub flow, PRs, reviews
 - **Tu as du recul** — ce que tu referais différemment
